@@ -145,7 +145,57 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SFML_Framework\Framework\Animator.cpp" />
+    <ClCompile Include="SRPGObjects\Minotaurs.cpp" />
+    <ClCompile Include="SRPGObjects\Player.cpp" />
+    <ClCompile Include="Scenes\BattleScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SFML_Framework\DataTable\DataTable.cpp" />
+    <ClCompile Include="SFML_Framework\DataTable\DataTableMgr.cpp" />
+    <ClCompile Include="SFML_Framework\DataTable\StringTable.cpp" />
+    <ClCompile Include="SFML_Framework\Framework\AnimationClip.cpp" />
+    <ClCompile Include="SFML_Framework\Framework\ConsoleLogger.cpp" />
+    <ClCompile Include="SFML_Framework\Framework\Framework.cpp" />
+    <ClCompile Include="SFML_Framework\Framework\InputMgr.cpp" />
+    <ClCompile Include="SFML_Framework\Framework\ResourceMgr.cpp" />
+    <ClCompile Include="SFML_Framework\Framework\SoundMgr.cpp" />
+    <ClCompile Include="SFML_Framework\Framework\Utils.cpp" />
+    <ClCompile Include="SFML_Framework\GameObject\Object.cpp" />
+    <ClCompile Include="SFML_Framework\GameObject\SpriteObj.cpp" />
+    <ClCompile Include="SFML_Framework\GameObject\TextObj.cpp" />
+    <ClCompile Include="SFML_Framework\GameObject\VertexArrayObj.cpp" />
+    <ClCompile Include="SFML_Framework\Scenes\Scene.cpp" />
+    <ClCompile Include="SFML_Framework\Scenes\SceneMgr.cpp" />
+    <ClCompile Include="SFML_Framework\UI\UIMgr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SFML_Framework\Framework\Animatable.h" />
+    <ClInclude Include="SRPGObjects\Minotaurs.h" />
+    <ClInclude Include="SRPGObjects\Player.h" />
+    <ClInclude Include="Scenes\BattleScene.h" />
+    <ClInclude Include="SFML_Framework\3rd\OBB.h" />
+    <ClInclude Include="SFML_Framework\3rd\ObjectPool.h" />
+    <ClInclude Include="SFML_Framework\3rd\rapidcsv.h" />
+    <ClInclude Include="SFML_Framework\3rd\SingleTon.h" />
+    <ClInclude Include="SFML_Framework\DataTable\DataTable.h" />
+    <ClInclude Include="SFML_Framework\DataTable\DataTableMgr.h" />
+    <ClInclude Include="SFML_Framework\DataTable\StringTable.h" />
+    <ClInclude Include="SFML_Framework\Frameworks.h" />
+    <ClInclude Include="SFML_Framework\Framework\AnimationClip.h" />
+    <ClInclude Include="SFML_Framework\Framework\Animator.h" />
+    <ClInclude Include="SFML_Framework\Framework\ConsoleLogger.h" />
+    <ClInclude Include="SFML_Framework\Framework\Framework.h" />
+    <ClInclude Include="SFML_Framework\Framework\InputMgr.h" />
+    <ClInclude Include="SFML_Framework\Framework\ResourceMgr.h" />
+    <ClInclude Include="SFML_Framework\Framework\SoundMgr.h" />
+    <ClInclude Include="SFML_Framework\Framework\Utils.h" />
+    <ClInclude Include="SFML_Framework\GameObject\Object.h" />
+    <ClInclude Include="SFML_Framework\GameObject\SpriteObj.h" />
+    <ClInclude Include="SFML_Framework\GameObject\TextObj.h" />
+    <ClInclude Include="SFML_Framework\GameObject\VertexArrayObj.h" />
+    <ClInclude Include="SFML_Framework\Scenes\Scene.h" />
+    <ClInclude Include="SFML_Framework\Scenes\SceneMgr.h" />
+    <ClInclude Include="SFML_Framework\UI\UIMgr.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
