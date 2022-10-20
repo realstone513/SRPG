@@ -11,6 +11,9 @@ protected:
 		Idle,
 		Move,
 		Attack,
+		Jump,
+		Hit,
+		Death
 	};
 
 public:

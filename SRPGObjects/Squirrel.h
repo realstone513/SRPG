@@ -2,18 +2,17 @@
 #include "../SFML_Framework/GameObject/SpriteObj.h"
 #include "../SFML_Framework/Framework/Animatable.h"
 
-class Minotaurs : public SpriteObj, Animatable
+class Squirrel : public SpriteObj, Animatable
 {
 protected:
 	enum class States
 	{
 		None = -1,
 		Idle,
-		Run,
-		Attack,
-		Stab,
-		Stomp,
-		WheelWind,
+		Idle2,
+		Move,
+		Dig,
+		Eat,
 		Hit,
 		Death
 	};

@@ -145,6 +145,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SRPGObjects\Fox.cpp" />
+    <ClCompile Include="SRPGObjects\Squirrel.cpp" />
+    <ClCompile Include="SRPGObjects\Cat.cpp" />
     <ClCompile Include="SFML_Framework\Framework\Animator.cpp" />
     <ClCompile Include="SRPGObjects\Minotaurs.cpp" />
     <ClCompile Include="SRPGObjects\Player.cpp" />
@@ -169,6 +172,9 @@
     <ClCompile Include="SFML_Framework\UI\UIMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SRPGObjects\Fox.h" />
+    <ClInclude Include="SRPGObjects\Squirrel.h" />
+    <ClInclude Include="SRPGObjects\Cat.h" />
     <ClInclude Include="SFML_Framework\3rd\CSVWriter.h" />
     <ClInclude Include="SFML_Framework\Framework\Animatable.h" />
     <ClInclude Include="SRPGObjects\Minotaurs.h" />

@@ -4,30 +4,11 @@
 void Player::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Adventurer.png"));
-	SetPos({ 200.f, 400.f });
 	SetScale(5.f, 5.f);
-	SetOrigin(Origins::MC);
 
-	SetAnimations();
-
-	//SetState((int) States::Idle);
-	anim.Play("Player/Idle");
-	anim.PlayQueue("Player/AttackRight1");
-	anim.PlayQueue("Player/AttackRight2");
-	anim.PlayQueue("Player/AttackRight3");
-	anim.PlayQueue("Player/JumpRight");
-	anim.PlayQueue("Player/HitRight");
-	anim.PlayQueue("Player/DeathRight");
-	anim.PlayQueue("Player/MoveRight");
-
-	anim.PlayQueue("Player/AttackLeft1");
-	anim.PlayQueue("Player/AttackLeft2");
-	anim.PlayQueue("Player/AttackLeft3");
-	anim.PlayQueue("Player/JumpLeft");
-	anim.PlayQueue("Player/HitLeft");
-	anim.PlayQueue("Player/DeathLeft");
-	anim.PlayQueue("Player/MoveLeft");
-	anim.PlayQueue("Player/Idle");
+	SetAnimations(); 
+	
+	Reset();
 }
 
 void Player::Release()
@@ -36,7 +17,25 @@ void Player::Release()
 
 void Player::Reset()
 {
+	Object::Reset();
+	SetPos({ 200.f, 400.f });
 	SetState((int) States::Idle);
+	anim.Play("Player/Idle");
+	anim.PlayQueue("Player/AttackRight1");
+	anim.PlayQueue("Player/AttackRight2");
+	anim.PlayQueue("Player/AttackRight3");
+	anim.PlayQueue("Player/JumpRight");
+	anim.PlayQueue("Player/HitRight");
+	anim.PlayQueue("Player/DeathRight");
+	anim.PlayQueue("Player/MoveRight");
+	anim.PlayQueue("Player/AttackLeft1");
+	anim.PlayQueue("Player/AttackLeft2");
+	anim.PlayQueue("Player/AttackLeft3");
+	anim.PlayQueue("Player/JumpLeft");
+	anim.PlayQueue("Player/HitLeft");
+	anim.PlayQueue("Player/DeathLeft");
+	anim.PlayQueue("Player/MoveLeft");
+	anim.PlayQueue("Player/Idle");
 }
 
 void Player::Update(float dt)

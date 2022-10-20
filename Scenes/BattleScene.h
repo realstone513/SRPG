@@ -1,14 +1,20 @@
 #pragma once
 #include "../SFML_Framework/Scenes/Scene.h"
 
-class Player;
+class Cat;
+class Fox;
 class Minotaurs;
+class Player;
+class Squirrel;
 
 class BattleScene : public Scene
 {
 protected:
-	Player* player;
+	Cat* cat;
+	Fox* fox;
 	Minotaurs* mino;
+	Player* player;
+	Squirrel* squirrel;
 
 public:
 	BattleScene();
