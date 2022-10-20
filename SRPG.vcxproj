@@ -169,6 +169,7 @@
     <ClCompile Include="SFML_Framework\UI\UIMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SFML_Framework\3rd\CSVWriter.h" />
     <ClInclude Include="SFML_Framework\Framework\Animatable.h" />
     <ClInclude Include="SRPGObjects\Minotaurs.h" />
     <ClInclude Include="SRPGObjects\Player.h" />

@@ -8,18 +8,29 @@ void Minotaurs::Init()
 	SetScale(5.f, 5.f);
 	SetOrigin(Origins::MC);
 
-	anim.SetTarget(&sprite);
+	SetAnimations();
 
-	{
-		anim.AddClip(*RESOURCE_MGR->GetAnimationClip("Mino/Idle"));
-		AnimationEvent ev;
-		ev.clipId = "Mino/Idle";
-		ev.frame = 5;
-		anim.AddEvent(ev);
-	}
-	
-	SetState((int) States::Idle);
-	anim.Play("Mino/Idle");
+	//SetState((int) States::Idle);
+
+	anim.Play("Mino/IdleRight");
+	anim.PlayQueue("Mino/RunRight");
+	anim.PlayQueue("Mino/ReadyRight");
+	anim.PlayQueue("Mino/BigAttackRight");
+	anim.PlayQueue("Mino/StabRight");
+	anim.PlayQueue("Mino/StompRight");
+	anim.PlayQueue("Mino/WheelWindRight");
+	anim.PlayQueue("Mino/HitRight");
+	anim.PlayQueue("Mino/DeathRight");
+
+	anim.PlayQueue("Mino/IdleLeft");
+	anim.PlayQueue("Mino/RunLeft");
+	anim.PlayQueue("Mino/ReadyLeft");
+	anim.PlayQueue("Mino/BigAttackLeft");
+	anim.PlayQueue("Mino/StabLeft");
+	anim.PlayQueue("Mino/StompLeft");
+	anim.PlayQueue("Mino/WheelWindLeft");
+	anim.PlayQueue("Mino/HitLeft");
+	anim.PlayQueue("Mino/DeathLeft");
 }
 
 void Minotaurs::Release()
@@ -43,5 +54,25 @@ void Minotaurs::Draw(RenderWindow& window)
 
 void Minotaurs::SetAnimations()
 {
+	anim.SetTarget(&sprite);
 
+	AddClipFast("Mino/IdleRight", 5);
+	AddClipFast("Mino/RunRight", 8);
+	AddClipFast("Mino/ReadyRight", 5);
+	AddClipFast("Mino/BigAttackRight", 9);
+	AddClipFast("Mino/StabRight", 5);
+	AddClipFast("Mino/StompRight", 6);
+	AddClipFast("Mino/WheelWindRight", 12);
+	AddClipFast("Mino/HitRight", 3);
+	AddClipFast("Mino/DeathRight", 6);
+
+	AddClipFast("Mino/IdleLeft", 5);
+	AddClipFast("Mino/RunLeft", 8);
+	AddClipFast("Mino/ReadyLeft", 5);
+	AddClipFast("Mino/BigAttackLeft", 9);
+	AddClipFast("Mino/StabLeft", 5);
+	AddClipFast("Mino/StompLeft", 6);
+	AddClipFast("Mino/WheelWindLeft", 12);
+	AddClipFast("Mino/HitLeft", 3);
+	AddClipFast("Mino/DeathLeft", 6);
 }
