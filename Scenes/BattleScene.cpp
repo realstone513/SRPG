@@ -11,7 +11,7 @@ BattleScene::BattleScene()
 {
 	LOG::Print3String("scene[battle] create");
 
-	CreateBackground(30, 31, 32.f, 32.f);
+	CreateBackground(22, 40, 32.f, 32.f);
 }
 
 BattleScene::~BattleScene()
@@ -21,7 +21,9 @@ BattleScene::~BattleScene()
 void BattleScene::Init()
 {
 	LOG::Print3String("scene[battle] init");
-
+	Vector2f size = (Vector2f)FRAMEWORK->GetWindowSize();
+	worldView.setSize(size);
+	worldView.setCenter(size.x / 2, size.y / 2);
 	player = new Player();
 	mino = new Minotaurs();
 	cat = new Cat();
@@ -38,6 +40,32 @@ void BattleScene::Init()
 	{
 		obj->Init();
 	}
+	player->SetHitbox(FloatRect(0, 0, 32.f, 32.f), Origins::BC);
+	mino->SetHitbox(FloatRect(0, 0, 96.f, 64.f), Origins::BC);
+	cat->SetHitbox(FloatRect(0, 0, 32.f, 32.f), Origins::BC);
+	fox->SetHitbox(FloatRect(0, 0, 32.f, 32.f), Origins::BC);
+	squirrel->SetHitbox(FloatRect(0, 0, 32.f, 32.f), Origins::BC);
+
+	float spriteScale = 5.f;
+	float hitboxScale = 3.f;
+
+	player->SetScale(spriteScale, spriteScale);
+	mino->SetScale(spriteScale, spriteScale);
+	cat->SetScale(spriteScale, spriteScale);
+	fox->SetScale(spriteScale, spriteScale);
+	squirrel->SetScale(spriteScale, spriteScale);
+
+	player->SetHitboxScale(hitboxScale, hitboxScale);
+	mino->SetHitboxScale(hitboxScale, hitboxScale);
+	cat->SetHitboxScale(hitboxScale, hitboxScale);
+	fox->SetHitboxScale(hitboxScale, hitboxScale);
+	squirrel->SetHitboxScale(hitboxScale, hitboxScale);
+
+	player->SetPos(Vector2f(100.f, 200.f));
+	mino->SetPos(Vector2f(1000.f, 400.f));
+	cat->SetPos(Vector2f(100.f, 600.f));
+	fox->SetPos(Vector2f(700.f, 400.f));
+	squirrel->SetPos(Vector2f(400.f, 400.f));
 }
 
 void BattleScene::Release()
@@ -66,10 +94,28 @@ void BattleScene::Exit()
 void BattleScene::Update(float dt)
 {
 	// Develop Input
-	if (InputMgr::GetKeyDown(Keyboard::Key::F1))
+	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
+	{
+		LOG::Print3String("scene[battle] dev mode on");
+		for (auto obj : objList)
+		{
+			obj->SetDevMode(true);
+		}
+		return;
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
+	{
+		LOG::Print3String("scene[battle] dev mode off");
+		for (auto obj : objList)
+		{
+			obj->SetDevMode(false);
+		}
+		return;
+	}
+	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
 		LOG::Print3String("scene[battle]");
-		return;
+		LOG::PrintVectorState(InputMgr::GetMousePos());
 	}
 
 	// Game Input

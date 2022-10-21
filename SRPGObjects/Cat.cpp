@@ -4,10 +4,7 @@
 void Cat::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Cat.png"));
-	SetScale(5.f, 5.f);
-
 	SetAnimations();
-
 	Reset();
 }
 
@@ -18,7 +15,6 @@ void Cat::Release()
 void Cat::Reset()
 {
 	Object::Reset();
-	SetPos({ 200.f, 700.f });
 	SetState((int)States::Idle);
 	anim.Play("Cat/Idle");
 	anim.PlayQueue("Cat/Grooming1");
@@ -38,7 +34,7 @@ void Cat::Update(float dt)
 
 void Cat::Draw(RenderWindow& window)
 {
-	window.draw(sprite);
+	SpriteObj::Draw(window);
 }
 
 void Cat::SetAnimations()

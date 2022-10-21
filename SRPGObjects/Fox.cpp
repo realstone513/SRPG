@@ -4,11 +4,7 @@
 void Fox::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Fox.png"));
-	SetScale(5.f, 5.f);
-	SetOrigin(Origins::MC);
-
 	SetAnimations();
-
 	Reset();
 }
 
@@ -19,15 +15,14 @@ void Fox::Release()
 void Fox::Reset()
 {
 	Object::Reset();
-	SetPos({ 600.f, 500.f });
 	SetState((int)States::Idle);
 	anim.Play("Fox/Idle");
 	anim.PlayQueue("Fox/Idle2");
 	anim.PlayQueue("Fox/Move");
 	anim.PlayQueue("Fox/Catch");
 	anim.PlayQueue("Fox/Hit");
-	anim.PlayQueue("Fox/Sleep");
 	anim.PlayQueue("Fox/Death");
+	anim.PlayQueue("Fox/Sleep");
 }
 
 void Fox::Update(float dt)
@@ -37,7 +32,7 @@ void Fox::Update(float dt)
 
 void Fox::Draw(RenderWindow& window)
 {
-	window.draw(sprite);
+	SpriteObj::Draw(window);
 }
 
 void Fox::SetAnimations()

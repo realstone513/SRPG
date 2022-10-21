@@ -4,10 +4,7 @@
 void Squirrel::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Squirrel.png"));
-	SetScale(5.f, 5.f);
-
 	SetAnimations();
-
 	Reset();
 }
 
@@ -18,15 +15,14 @@ void Squirrel::Release()
 void Squirrel::Reset()
 {
 	Object::Reset();
-	SetPos({ 400.f, 500.f });
 	SetState((int)States::Idle);
 	anim.Play("Squirrel/Idle");
 	anim.PlayQueue("Squirrel/Idle2");
 	anim.PlayQueue("Squirrel/Move");
 	anim.PlayQueue("Squirrel/Dig");
-	anim.PlayQueue("Squirrel/Eat");
 	anim.PlayQueue("Squirrel/Hit");
 	anim.PlayQueue("Squirrel/Death");
+	anim.PlayQueue("Squirrel/Eat");
 }
 
 void Squirrel::Update(float dt)
@@ -36,7 +32,7 @@ void Squirrel::Update(float dt)
 
 void Squirrel::Draw(RenderWindow& window)
 {
-	window.draw(sprite);
+	SpriteObj::Draw(window);
 }
 
 void Squirrel::SetAnimations()

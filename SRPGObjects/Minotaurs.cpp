@@ -4,10 +4,7 @@
 void Minotaurs::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Minotaurs.png"));
-	SetScale(5.f, 5.f);
-
-	SetAnimations(); 
-	
+	SetAnimations();
 	Reset();
 }
 
@@ -18,7 +15,6 @@ void Minotaurs::Release()
 void Minotaurs::Reset()
 {
 	Object::Reset();
-	SetPos({ 1000.f, 700.f });
 	SetState((int) States::Idle);
 	anim.Play("Mino/IdleRight");
 	anim.PlayQueue("Mino/RunRight");
@@ -36,9 +32,9 @@ void Minotaurs::Reset()
 	anim.PlayQueue("Mino/BigAttackLeft");
 	anim.PlayQueue("Mino/StabLeft");
 	anim.PlayQueue("Mino/StompLeft");
-	anim.PlayQueue("Mino/WheelWindLeft");
 	anim.PlayQueue("Mino/HitLeft");
 	anim.PlayQueue("Mino/DeathLeft");
+	anim.PlayQueue("Mino/WheelWindLeft");
 }
 
 void Minotaurs::Update(float dt)
@@ -48,7 +44,7 @@ void Minotaurs::Update(float dt)
 
 void Minotaurs::Draw(RenderWindow& window)
 {
-	window.draw(sprite);
+	SpriteObj::Draw(window);
 }
 
 void Minotaurs::SetAnimations()

@@ -4,10 +4,7 @@
 void Player::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Adventurer.png"));
-	SetScale(5.f, 5.f);
-
-	SetAnimations(); 
-	
+	SetAnimations();
 	Reset();
 }
 
@@ -18,7 +15,6 @@ void Player::Release()
 void Player::Reset()
 {
 	Object::Reset();
-	SetPos({ 200.f, 400.f });
 	SetState((int) States::Idle);
 	anim.Play("Player/Idle");
 	anim.PlayQueue("Player/AttackRight1");
@@ -45,7 +41,7 @@ void Player::Update(float dt)
 
 void Player::Draw(RenderWindow& window)
 {
-	window.draw(sprite);
+	SpriteObj::Draw(window);
 }
 
 void Player::SetAnimations()
