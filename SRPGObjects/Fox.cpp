@@ -15,7 +15,7 @@ void Fox::Release()
 void Fox::Reset()
 {
 	Object::Reset();
-	SetState((int)States::Idle);
+	SetState(States::Idle);
 	anim.Play("Fox/Idle");
 	anim.PlayQueue("Fox/Idle2");
 	anim.PlayQueue("Fox/Move");

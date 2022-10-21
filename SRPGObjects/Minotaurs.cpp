@@ -15,7 +15,7 @@ void Minotaurs::Release()
 void Minotaurs::Reset()
 {
 	Object::Reset();
-	SetState((int) States::Idle);
+	SetState(States::Idle);
 	anim.Play("Mino/IdleRight");
 	anim.PlayQueue("Mino/RunRight");
 	anim.PlayQueue("Mino/ReadyRight");

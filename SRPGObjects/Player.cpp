@@ -6,6 +6,7 @@ void Player::Init()
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Adventurer.png"));
 	SetAnimations();
 	Reset();
+	unit = 32.f;
 }
 
 void Player::Release()
@@ -15,7 +16,7 @@ void Player::Release()
 void Player::Reset()
 {
 	Object::Reset();
-	SetState((int) States::Idle);
+	SetState(States::Idle);
 	anim.Play("Player/Idle");
 	anim.PlayQueue("Player/AttackRight1");
 	anim.PlayQueue("Player/AttackRight2");
@@ -36,16 +37,15 @@ void Player::Reset()
 
 void Player::Update(float dt)
 {
-	float offset = 32.f;
 	// test
 	if (InputMgr::GetKeyDown(Keyboard::Key::S))
-		Translate(Vector2f(0, offset));
+		Translate(Vector2f(0, unit));
 	if (InputMgr::GetKeyDown(Keyboard::Key::W))
-		Translate(Vector2f(0, -offset));
+		Translate(Vector2f(0, -unit));
 	if (InputMgr::GetKeyDown(Keyboard::Key::A))
-		Translate(Vector2f(-offset, 0));
+		Translate(Vector2f(-unit, 0));
 	if (InputMgr::GetKeyDown(Keyboard::Key::D))
-		Translate(Vector2f(offset, 0));
+		Translate(Vector2f(unit, 0));
 	// test
 
 	anim.Update(dt);

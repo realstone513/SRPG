@@ -5,17 +5,6 @@
 class Fox : public SpriteObj, Animatable
 {
 protected:
-	enum class States
-	{
-		None = -1,
-		Idle,
-		Idle2,
-		Move,
-		Catch,
-		Sleep,
-		Hit,
-		Death
-	};
 
 public:
 	virtual void Init();

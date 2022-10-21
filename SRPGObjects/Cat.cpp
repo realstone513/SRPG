@@ -15,7 +15,7 @@ void Cat::Release()
 void Cat::Reset()
 {
 	Object::Reset();
-	SetState((int)States::Idle);
+	SetState(States::Idle);
 	anim.Play("Cat/Idle");
 	anim.PlayQueue("Cat/Grooming1");
 	anim.PlayQueue("Cat/Grooming2");

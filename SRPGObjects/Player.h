@@ -5,16 +5,7 @@
 class Player : public SpriteObj, Animatable
 {
 protected:
-	enum class States
-	{
-		None = -1,
-		Idle,
-		Move,
-		Attack,
-		Jump,
-		Hit,
-		Death
-	};
+	float unit;
 
 public:
 	virtual void Init();

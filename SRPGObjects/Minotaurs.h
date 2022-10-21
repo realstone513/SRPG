@@ -5,18 +5,6 @@
 class Minotaurs : public SpriteObj, Animatable
 {
 protected:
-	enum class States
-	{
-		None = -1,
-		Idle,
-		Run,
-		Attack,
-		Stab,
-		Stomp,
-		WheelWind,
-		Hit,
-		Death
-	};
 
 public:
 	virtual void Init();

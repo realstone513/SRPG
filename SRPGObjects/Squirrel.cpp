@@ -15,7 +15,7 @@ void Squirrel::Release()
 void Squirrel::Reset()
 {
 	Object::Reset();
-	SetState((int)States::Idle);
+	SetState(States::Idle);
 	anim.Play("Squirrel/Idle");
 	anim.PlayQueue("Squirrel/Idle2");
 	anim.PlayQueue("Squirrel/Move");

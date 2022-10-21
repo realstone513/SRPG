@@ -5,17 +5,6 @@
 class Squirrel : public SpriteObj, Animatable
 {
 protected:
-	enum class States
-	{
-		None = -1,
-		Idle,
-		Idle2,
-		Move,
-		Dig,
-		Eat,
-		Hit,
-		Death
-	};
 
 public:
 	virtual void Init();

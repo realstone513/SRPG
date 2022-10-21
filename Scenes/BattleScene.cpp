@@ -43,11 +43,11 @@ void BattleScene::Init()
 	fox->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
 	squirrel->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
 
-	player->SetPos(Vector2f(0 * unit, 0 * unit));
-	mino->SetPos(Vector2f(12 * unit, 6 * unit));
-	cat->SetPos(Vector2f(1 * unit, 2 * unit));
-	fox->SetPos(Vector2f(9 * unit, 6 * unit));
-	squirrel->SetPos(Vector2f(6 * unit, 6 * unit));
+	player->SetPos(Vector2f(-6 * unit, 0 * unit));
+	mino->SetPos(Vector2f(8 * unit, 0 * unit));
+	cat->SetPos(Vector2f(-6 * unit, 2 * unit));
+	fox->SetPos(Vector2f(2 * unit, 0 * unit));
+	squirrel->SetPos(Vector2f(-2 * unit, 0 * unit));
 }
 
 void BattleScene::Release()

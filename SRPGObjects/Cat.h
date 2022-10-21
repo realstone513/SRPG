@@ -5,19 +5,6 @@
 class Cat : public SpriteObj, Animatable
 {
 protected:
-	enum class States
-	{
-		None = -1,
-		Idle,
-		Grooming1,
-		Grooming2,
-		Move,
-		Run,
-		Sleep,
-		Punch,
-		Hit,
-		Threat
-	};
 
 public:
 	virtual void Init();
