@@ -3,6 +3,8 @@
 
 void Player::Init()
 {
+	SetType("Playable");
+	SetName("Player");
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Adventurer.png"));
 	SetAnimations();
 	Reset();

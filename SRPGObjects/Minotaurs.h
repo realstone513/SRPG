@@ -2,7 +2,7 @@
 #include "../SFML_Framework/GameObject/SpriteObj.h"
 #include "../SFML_Framework/Framework/Animatable.h"
 
-class Minotaurs : public SpriteObj, Animatable
+class Minotaur : public SpriteObj, Animatable
 {
 protected:
 

@@ -1,10 +1,12 @@
 #include "BattleScene.h"
 #include "../SFML_Framework/Frameworks.h"
+#include "../SFML_Framework/GameObject/SpriteObj.h"
 #include "../SRPGObjects/Cat.h"
 #include "../SRPGObjects/Fox.h"
 #include "../SRPGObjects/Minotaurs.h"
 #include "../SRPGObjects/Player.h"
 #include "../SRPGObjects/Squirrel.h"
+#include "../SRPGObjects/OverlayTile.h"
 
 BattleScene::BattleScene()
 	: Scene(Scenes::Battle), fullScreenView(false), size((Vector2f)FRAMEWORK->GetWindowSize()), unit(32.f)
@@ -19,9 +21,13 @@ BattleScene::~BattleScene()
 void BattleScene::Init()
 {
 	LOG::Print3String("scene[battle] init");
-	CreateBackground(23, 23, 32.f, 32.f);
+	int mapSizeR = 25;
+	int mapSizeC = 50;
+	CreateBackground(mapSizeR, mapSizeC, unit, unit);
+	CreateOverlay(mapSizeR, mapSizeC, unit, unit);
+
 	player = new Player();
-	mino = new Minotaurs();
+	mino = new Minotaur();
 	cat = new Cat();
 	squirrel = new Squirrel();
 	fox = new Fox();
@@ -32,10 +38,22 @@ void BattleScene::Init()
 	objList.push_back(squirrel);
 	objList.push_back(fox);
 
-	for (auto obj : objList)
+	for (auto& obj : objList)
 	{
 		obj->Init();
 	}
+	
+	gamePieces.push_back(player);
+	gamePieces.push_back(mino);
+	gamePieces.push_back(cat);
+	gamePieces.push_back(squirrel);
+	gamePieces.push_back(fox);
+
+	for (auto& obj : gamePieces)
+	{
+		obj->SetScale(2.f, 2.f);
+	}
+
 	// 실제 크기 비교용
 	player->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
 	mino->SetHitbox(FloatRect(0, 5, 64.f, 64.f), Origins::BC);
@@ -43,11 +61,12 @@ void BattleScene::Init()
 	fox->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
 	squirrel->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
 
-	player->SetPos(Vector2f(-6 * unit, 0 * unit));
-	mino->SetPos(Vector2f(8 * unit, 0 * unit));
-	cat->SetPos(Vector2f(-6 * unit, 2 * unit));
-	fox->SetPos(Vector2f(2 * unit, 0 * unit));
-	squirrel->SetPos(Vector2f(-2 * unit, 0 * unit));
+	// 데모용 배치
+	player->SetPos(Vector2f(-14 * unit, 0 * unit));
+	mino->SetPos(Vector2f(16 * unit, 0 * unit));
+	cat->SetPos(Vector2f(-15 * unit, 1 * unit));
+	fox->SetPos(Vector2f(4 * unit, 0 * unit));
+	squirrel->SetPos(Vector2f(-6 * unit, 0 * unit));
 }
 
 void BattleScene::Release()
@@ -58,7 +77,7 @@ void BattleScene::Release()
 void BattleScene::Enter()
 {
 	LOG::Print3String("scene[battle] enter");
-	for (auto obj : objList)
+	for (auto& obj : objList)
 	{
 		obj->Reset();
 	}
@@ -68,15 +87,17 @@ void BattleScene::Enter()
 		SetFullScreenWorldView();
 	else
 	{
-		SetWorldViewSize({ size.x / 4, size.y / 4 });
-		SetWorldViewCenter({ player->GetPos().x, player->GetPos().y - player->GetSize().y * 0.5f });
+		worldView.setSize(size * 0.5f);
+		SetViewFocusOnObj(player);
 	}
+
+	//overlay[20][15]->SetFillColor(Color(255, 0, 0, 250));
 }
 
 void BattleScene::Exit()
 {
 	LOG::Print3String("scene[battle] exit");
-	for (auto obj : objList)
+	for (auto& obj : objList)
 	{
 		obj->SetActive(false);
 	}
@@ -87,34 +108,52 @@ void BattleScene::Update(float dt)
 	// Develop Input
 	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
 	{
-		LOG::Print3String("scene[battle] dev mode on");
-		for (auto obj : objList)
-		{
-			obj->SetDevMode(true);
-		}
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
-	{
-		LOG::Print3String("scene[battle] dev mode off");
-		for (auto obj : objList)
-		{
-			obj->SetDevMode(false);
-		}
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
-	{
 		fullScreenView = !fullScreenView;
 		LOG::Print3String("scene[battle] fullScreenView switch", fullScreenView ? "ON" : "OFF");
 		if (fullScreenView)
 			SetFullScreenWorldView();
 		else
 		{
-			SetWorldViewSize({ size.x / 4, size.y / 4 });
-			SetWorldViewCenter({ player->GetPos().x, player->GetPos().y - player->GetSize().y * 0.5f });
+			SetViewFocusOnObj(player);
+			worldView.setSize({ size.x / 4, size.y / 4 });
 		}
 		return;
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
+	{
+		LOG::Print3String("scene[battle] dev mode on");
+		for (auto& obj : objList)
+		{
+			obj->SetDevMode(true);
+		}
+		return;
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
+	{
+		LOG::Print3String("scene[battle] dev mode off");
+		for (auto& obj : objList)
+		{
+			obj->SetDevMode(false);
+		}
+		return;
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F10))
+	{
+		LOG::Print3String("scene[battle] overlay switch on");
+		for (auto& obj : objList)
+		{
+			if (!obj->GetType().compare("Overlay"))
+				obj->SetActive(true);
+		}
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F11))
+	{
+		LOG::Print3String("scene[battle] overlay switch off");
+		for (auto& obj : objList)
+		{
+			if (!obj->GetType().compare("Overlay"))
+				obj->SetActive(false);
+		}
 	}
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
@@ -135,7 +174,7 @@ void BattleScene::Update(float dt)
 	Scene::Update(dt);
 
 	if (!fullScreenView)
-		SetWorldViewCenter({ player->GetPos().x, player->GetPos().y - player->GetSize().y * 0.5f });
+		SetViewFocusOnObj(player);
 }
 
 void BattleScene::Draw(RenderWindow& window)
@@ -150,7 +189,9 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 		background = new VertexArrayObj();
 		background->SetTexture(GetTexture("graphics/ForestTileSet.png"));
 	}
-	background->SetPos(Vector2f(-0.5f * height * unit, -0.5f * width * unit - 0.5f * unit));
+
+	background->SetPos(Vector2f(-unit * (height % 2 ? height : height + 1) * 0.5f, -unit * (width % 2 ? width + 1 : width) * 0.5f));
+
 	Vector2f startPos = background->GetPos();
 	VertexArray& va = background->GetVA();
 	va.clear();
@@ -195,18 +236,36 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 	}
 }
 
+void BattleScene::CreateOverlay(int width, int height, float quadWidth, float quadHeight)
+{
+	// overlay Init
+	overlay.resize(height);
+	for (int i = 0; i < height; i++)
+		overlay[i].resize(width);
+
+	int cStart = -unit * (width % 2 ? width + 1 : width) * 0.5f;
+	int r = -unit * (height % 2 ? height : height + 1) * 0.5f;
+	for (auto& tiles : overlay)
+	{
+		int c = cStart;
+		for (auto& tile : tiles)
+		{
+			tile = new OverlayTile();
+			objList.push_back(tile);
+			tile->SetPos(Vector2f(r, c));
+			c += unit;
+		}
+		r += unit;
+	}
+}
+
 void BattleScene::SetFullScreenWorldView()
 {
-	SetWorldViewSize(size);
-	SetWorldViewCenter(Vector2f());
-}
-
-void BattleScene::SetWorldViewCenter(Vector2f center)
-{
-	worldView.setCenter(center);
-}
-
-void BattleScene::SetWorldViewSize(Vector2f size)
-{
 	worldView.setSize(size);
+	worldView.setCenter(Vector2f());
+}
+
+void BattleScene::SetViewFocusOnObj(SpriteObj* obj)
+{
+	worldView.setCenter({ obj->GetPos().x, obj->GetPos().y - obj->GetSize().y * 0.5f });
 }

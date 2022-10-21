@@ -1,18 +1,20 @@
 #include "Minotaurs.h"
 #include "../SFML_Framework/Frameworks.h"
 
-void Minotaurs::Init()
+void Minotaur::Init()
 {
-	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Minotaurs.png"));
+	SetType("AI");
+	SetName("Minotaur");
+	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Minotaur.png"));
 	SetAnimations();
 	Reset();
 }
 
-void Minotaurs::Release()
+void Minotaur::Release()
 {
 }
 
-void Minotaurs::Reset()
+void Minotaur::Reset()
 {
 	Object::Reset();
 	SetState(States::Idle);
@@ -37,17 +39,17 @@ void Minotaurs::Reset()
 	anim.PlayQueue("Mino/WheelWindLeft");
 }
 
-void Minotaurs::Update(float dt)
+void Minotaur::Update(float dt)
 {
 	anim.Update(dt);
 }
 
-void Minotaurs::Draw(RenderWindow& window)
+void Minotaur::Draw(RenderWindow& window)
 {
 	SpriteObj::Draw(window);
 }
 
-void Minotaurs::SetAnimations()
+void Minotaur::SetAnimations()
 {
 	anim.SetTarget(&sprite);
 

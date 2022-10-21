@@ -3,9 +3,11 @@
 
 class Cat;
 class Fox;
-class Minotaurs;
+class Minotaur;
 class Player;
 class Squirrel;
+class SpriteObj;
+class OverlayTile;
 
 class BattleScene : public Scene
 {
@@ -13,9 +15,11 @@ protected:
 	// Objects
 	Cat* cat;
 	Fox* fox;
-	Minotaurs* mino;
+	Minotaur* mino;
 	Player* player;
 	Squirrel* squirrel;
+	list<SpriteObj*> gamePieces;
+	vector<vector<OverlayTile*>> overlay;
 
 	// Values
 	Vector2f size;
@@ -36,7 +40,7 @@ public:
 	virtual void Draw(RenderWindow& window) override;
 
 	void CreateBackground(int width, int height, float quadWidth, float quadHeight);
+	void CreateOverlay(int width, int height, float quadWidth, float quadHeight);
 	void SetFullScreenWorldView();
-	void SetWorldViewCenter(Vector2f center);
-	void SetWorldViewSize(Vector2f size);
+	void SetViewFocusOnObj(SpriteObj* obj);
 };

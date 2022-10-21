@@ -3,6 +3,8 @@
 
 void Squirrel::Init()
 {
+	SetType("AI");
+	SetName("Squirrel");
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Squirrel.png"));
 	SetAnimations();
 	Reset();

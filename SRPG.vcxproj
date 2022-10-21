@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SRPGObjects\OverlayTile.cpp" />
+    <ClCompile Include="SFML_Framework\GameObject\RectangleObj.cpp" />
     <ClCompile Include="SRPGObjects\Fox.cpp" />
     <ClCompile Include="SRPGObjects\Squirrel.cpp" />
     <ClCompile Include="SRPGObjects\Cat.cpp" />
@@ -172,6 +174,8 @@
     <ClCompile Include="SFML_Framework\UI\UIMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SRPGObjects\OverlayTile.h" />
+    <ClInclude Include="SFML_Framework\GameObject\RectangleObj.h" />
     <ClInclude Include="SRPGObjects\Fox.h" />
     <ClInclude Include="SRPGObjects\Squirrel.h" />
     <ClInclude Include="SRPGObjects\Cat.h" />

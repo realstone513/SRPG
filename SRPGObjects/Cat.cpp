@@ -3,6 +3,8 @@
 
 void Cat::Init()
 {
+	SetType("Playable");
+	SetName("Cat");
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Cat.png"));
 	SetAnimations();
 	Reset();

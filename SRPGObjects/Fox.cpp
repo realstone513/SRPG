@@ -3,6 +3,8 @@
 
 void Fox::Init()
 {
+	SetType("AI");
+	SetName("Fox");
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Fox.png"));
 	SetAnimations();
 	Reset();
