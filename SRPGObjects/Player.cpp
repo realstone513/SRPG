@@ -36,6 +36,18 @@ void Player::Reset()
 
 void Player::Update(float dt)
 {
+	float offset = 32.f;
+	// test
+	if (InputMgr::GetKeyDown(Keyboard::Key::S))
+		Translate(Vector2f(0, offset));
+	if (InputMgr::GetKeyDown(Keyboard::Key::W))
+		Translate(Vector2f(0, -offset));
+	if (InputMgr::GetKeyDown(Keyboard::Key::A))
+		Translate(Vector2f(-offset, 0));
+	if (InputMgr::GetKeyDown(Keyboard::Key::D))
+		Translate(Vector2f(offset, 0));
+	// test
+
 	anim.Update(dt);
 }
 

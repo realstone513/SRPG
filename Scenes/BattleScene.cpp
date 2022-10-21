@@ -7,11 +7,9 @@
 #include "../SRPGObjects/Squirrel.h"
 
 BattleScene::BattleScene()
-	: Scene(Scenes::Battle)
+	: Scene(Scenes::Battle), fullScreenView(false), size((Vector2f)FRAMEWORK->GetWindowSize()), unit(32.f)
 {
 	LOG::Print3String("scene[battle] create");
-
-	CreateBackground(22, 40, 32.f, 32.f);
 }
 
 BattleScene::~BattleScene()
@@ -21,9 +19,7 @@ BattleScene::~BattleScene()
 void BattleScene::Init()
 {
 	LOG::Print3String("scene[battle] init");
-	Vector2f size = (Vector2f)FRAMEWORK->GetWindowSize();
-	worldView.setSize(size);
-	worldView.setCenter(size.x / 2, size.y / 2);
+	CreateBackground(23, 23, 32.f, 32.f);
 	player = new Player();
 	mino = new Minotaurs();
 	cat = new Cat();
@@ -40,32 +36,18 @@ void BattleScene::Init()
 	{
 		obj->Init();
 	}
-	player->SetHitbox(FloatRect(0, 0, 32.f, 32.f), Origins::BC);
-	mino->SetHitbox(FloatRect(0, 0, 96.f, 64.f), Origins::BC);
-	cat->SetHitbox(FloatRect(0, 0, 32.f, 32.f), Origins::BC);
-	fox->SetHitbox(FloatRect(0, 0, 32.f, 32.f), Origins::BC);
-	squirrel->SetHitbox(FloatRect(0, 0, 32.f, 32.f), Origins::BC);
+	// 실제 크기 비교용
+	player->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
+	mino->SetHitbox(FloatRect(0, 5, 64.f, 64.f), Origins::BC);
+	cat->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
+	fox->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
+	squirrel->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
 
-	float spriteScale = 5.f;
-	float hitboxScale = 3.f;
-
-	player->SetScale(spriteScale, spriteScale);
-	mino->SetScale(spriteScale, spriteScale);
-	cat->SetScale(spriteScale, spriteScale);
-	fox->SetScale(spriteScale, spriteScale);
-	squirrel->SetScale(spriteScale, spriteScale);
-
-	player->SetHitboxScale(hitboxScale, hitboxScale);
-	mino->SetHitboxScale(hitboxScale, hitboxScale);
-	cat->SetHitboxScale(hitboxScale, hitboxScale);
-	fox->SetHitboxScale(hitboxScale, hitboxScale);
-	squirrel->SetHitboxScale(hitboxScale, hitboxScale);
-
-	player->SetPos(Vector2f(100.f, 200.f));
-	mino->SetPos(Vector2f(1000.f, 400.f));
-	cat->SetPos(Vector2f(100.f, 600.f));
-	fox->SetPos(Vector2f(700.f, 400.f));
-	squirrel->SetPos(Vector2f(400.f, 400.f));
+	player->SetPos(Vector2f(0 * unit, 0 * unit));
+	mino->SetPos(Vector2f(12 * unit, 6 * unit));
+	cat->SetPos(Vector2f(1 * unit, 2 * unit));
+	fox->SetPos(Vector2f(9 * unit, 6 * unit));
+	squirrel->SetPos(Vector2f(6 * unit, 6 * unit));
 }
 
 void BattleScene::Release()
@@ -79,6 +61,15 @@ void BattleScene::Enter()
 	for (auto obj : objList)
 	{
 		obj->Reset();
+	}
+	fullScreenView = false;
+
+	if (fullScreenView)
+		SetFullScreenWorldView();
+	else
+	{
+		SetWorldViewSize({ size.x / 4, size.y / 4 });
+		SetWorldViewCenter({ player->GetPos().x, player->GetPos().y - player->GetSize().y * 0.5f });
 	}
 }
 
@@ -112,6 +103,19 @@ void BattleScene::Update(float dt)
 		}
 		return;
 	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
+	{
+		fullScreenView = !fullScreenView;
+		LOG::Print3String("scene[battle] fullScreenView switch", fullScreenView ? "ON" : "OFF");
+		if (fullScreenView)
+			SetFullScreenWorldView();
+		else
+		{
+			SetWorldViewSize({ size.x / 4, size.y / 4 });
+			SetWorldViewCenter({ player->GetPos().x, player->GetPos().y - player->GetSize().y * 0.5f });
+		}
+		return;
+	}
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
 		LOG::Print3String("scene[battle]");
@@ -127,7 +131,11 @@ void BattleScene::Update(float dt)
 		SCENE_MGR->ChangeScene(Scenes::Battle);
 		return;
 	}
+	
 	Scene::Update(dt);
+
+	if (!fullScreenView)
+		SetWorldViewCenter({ player->GetPos().x, player->GetPos().y - player->GetSize().y * 0.5f });
 }
 
 void BattleScene::Draw(RenderWindow& window)
@@ -142,7 +150,7 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 		background = new VertexArrayObj();
 		background->SetTexture(GetTexture("graphics/ForestTileSet.png"));
 	}
-
+	background->SetPos(Vector2f(-0.5f * height * unit, -0.5f * width * unit - 0.5f * unit));
 	Vector2f startPos = background->GetPos();
 	VertexArray& va = background->GetVA();
 	va.clear();
@@ -161,22 +169,44 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 	{
 		for (int j = 0; j < height; ++j)
 		{
-			int texIndex = Utils::RandomRange(0, 3);
+			// 지형 선택
+			int texIndexX = (i + j) % 2 ? 1 : 4;
+			int texIndexY = 1;
 			if ((i == 0 || i == width - 1) || (j == 0 || j == height - 1))
 			{
-				texIndex = 3;
+				texIndexX = 4;
+				texIndexY = 4;
 			}
+
+			// 채우기
 			int quadIndex = i * height + j;
 			for (int k = 0; k < 4; ++k)
 			{
 				int vertexIndex = quadIndex * 4 + k;
 				va[vertexIndex].position = currPos + offsets[k];
 				va[vertexIndex].texCoords = offsets[k];
-				va[vertexIndex].texCoords.y += quadHeight * texIndex;
+				va[vertexIndex].texCoords.x += quadWidth * texIndexX;
+				va[vertexIndex].texCoords.y += quadHeight * texIndexY;
 			}
 			currPos.x += quadWidth;
 		}
 		currPos.x = startPos.x;
 		currPos.y += quadHeight;
 	}
+}
+
+void BattleScene::SetFullScreenWorldView()
+{
+	SetWorldViewSize(size);
+	SetWorldViewCenter(Vector2f());
+}
+
+void BattleScene::SetWorldViewCenter(Vector2f center)
+{
+	worldView.setCenter(center);
+}
+
+void BattleScene::SetWorldViewSize(Vector2f size)
+{
+	worldView.setSize(size);
 }
