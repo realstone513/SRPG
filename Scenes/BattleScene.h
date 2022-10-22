@@ -1,5 +1,6 @@
 #pragma once
 #include "../SFML_Framework/Scenes/Scene.h"
+#include "../GameSystem/MapControl.h"
 
 class Cat;
 class Fox;
@@ -9,7 +10,7 @@ class Squirrel;
 class SpriteObj;
 class OverlayTile;
 
-class BattleScene : public Scene
+class BattleScene : public Scene, MapControl
 {
 protected:
 	// Objects
@@ -19,11 +20,11 @@ protected:
 	Player* player;
 	Squirrel* squirrel;
 	list<SpriteObj*> gamePieces;
+
 	vector<vector<OverlayTile*>> overlay;
 
 	// Values
 	Vector2f size;
-	float unit;
 	bool fullScreenView;
 
 public:

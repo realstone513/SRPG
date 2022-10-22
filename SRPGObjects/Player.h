@@ -5,7 +5,6 @@
 class Player : public SpriteObj, Animatable
 {
 protected:
-	float unit;
 
 public:
 	virtual void Init();

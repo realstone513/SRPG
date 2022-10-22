@@ -9,9 +9,9 @@
 #include "../SRPGObjects/OverlayTile.h"
 
 BattleScene::BattleScene()
-	: Scene(Scenes::Battle), fullScreenView(false), size((Vector2f)FRAMEWORK->GetWindowSize()), unit(32.f)
+	: Scene(Scenes::Battle), fullScreenView(false), size((Vector2f)FRAMEWORK->GetWindowSize())
 {
-	LOG::Print3String("scene[battle] create");
+	CLOG::Print3String("scene[battle] create");
 }
 
 BattleScene::~BattleScene()
@@ -20,11 +20,14 @@ BattleScene::~BattleScene()
 
 void BattleScene::Init()
 {
-	LOG::Print3String("scene[battle] init");
+	CLOG::Print3String("scene[battle] init");
+	float cellWidth = 32.f;
 	int mapSizeR = 25;
 	int mapSizeC = 50;
-	CreateBackground(mapSizeR, mapSizeC, unit, unit);
-	CreateOverlay(mapSizeR, mapSizeC, unit, unit);
+	CreateBackground(mapSizeR, mapSizeC, cellWidth, cellWidth);
+	CreateOverlay(mapSizeR, mapSizeC, cellWidth, cellWidth);
+	MCInit(cellWidth, overlay[0][0]->GetPos(),
+		overlay[mapSizeC - 1][mapSizeR - 1]->GetPos());
 
 	player = new Player();
 	mino = new Minotaur();
@@ -62,21 +65,21 @@ void BattleScene::Init()
 	squirrel->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
 
 	// 데모용 배치
-	player->SetPos(Vector2f(-14 * unit, 0 * unit));
-	mino->SetPos(Vector2f(16 * unit, 0 * unit));
-	cat->SetPos(Vector2f(-15 * unit, 1 * unit));
-	fox->SetPos(Vector2f(4 * unit, 0 * unit));
-	squirrel->SetPos(Vector2f(-6 * unit, 0 * unit));
+	player->SetPos(IdxToPos({ 10, 10 }));
+	mino->SetPos(IdxToPos({ 40, 10 }));
+	cat->SetPos(IdxToPos({ 9, 11 }));
+	fox->SetPos(IdxToPos({ 30, 10 }));
+	squirrel->SetPos(IdxToPos({ 20, 10 }));
 }
 
 void BattleScene::Release()
 {
-	LOG::Print3String("scene[battle] release");
+	CLOG::Print3String("scene[battle] release");
 }
 
 void BattleScene::Enter()
 {
-	LOG::Print3String("scene[battle] enter");
+	CLOG::Print3String("scene[battle] enter");
 	for (auto& obj : objList)
 	{
 		obj->Reset();
@@ -90,13 +93,11 @@ void BattleScene::Enter()
 		worldView.setSize(size * 0.5f);
 		SetViewFocusOnObj(player);
 	}
-
-	//overlay[20][15]->SetFillColor(Color(255, 0, 0, 250));
 }
 
 void BattleScene::Exit()
 {
-	LOG::Print3String("scene[battle] exit");
+	CLOG::Print3String("scene[battle] exit");
 	for (auto& obj : objList)
 	{
 		obj->SetActive(false);
@@ -106,40 +107,43 @@ void BattleScene::Exit()
 void BattleScene::Update(float dt)
 {
 	// Develop Input
+	// F7 F8 : hitbox on/off
+	// F9 : fullscreen / focus
+	// F10 F11 : overlay on/off
 	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
 	{
-		fullScreenView = !fullScreenView;
-		LOG::Print3String("scene[battle] fullScreenView switch", fullScreenView ? "ON" : "OFF");
-		if (fullScreenView)
-			SetFullScreenWorldView();
-		else
-		{
-			SetViewFocusOnObj(player);
-			worldView.setSize({ size.x / 4, size.y / 4 });
-		}
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
-	{
-		LOG::Print3String("scene[battle] dev mode on");
+		CLOG::Print3String("scene[battle] dev mode on");
 		for (auto& obj : objList)
 		{
 			obj->SetDevMode(true);
 		}
 		return;
 	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
+	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
 	{
-		LOG::Print3String("scene[battle] dev mode off");
+		CLOG::Print3String("scene[battle] dev mode off");
 		for (auto& obj : objList)
 		{
 			obj->SetDevMode(false);
 		}
 		return;
 	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
+	{
+		fullScreenView = !fullScreenView;
+		CLOG::Print3String("scene[battle] fullScreenView switch", fullScreenView ? "ON" : "OFF");
+		if (fullScreenView)
+			SetFullScreenWorldView();
+		else
+		{
+			SetViewFocusOnObj(player);
+			worldView.setSize({ size.x / 2, size.y / 2 });
+		}
+		return;
+	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::F10))
 	{
-		LOG::Print3String("scene[battle] overlay switch on");
+		CLOG::Print3String("scene[battle] overlay switch on");
 		for (auto& obj : objList)
 		{
 			if (!obj->GetType().compare("Overlay"))
@@ -148,17 +152,12 @@ void BattleScene::Update(float dt)
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::F11))
 	{
-		LOG::Print3String("scene[battle] overlay switch off");
+		CLOG::Print3String("scene[battle] overlay switch off");
 		for (auto& obj : objList)
 		{
 			if (!obj->GetType().compare("Overlay"))
 				obj->SetActive(false);
 		}
-	}
-	if (InputMgr::GetMouseDown(Mouse::Left))
-	{
-		LOG::Print3String("scene[battle]");
-		LOG::PrintVectorState(InputMgr::GetMousePos());
 	}
 
 	// Game Input
@@ -166,9 +165,24 @@ void BattleScene::Update(float dt)
 		exit(0);
 	if (InputMgr::GetKeyDown(Keyboard::Key::Space))
 	{
-		LOG::Print3String("scene[battle] reset key");
+		CLOG::Print3String("scene[battle] reset key");
 		SCENE_MGR->ChangeScene(Scenes::Battle);
 		return;
+	}
+	if (InputMgr::GetMouseDown(Mouse::Left))
+	{
+		Vector2f screenPos = InputMgr::GetMousePos();
+		for (auto piece : gamePieces)
+		{
+			FloatRect fr = piece->GetHitbox().getGlobalBounds();
+			Vector2f worldPos = ScreenToWorldPos(Vector2i(screenPos));
+			if (fr.contains(worldPos))
+			{
+				CLOG::Print3String("hit", piece->GetName());
+				break;
+			}
+		}
+		//CLOG::PrintVectorState(worldPos, "hit ground");
 	}
 	
 	Scene::Update(dt);
@@ -190,7 +204,7 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 		background->SetTexture(GetTexture("graphics/ForestTileSet.png"));
 	}
 
-	background->SetPos(Vector2f(-unit * (height % 2 ? height : height + 1) * 0.5f, -unit * (width % 2 ? width + 1 : width) * 0.5f));
+	background->SetPos(Vector2f(-quadHeight * (height % 2 ? height : height - 1) * 0.5f, -quadWidth * (width % 2 ? width - 1 : width) * 0.5f));
 
 	Vector2f startPos = background->GetPos();
 	VertexArray& va = background->GetVA();
@@ -205,7 +219,7 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 		{quadWidth, quadHeight},
 		{0, quadHeight},
 	};
-
+	
 	for (int i = 0; i < width; ++i)
 	{
 		for (int j = 0; j < height; ++j)
@@ -243,8 +257,8 @@ void BattleScene::CreateOverlay(int width, int height, float quadWidth, float qu
 	for (int i = 0; i < height; i++)
 		overlay[i].resize(width);
 
-	int cStart = -unit * (width % 2 ? width + 1 : width) * 0.5f;
-	int r = -unit * (height % 2 ? height : height + 1) * 0.5f;
+	int cStart = -quadWidth * (width % 2 ? width - 1 : width) * 0.5f;
+	int r = -quadHeight * (height % 2 ? height : height - 1) * 0.5f;
 	for (auto& tiles : overlay)
 	{
 		int c = cStart;
@@ -253,9 +267,9 @@ void BattleScene::CreateOverlay(int width, int height, float quadWidth, float qu
 			tile = new OverlayTile();
 			objList.push_back(tile);
 			tile->SetPos(Vector2f(r, c));
-			c += unit;
+			c += quadWidth;
 		}
-		r += unit;
+		r += quadHeight;
 	}
 }
 

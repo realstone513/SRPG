@@ -15,7 +15,7 @@ OverlayTile::~OverlayTile()
 
 void OverlayTile::Init()
 {
-	//Object::Init();
+	//Object::Init(); hitbox를 쓰지않음
 }
 
 void OverlayTile::Release()
