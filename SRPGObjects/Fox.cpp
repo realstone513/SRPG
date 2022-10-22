@@ -1,6 +1,11 @@
 #include "Fox.h"
 #include "../SFML_Framework/Frameworks.h"
 
+Fox::Fox()
+	: Piece(120, 30, 20, 1, 5)
+{
+}
+
 void Fox::Init()
 {
 	SetType("AI");
@@ -19,12 +24,6 @@ void Fox::Reset()
 	Object::Reset();
 	SetState(States::Idle);
 	anim.Play("Fox/Idle");
-	anim.PlayQueue("Fox/Idle2");
-	anim.PlayQueue("Fox/Move");
-	anim.PlayQueue("Fox/Catch");
-	anim.PlayQueue("Fox/Hit");
-	anim.PlayQueue("Fox/Death");
-	anim.PlayQueue("Fox/Sleep");
 }
 
 void Fox::Update(float dt)

@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameSystem\MapControl.cpp" />
+    <ClCompile Include="SRPGObjects\Piece.cpp" />
     <ClCompile Include="SRPGObjects\OverlayTile.cpp" />
     <ClCompile Include="SFML_Framework\GameObject\RectangleObj.cpp" />
     <ClCompile Include="SRPGObjects\Fox.cpp" />
@@ -175,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameSystem\MapControl.h" />
+    <ClInclude Include="SRPGObjects\Piece.h" />
     <ClInclude Include="SFML_Framework\3rd\Command.h" />
     <ClInclude Include="SRPGObjects\OverlayTile.h" />
     <ClInclude Include="SFML_Framework\GameObject\RectangleObj.h" />

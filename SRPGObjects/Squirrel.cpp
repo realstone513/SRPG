@@ -1,6 +1,11 @@
 #include "Squirrel.h"
 #include "../SFML_Framework/Frameworks.h"
 
+Squirrel::Squirrel()
+	: Piece(50, 10, 10, 1, 2)
+{
+}
+
 void Squirrel::Init()
 {
 	SetType("AI");
@@ -19,12 +24,6 @@ void Squirrel::Reset()
 	Object::Reset();
 	SetState(States::Idle);
 	anim.Play("Squirrel/Idle");
-	anim.PlayQueue("Squirrel/Idle2");
-	anim.PlayQueue("Squirrel/Move");
-	anim.PlayQueue("Squirrel/Dig");
-	anim.PlayQueue("Squirrel/Hit");
-	anim.PlayQueue("Squirrel/Death");
-	anim.PlayQueue("Squirrel/Eat");
 }
 
 void Squirrel::Update(float dt)

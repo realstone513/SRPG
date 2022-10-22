@@ -96,6 +96,12 @@
     <ClCompile Include="SRPGObjects\OverlayTile.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="SRPGObjects\Piece.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystem\MapControl.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFML_Framework\3rd\OBB.h">
@@ -201,6 +207,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GameSystem\MapControl.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SRPGObjects\Piece.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

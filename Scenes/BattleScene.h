@@ -7,7 +7,7 @@ class Fox;
 class Minotaur;
 class Player;
 class Squirrel;
-class SpriteObj;
+class Piece;
 class OverlayTile;
 
 class BattleScene : public Scene, MapControl
@@ -19,17 +19,17 @@ protected:
 	Minotaur* mino;
 	Player* player;
 	Squirrel* squirrel;
-	list<SpriteObj*> gamePieces;
+	list<Piece*> gamePieces;
 
 	vector<vector<OverlayTile*>> overlay;
 
 	// Values
 	Vector2f size;
-	bool fullScreenView;
+	bool fsv; // fullScreenView
 
 public:
 	BattleScene();
-	virtual ~BattleScene();
+	virtual ~BattleScene() {}
 
 	virtual void Init() override;
 	virtual void Release() override;
@@ -43,5 +43,5 @@ public:
 	void CreateBackground(int width, int height, float quadWidth, float quadHeight);
 	void CreateOverlay(int width, int height, float quadWidth, float quadHeight);
 	void SetFullScreenWorldView();
-	void SetViewFocusOnObj(SpriteObj* obj);
+	void SetViewFocusOnObj(Piece* obj);
 };

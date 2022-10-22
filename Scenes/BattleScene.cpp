@@ -1,33 +1,28 @@
 #include "BattleScene.h"
 #include "../SFML_Framework/Frameworks.h"
-#include "../SFML_Framework/GameObject/SpriteObj.h"
 #include "../SRPGObjects/Cat.h"
 #include "../SRPGObjects/Fox.h"
 #include "../SRPGObjects/Minotaurs.h"
+#include "../SRPGObjects/OverlayTile.h"
+#include "../SRPGObjects/Piece.h"
 #include "../SRPGObjects/Player.h"
 #include "../SRPGObjects/Squirrel.h"
-#include "../SRPGObjects/OverlayTile.h"
 
 BattleScene::BattleScene()
-	: Scene(Scenes::Battle), fullScreenView(false), size((Vector2f)FRAMEWORK->GetWindowSize())
+	: MapControl(overlay, 32.f), Scene(Scenes::Battle),
+	fsv(false), size((Vector2f)FRAMEWORK->GetWindowSize())
 {
 	CLOG::Print3String("scene[battle] create");
-}
-
-BattleScene::~BattleScene()
-{
 }
 
 void BattleScene::Init()
 {
 	CLOG::Print3String("scene[battle] init");
-	float cellWidth = 32.f;
 	int mapSizeR = 25;
 	int mapSizeC = 50;
-	CreateBackground(mapSizeR, mapSizeC, cellWidth, cellWidth);
-	CreateOverlay(mapSizeR, mapSizeC, cellWidth, cellWidth);
-	MCInit(cellWidth, overlay[0][0]->GetPos(),
-		overlay[mapSizeC - 1][mapSizeR - 1]->GetPos());
+	CreateBackground(mapSizeR, mapSizeC, unit, unit);
+	CreateOverlay(mapSizeR, mapSizeC, unit, unit);
+	SetLT(overlay[0][0]->GetPos());
 
 	player = new Player();
 	mino = new Minotaur();
@@ -41,7 +36,7 @@ void BattleScene::Init()
 	objList.push_back(squirrel);
 	objList.push_back(fox);
 
-	for (auto& obj : objList)
+	for (Object*& obj : objList)
 	{
 		obj->Init();
 	}
@@ -52,9 +47,9 @@ void BattleScene::Init()
 	gamePieces.push_back(squirrel);
 	gamePieces.push_back(fox);
 
-	for (auto& obj : gamePieces)
+	for (Piece*& piece : gamePieces)
 	{
-		obj->SetScale(2.f, 2.f);
+		piece->SetScale(2.f, 2.f);
 	}
 
 	// 실제 크기 비교용
@@ -80,13 +75,13 @@ void BattleScene::Release()
 void BattleScene::Enter()
 {
 	CLOG::Print3String("scene[battle] enter");
-	for (auto& obj : objList)
+	for (Object*& obj : objList)
 	{
 		obj->Reset();
 	}
-	fullScreenView = false;
+	fsv = false;
 
-	if (fullScreenView)
+	if (fsv)
 		SetFullScreenWorldView();
 	else
 	{
@@ -98,7 +93,7 @@ void BattleScene::Enter()
 void BattleScene::Exit()
 {
 	CLOG::Print3String("scene[battle] exit");
-	for (auto& obj : objList)
+	for (Object*& obj : objList)
 	{
 		obj->SetActive(false);
 	}
@@ -130,9 +125,9 @@ void BattleScene::Update(float dt)
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
 	{
-		fullScreenView = !fullScreenView;
-		CLOG::Print3String("scene[battle] fullScreenView switch", fullScreenView ? "ON" : "OFF");
-		if (fullScreenView)
+		fsv = !fsv;
+		CLOG::Print3String("scene[battle] fullScreenView switch", fsv ? "ON" : "OFF");
+		if (fsv)
 			SetFullScreenWorldView();
 		else
 		{
@@ -171,23 +166,55 @@ void BattleScene::Update(float dt)
 	}
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
-		Vector2f screenPos = InputMgr::GetMousePos();
+		Vector2f worldPos = ScreenToWorldPos(
+			Vector2i(InputMgr::GetMousePos()));
+		bool hitGround = true;
 		for (auto piece : gamePieces)
 		{
 			FloatRect fr = piece->GetHitbox().getGlobalBounds();
-			Vector2f worldPos = ScreenToWorldPos(Vector2i(screenPos));
+			
 			if (fr.contains(worldPos))
 			{
-				CLOG::Print3String("hit", piece->GetName());
-				break;
+				Vector2i curIdx = PosToIdx(piece->GetPos());
+				
+				if (!focus || focus != piece)
+				{
+					if (focus)
+						SetOverlayInactive();
+					focus = piece;
+
+					algorithmCount = 0;
+					SetMoveable(curIdx, piece->mobility);
+					CLOG::Print3String("count : ", to_string(algorithmCount));
+					SetAttackRange(curIdx, piece->range, piece->rangeFill);
+					SetImmovable(curIdx);
+					hitGround = false;
+					break;
+				}
+				else
+					SetOverlayInactive();
+				return ;
 			}
 		}
-		//CLOG::PrintVectorState(worldPos, "hit ground");
+		for (auto tile : activeTiles)
+		{
+			if (tile->GetGlobalBounds().contains(worldPos))
+			{
+				hitGround = false;
+				CLOG::PrintVectorState(tile->GetPos(), "tile Pos");
+				CLOG::PrintVectorState(focus->GetPos(), "focus Pos");
+				CLOG::PrintVectorState(PosToIdx(tile->GetPos()), "tile Idx");
+				return;
+			}
+		}
+
+		if (hitGround)
+			SetOverlayInactive();
 	}
 	
 	Scene::Update(dt);
 
-	if (!fullScreenView)
+	if (!fsv)
 		SetViewFocusOnObj(player);
 }
 
@@ -225,13 +252,15 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 		for (int j = 0; j < height; ++j)
 		{
 			// 지형 선택
-			int texIndexX = (i + j) % 2 ? 1 : 4;
+			/*int texIndexX = (i + j) % 2 ? 1 : 4;
 			int texIndexY = 1;
 			if ((i == 0 || i == width - 1) || (j == 0 || j == height - 1))
 			{
 				texIndexX = 4;
 				texIndexY = 4;
-			}
+			}*/
+			int texIndexX = 4;
+			int texIndexY = 1;
 
 			// 채우기
 			int quadIndex = i * height + j;
@@ -279,7 +308,7 @@ void BattleScene::SetFullScreenWorldView()
 	worldView.setCenter(Vector2f());
 }
 
-void BattleScene::SetViewFocusOnObj(SpriteObj* obj)
+void BattleScene::SetViewFocusOnObj(Piece* obj)
 {
 	worldView.setCenter({ obj->GetPos().x, obj->GetPos().y - obj->GetSize().y * 0.5f });
 }

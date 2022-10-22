@@ -1,6 +1,11 @@
 #include "Minotaurs.h"
 #include "../SFML_Framework/Frameworks.h"
 
+Minotaur::Minotaur()
+	: Piece(500, 150, 100, 1, 6)
+{
+}
+
 void Minotaur::Init()
 {
 	SetType("AI");
@@ -18,25 +23,7 @@ void Minotaur::Reset()
 {
 	Object::Reset();
 	SetState(States::Idle);
-	anim.Play("Mino/IdleRight");
-	anim.PlayQueue("Mino/RunRight");
-	anim.PlayQueue("Mino/ReadyRight");
-	anim.PlayQueue("Mino/BigAttackRight");
-	anim.PlayQueue("Mino/StabRight");
-	anim.PlayQueue("Mino/StompRight");
-	anim.PlayQueue("Mino/WheelWindRight");
-	anim.PlayQueue("Mino/HitRight");
-	anim.PlayQueue("Mino/DeathRight");
-
-	anim.PlayQueue("Mino/IdleLeft");
-	anim.PlayQueue("Mino/RunLeft");
-	anim.PlayQueue("Mino/ReadyLeft");
-	anim.PlayQueue("Mino/BigAttackLeft");
-	anim.PlayQueue("Mino/StabLeft");
-	anim.PlayQueue("Mino/StompLeft");
-	anim.PlayQueue("Mino/HitLeft");
-	anim.PlayQueue("Mino/DeathLeft");
-	anim.PlayQueue("Mino/WheelWindLeft");
+	anim.Play("Mino/IdleLeft");
 }
 
 void Minotaur::Update(float dt)

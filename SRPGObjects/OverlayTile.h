@@ -1,9 +1,19 @@
 #pragma once
 #include "../SFML_Framework/GameObject/RectangleObj.h"
+#include <map>
 
 class OverlayTile : public RectangleObj
 {
 protected:
+	enum class TileType
+	{
+		None = -1,
+		Inactive,
+		Moveable,
+		Immovable,
+		AttackRange,
+	};
+	map<TileType, Color> colors;
 
 public:
 	OverlayTile();
@@ -15,4 +25,7 @@ public:
 	virtual void Reset() override;
 	virtual void Update(float dt) override;
 	virtual void Draw(RenderWindow& window) override;
+
+	void SetFillColor(TileType type);
+	void SetFillColor(int type);
 };

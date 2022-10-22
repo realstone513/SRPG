@@ -1,12 +1,15 @@
 #pragma once
-#include "../SFML_Framework/GameObject/SpriteObj.h"
+#include "Piece.h"
 #include "../SFML_Framework/Framework/Animatable.h"
 
-class Minotaur : public SpriteObj, Animatable
+class Minotaur : public Piece, Animatable
 {
 protected:
 
 public:
+	Minotaur();
+	virtual ~Minotaur() {}
+
 	virtual void Init();
 	virtual void Release();
 	virtual void Reset();

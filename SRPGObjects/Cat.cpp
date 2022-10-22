@@ -1,6 +1,11 @@
 #include "Cat.h"
 #include "../SFML_Framework/Frameworks.h"
 
+Cat::Cat()
+	: Piece(60, 40, 40, 2, 4, false)
+{
+}
+
 void Cat::Init()
 {
 	SetType("Playable");
@@ -19,14 +24,6 @@ void Cat::Reset()
 	Object::Reset();
 	SetState(States::Idle);
 	anim.Play("Cat/Idle");
-	anim.PlayQueue("Cat/Grooming1");
-	anim.PlayQueue("Cat/Grooming2");
-	anim.PlayQueue("Cat/Move");
-	anim.PlayQueue("Cat/Run");
-	anim.PlayQueue("Cat/Sleep");
-	anim.PlayQueue("Cat/Threat");
-	anim.PlayQueue("Cat/Hit");
-	anim.PlayQueue("Cat/Punch");
 }
 
 void Cat::Update(float dt)

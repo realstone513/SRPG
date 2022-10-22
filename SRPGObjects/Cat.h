@@ -1,12 +1,15 @@
 #pragma once
-#include "../SFML_Framework/GameObject/SpriteObj.h"
+#include "Piece.h"
 #include "../SFML_Framework/Framework/Animatable.h"
 
-class Cat : public SpriteObj, Animatable
+class Cat : public Piece, Animatable
 {
 protected:
 
 public:
+	Cat();
+	virtual ~Cat() {}
+
 	virtual void Init();
 	virtual void Release();
 	virtual void Reset();

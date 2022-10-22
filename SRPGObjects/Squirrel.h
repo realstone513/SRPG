@@ -1,12 +1,15 @@
 #pragma once
-#include "../SFML_Framework/GameObject/SpriteObj.h"
+#include "Piece.h"
 #include "../SFML_Framework/Framework/Animatable.h"
 
-class Squirrel : public SpriteObj, Animatable
+class Squirrel : public Piece, Animatable
 {
 protected:
 
 public:
+	Squirrel();
+	virtual ~Squirrel() {}
+
 	virtual void Init();
 	virtual void Release();
 	virtual void Reset();

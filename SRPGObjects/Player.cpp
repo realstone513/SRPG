@@ -1,6 +1,11 @@
 #include "Player.h"
 #include "../SFML_Framework/Frameworks.h"
 
+Player::Player()
+	: Piece(100, 30, 20, 1, 5)
+{
+}
+
 void Player::Init()
 {
 	SetType("Playable");
@@ -19,21 +24,6 @@ void Player::Reset()
 	Object::Reset();
 	SetState(States::Idle);
 	anim.Play("Player/Idle");
-	anim.PlayQueue("Player/AttackRight1");
-	anim.PlayQueue("Player/AttackRight2");
-	anim.PlayQueue("Player/AttackRight3");
-	anim.PlayQueue("Player/JumpRight");
-	anim.PlayQueue("Player/HitRight");
-	anim.PlayQueue("Player/DeathRight");
-	anim.PlayQueue("Player/MoveRight");
-	anim.PlayQueue("Player/AttackLeft1");
-	anim.PlayQueue("Player/AttackLeft2");
-	anim.PlayQueue("Player/AttackLeft3");
-	anim.PlayQueue("Player/JumpLeft");
-	anim.PlayQueue("Player/HitLeft");
-	anim.PlayQueue("Player/DeathLeft");
-	anim.PlayQueue("Player/MoveLeft");
-	anim.PlayQueue("Player/Idle");
 }
 
 void Player::Update(float dt)
