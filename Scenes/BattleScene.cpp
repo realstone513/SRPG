@@ -11,7 +11,7 @@
 BattleScene::BattleScene()
 	: MapControl(overlay, 32.f), Scene(Scenes::Battle),
 	fsv(false), size((Vector2f)FRAMEWORK->GetWindowSize()),
-	curPhase(Phase::wait)
+	curPhase(Phase::Wait)
 {
 	CLOG::Print3String("scene[battle] create");
 }
@@ -161,13 +161,14 @@ void BattleScene::Update(float dt)
 	}
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
+		CLOG::Print3String("phase :", to_string((int)curPhase));
+
 		Vector2f worldPos = ScreenToWorldPos(
 			Vector2i(InputMgr::GetMousePos()));
 		bool hitGround = true;
 		switch (curPhase)
 		{
-		case BattleScene::Phase::wait:
-			
+		case BattleScene::Phase::Wait:
 			for (auto piece : gamePieces)
 			{
 				if (piece->GetHitbox().getGlobalBounds().
@@ -182,44 +183,77 @@ void BattleScene::Update(float dt)
 
 						focus = piece;
 						if (!FRAMEWORK->devMode)
-							SetMoveable(curIdx, piece->mobility);
+							SetMoveable(curIdx, focus->mobility);
 						else
 						{
 							algorithmCount = 0;
-							SetMoveable(curIdx, piece->mobility);
+							SetMoveable(curIdx, focus->mobility);
 							CLOG::Print3String("count :", to_string(algorithmCount));
 						}
-						SetAttackRange(curIdx, piece->range, piece->rangeFill);
+						SetAttackRange(curIdx, focus->range, focus->rangeFill);
 						SetImmovable(curIdx);
 						hitGround = false;
-						curPhase = Phase::move;
-						break;
+						curPhase = Phase::Action;
+						return;
 					}
 				}
 			}
 			break;
-		case BattleScene::Phase::move:
+		case BattleScene::Phase::Action:
 			for (auto tile : activeTiles)
 			{
 				if (tile->GetGlobalBounds().contains(worldPos))
 				{
 					hitGround = false;
-					focus->SetPos(tile->GetTilePos());
-					SetOverlayInactive();
-					curPhase = Phase::wait;
+					if ((int)tile->GetTileType() == (int)TileType::Moveable)
+					{
+						// move
+						focus->SetPos(tile->GetTilePos());
+						SetOverlayInactive();
+						Vector2i curIdx = PosToIdx(focus->GetPos());
+						//SetMoveable(curIdx, focus->mobility);
+						SetAttackRange(curIdx, focus->range, focus->rangeFill);
+						SetImmovable(curIdx);
+						curPhase = Phase::ActionAfterMove;
+					}
+					else if ((int)tile->GetTileType() == (int)TileType::AttackRange)
+					{
+						// attack
+						CLOG::Print3String("Attack!");
+						curPhase = Phase::Wait;
+						SetOverlayInactive();
+						focus = nullptr;
+					}
 					return;
 				}
 			}
 			break;
-		case BattleScene::Phase::action:
-
+		case BattleScene::Phase::ActionAfterMove:
+			// attack or end
+			for (auto tile : activeTiles)
+			{
+				if (tile->GetGlobalBounds().contains(worldPos))
+				{
+					hitGround = false;
+					if ((int)tile->GetTileType() == (int)TileType::AttackRange)
+					{
+						// attack
+						CLOG::Print3String("Attack!");
+						curPhase = Phase::Wait;
+						SetOverlayInactive();
+						focus = nullptr;
+					}
+					return;
+				}
+			}
 			break;
 		}
 
 		if (hitGround)
 		{
 			SetOverlayInactive();
-			curPhase = Phase::wait;
+			focus = nullptr;
+			curPhase = Phase::Wait;
 		}
 	}
 

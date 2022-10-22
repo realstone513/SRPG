@@ -57,7 +57,10 @@ void MapControl::SetAttackRange(Vector2i coord, int range, bool fill)
 
 	if (!fill && range != 0)
 		return;
-	overlay[coord.x][coord.y]->SetFillColor((int)TileType::AttackRange);
+	OverlayTile* tile = overlay[coord.x][coord.y];
+	activeTiles.push_back(tile);
+	tile->SetActive(true);
+	tile->SetFillColor((int)TileType::AttackRange);
 }
 
 void MapControl::SetImmovable(Vector2i coord)
@@ -68,7 +71,6 @@ void MapControl::SetImmovable(Vector2i coord)
 
 void MapControl::SetOverlayInactive()
 {
-	focus = nullptr;
 	for (auto tile : activeTiles)
 	{
 		tile->Reset();

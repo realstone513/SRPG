@@ -8,17 +8,17 @@
 using namespace sf;
 using namespace std;
 
+enum class TileType
+{
+	None = -1,
+	Inactive,
+	Moveable,
+	Immovable,
+	AttackRange,
+};
+
 class MapControl
 {
-	enum class TileType
-	{
-		None = -1,
-		Inactive,
-		Moveable,
-		Immovable,
-		AttackRange,
-	};
-
 protected:
 	float unit;
 	Vector2f lt;
