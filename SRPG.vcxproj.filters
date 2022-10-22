@@ -197,5 +197,8 @@
     <ClInclude Include="SRPGObjects\OverlayTile.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SFML_Framework\3rd\Command.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
