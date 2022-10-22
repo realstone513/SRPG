@@ -13,6 +13,14 @@ class OverlayTile;
 class BattleScene : public Scene, MapControl
 {
 protected:
+	enum class Phase
+	{
+		none = -1,
+		wait,
+		move,
+		action,
+	};
+
 	// Objects
 	Cat* cat;
 	Fox* fox;
@@ -26,6 +34,7 @@ protected:
 	// Values
 	Vector2f size;
 	bool fsv; // fullScreenView
+	Phase curPhase;
 
 public:
 	BattleScene();

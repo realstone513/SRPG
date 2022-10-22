@@ -10,7 +10,8 @@
 
 BattleScene::BattleScene()
 	: MapControl(overlay, 32.f), Scene(Scenes::Battle),
-	fsv(false), size((Vector2f)FRAMEWORK->GetWindowSize())
+	fsv(false), size((Vector2f)FRAMEWORK->GetWindowSize()),
+	curPhase(Phase::wait)
 {
 	CLOG::Print3String("scene[battle] create");
 }
@@ -22,7 +23,7 @@ void BattleScene::Init()
 	int mapSizeC = 50;
 	CreateBackground(mapSizeR, mapSizeC, unit, unit);
 	CreateOverlay(mapSizeR, mapSizeC, unit, unit);
-	SetLT(overlay[0][0]->GetPos());
+	SetLTRB(overlay[0][0]->GetPos(), overlay[mapSizeC - 1][mapSizeR - 1]->GetPos());
 
 	player = new Player();
 	mino = new Minotaur();
@@ -40,7 +41,7 @@ void BattleScene::Init()
 	{
 		obj->Init();
 	}
-	
+
 	gamePieces.push_back(player);
 	gamePieces.push_back(mino);
 	gamePieces.push_back(cat);
@@ -108,19 +109,13 @@ void BattleScene::Update(float dt)
 	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
 	{
 		CLOG::Print3String("scene[battle] dev mode on");
-		for (auto& obj : objList)
-		{
-			obj->SetDevMode(true);
-		}
+		FRAMEWORK->devMode = true;
 		return;
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
 	{
 		CLOG::Print3String("scene[battle] dev mode off");
-		for (auto& obj : objList)
-		{
-			obj->SetDevMode(false);
-		}
+		FRAMEWORK->devMode = false;
 		return;
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
@@ -139,19 +134,19 @@ void BattleScene::Update(float dt)
 	if (InputMgr::GetKeyDown(Keyboard::Key::F10))
 	{
 		CLOG::Print3String("scene[battle] overlay switch on");
-		for (auto& obj : objList)
+		for (auto tiles : overlay)
 		{
-			if (!obj->GetType().compare("Overlay"))
-				obj->SetActive(true);
+			for (auto tile : tiles)
+				tile->SetActive(true);
 		}
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::F11))
 	{
 		CLOG::Print3String("scene[battle] overlay switch off");
-		for (auto& obj : objList)
+		for (auto tiles : overlay)
 		{
-			if (!obj->GetType().compare("Overlay"))
-				obj->SetActive(false);
+			for (auto tile : tiles)
+				tile->SetActive(false);
 		}
 	}
 
@@ -169,49 +164,65 @@ void BattleScene::Update(float dt)
 		Vector2f worldPos = ScreenToWorldPos(
 			Vector2i(InputMgr::GetMousePos()));
 		bool hitGround = true;
-		for (auto piece : gamePieces)
+		switch (curPhase)
 		{
-			FloatRect fr = piece->GetHitbox().getGlobalBounds();
+		case BattleScene::Phase::wait:
 			
-			if (fr.contains(worldPos))
+			for (auto piece : gamePieces)
 			{
-				Vector2i curIdx = PosToIdx(piece->GetPos());
-				
-				if (!focus || focus != piece)
+				if (piece->GetHitbox().getGlobalBounds().
+					contains(worldPos))
 				{
-					if (focus)
-						SetOverlayInactive();
-					focus = piece;
+					Vector2i curIdx = PosToIdx(piece->GetPos());
 
-					algorithmCount = 0;
-					SetMoveable(curIdx, piece->mobility);
-					CLOG::Print3String("count : ", to_string(algorithmCount));
-					SetAttackRange(curIdx, piece->range, piece->rangeFill);
-					SetImmovable(curIdx);
-					hitGround = false;
-					break;
+					if (!focus || focus != piece)
+					{
+						if (focus)
+							SetOverlayInactive();
+
+						focus = piece;
+						if (!FRAMEWORK->devMode)
+							SetMoveable(curIdx, piece->mobility);
+						else
+						{
+							algorithmCount = 0;
+							SetMoveable(curIdx, piece->mobility);
+							CLOG::Print3String("count :", to_string(algorithmCount));
+						}
+						SetAttackRange(curIdx, piece->range, piece->rangeFill);
+						SetImmovable(curIdx);
+						hitGround = false;
+						curPhase = Phase::move;
+						break;
+					}
 				}
-				else
-					SetOverlayInactive();
-				return ;
 			}
-		}
-		for (auto tile : activeTiles)
-		{
-			if (tile->GetGlobalBounds().contains(worldPos))
+			break;
+		case BattleScene::Phase::move:
+			for (auto tile : activeTiles)
 			{
-				hitGround = false;
-				CLOG::PrintVectorState(tile->GetPos(), "tile Pos");
-				CLOG::PrintVectorState(focus->GetPos(), "focus Pos");
-				CLOG::PrintVectorState(PosToIdx(tile->GetPos()), "tile Idx");
-				return;
+				if (tile->GetGlobalBounds().contains(worldPos))
+				{
+					hitGround = false;
+					focus->SetPos(tile->GetTilePos());
+					SetOverlayInactive();
+					curPhase = Phase::wait;
+					return;
+				}
 			}
+			break;
+		case BattleScene::Phase::action:
+
+			break;
 		}
 
 		if (hitGround)
+		{
 			SetOverlayInactive();
+			curPhase = Phase::wait;
+		}
 	}
-	
+
 	Scene::Update(dt);
 
 	if (!fsv)
@@ -246,7 +257,7 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 		{quadWidth, quadHeight},
 		{0, quadHeight},
 	};
-	
+
 	for (int i = 0; i < width; ++i)
 	{
 		for (int j = 0; j < height; ++j)

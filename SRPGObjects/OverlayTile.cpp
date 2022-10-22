@@ -2,7 +2,7 @@
 
 OverlayTile::OverlayTile()
 {
-	SetType("Overlay");
+	SetName("Overlay");
 	colors[TileType::Inactive] = Color(255.f, 255.f, 255.f, 30.f);
 	colors[TileType::Moveable] = Color(255.f, 255.f, 255.f, 30.f);
 	colors[TileType::Immovable] = Color(255.f, 255.f, 255.f, 30.f);
@@ -28,8 +28,7 @@ void OverlayTile::Release()
 
 void OverlayTile::Reset()
 {
-	shape.setFillColor(Color(255.f, 255.f, 255.f, 30.f));
-	shape.setFillColor(colors[TileType::Inactive]);
+	SetFillColor(TileType::Inactive);
 	SetActive(false);
 }
 
@@ -47,16 +46,20 @@ void OverlayTile::SetFillColor(TileType type)
 {
 	switch (type)
 	{
-	case OverlayTile::TileType::Inactive:
+	case TileType::Inactive:
+		SetTileType(TileType::Inactive);
 		shape.setFillColor(Color(255.f, 255.f, 255.f, 30.f));
 		break;
-	case OverlayTile::TileType::Moveable:
+	case TileType::Moveable:
+		SetTileType(TileType::Moveable);
 		shape.setFillColor(Color(0, 0, 255.f, 100.f));
 		break;
-	case OverlayTile::TileType::Immovable:
+	case TileType::Immovable:
+		SetTileType(TileType::Immovable);
 		shape.setFillColor(Color(127.f, 127.f, 127.f, 100.f));
 		break;
-	case OverlayTile::TileType::AttackRange:
+	case TileType::AttackRange:
+		SetTileType(TileType::AttackRange);
 		shape.setFillColor(Color(255.f, 0, 0, 100.f));
 		break;
 	default:
@@ -66,5 +69,20 @@ void OverlayTile::SetFillColor(TileType type)
 
 void OverlayTile::SetFillColor(int type)
 {
-	SetFillColor((OverlayTile::TileType)type);
+	SetFillColor((TileType)type);
+}
+
+OverlayTile::TileType OverlayTile::GetTileType() const
+{
+	return tileType;
+}
+
+void OverlayTile::SetTileType(TileType type)
+{
+	tileType = type;
+}
+
+Vector2f OverlayTile::GetTilePos() const
+{
+	return Vector2f(position.x + 16.f, position.y + 32.f);
 }

@@ -14,6 +14,7 @@ protected:
 		AttackRange,
 	};
 	map<TileType, Color> colors;
+	TileType tileType;
 
 public:
 	OverlayTile();
@@ -28,4 +29,7 @@ public:
 
 	void SetFillColor(TileType type);
 	void SetFillColor(int type);
+	TileType GetTileType() const;
+	void SetTileType(TileType type);
+	Vector2f GetTilePos() const;
 };
