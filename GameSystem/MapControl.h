@@ -27,9 +27,11 @@ protected:
 	float height;
 
 	vector<vector<OverlayTile*>>& overlay;
+	list<Piece*> gamePieces;
 	list<OverlayTile*> activeTiles;
 	Piece* focus; 
 	vector<Vector2f> offset;
+
 	// test
 	int algorithmCount;
 
@@ -43,6 +45,7 @@ public:
 	void SetAttackRange(Vector2i coord, int range, bool fill);
 	void SetImmovable(Vector2i coord);
 	void SetOverlayInactive();
+	void SetPiecePos(Piece* piece, Vector2i idx);
 
 	Vector2f Step(const Vector2f& objPos, int moveX, int moveY);
 	Vector2i PosToIdx(Vector2f pos);

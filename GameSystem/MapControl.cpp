@@ -66,6 +66,13 @@ void MapControl::SetAttackRange(Vector2i coord, int range, bool fill)
 void MapControl::SetImmovable(Vector2i coord)
 {
 	overlay[coord.x][coord.y]->SetFillColor((int)TileType::Immovable);
+
+	for (auto piece : gamePieces)
+	{
+		Vector2i idx = piece->GetIdxPos();
+		if ((int)overlay[idx.x][idx.y]->GetTileType() == (int)TileType::Moveable)
+			overlay[idx.x][idx.y]->SetFillColor((int)TileType::Immovable);
+	}
 	// 장애물 추가시
 }
 
@@ -76,6 +83,12 @@ void MapControl::SetOverlayInactive()
 		tile->Reset();
 	}
 	activeTiles.clear();
+}
+
+void MapControl::SetPiecePos(Piece* piece, Vector2i idx)
+{
+	piece->SetPos(IdxToPos(idx));
+	piece->SetIdxPos(idx);
 }
 
 Vector2f MapControl::Step(const Vector2f& objPos, int moveX, int moveY)

@@ -7,7 +7,7 @@ class Cat : public Piece, Animatable
 protected:
 
 public:
-	Cat();
+	Cat(PieceTypes pt);
 	virtual ~Cat() {}
 
 	virtual void Init();

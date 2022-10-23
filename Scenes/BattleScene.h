@@ -7,7 +7,6 @@ class Fox;
 class Minotaur;
 class Player;
 class Squirrel;
-class Piece;
 class OverlayTile;
 
 class BattleScene : public Scene, MapControl
@@ -27,13 +26,12 @@ protected:
 	Minotaur* mino;
 	Player* player;
 	Squirrel* squirrel;
-	list<Piece*> gamePieces;
 
 	vector<vector<OverlayTile*>> overlay;
 
 	// Values
-	Vector2f size;
 	bool fsv; // fullScreenView
+	Vector2f size;
 	Phase curPhase;
 
 public:

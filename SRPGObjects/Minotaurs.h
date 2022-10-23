@@ -7,7 +7,7 @@ class Minotaur : public Piece, Animatable
 protected:
 
 public:
-	Minotaur();
+	Minotaur(PieceTypes pt);
 	virtual ~Minotaur() {}
 
 	virtual void Init();

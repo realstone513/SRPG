@@ -1,8 +1,8 @@
 #include "Squirrel.h"
 #include "../SFML_Framework/Frameworks.h"
 
-Squirrel::Squirrel()
-	: Piece(50, 10, 10, 1, 2)
+Squirrel::Squirrel(PieceTypes pt)
+	: Piece(pt, 50, 10, 0, 1, 2)
 {
 }
 

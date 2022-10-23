@@ -1,8 +1,8 @@
 #include "Minotaurs.h"
 #include "../SFML_Framework/Frameworks.h"
 
-Minotaur::Minotaur()
-	: Piece(500, 150, 100, 1, 6)
+Minotaur::Minotaur(PieceTypes pt)
+	: Piece(pt, 400, 75, 50, 1, 6)
 {
 }
 

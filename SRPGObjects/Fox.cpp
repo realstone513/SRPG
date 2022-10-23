@@ -1,8 +1,8 @@
 #include "Fox.h"
 #include "../SFML_Framework/Frameworks.h"
 
-Fox::Fox()
-	: Piece(120, 30, 20, 1, 5)
+Fox::Fox(PieceTypes pt)
+	: Piece(pt, 120, 30, 10, 1, 5)
 {
 }
 

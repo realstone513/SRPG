@@ -7,7 +7,7 @@ class Player : public Piece, Animatable
 protected:
 
 public:
-	Player();
+	Player(PieceTypes pt);
 	virtual ~Player() {}
 
 	virtual void Init();

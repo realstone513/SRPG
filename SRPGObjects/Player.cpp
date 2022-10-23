@@ -1,8 +1,8 @@
 #include "Player.h"
 #include "../SFML_Framework/Frameworks.h"
 
-Player::Player()
-	: Piece(100, 30, 20, 1, 5)
+Player::Player(PieceTypes pt)
+	: Piece(pt, 100, 30, 20, 1, 5)
 {
 }
 

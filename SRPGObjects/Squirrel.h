@@ -7,7 +7,7 @@ class Squirrel : public Piece, Animatable
 protected:
 
 public:
-	Squirrel();
+	Squirrel(PieceTypes pt);
 	virtual ~Squirrel() {}
 
 	virtual void Init();

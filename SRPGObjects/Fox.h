@@ -7,7 +7,7 @@ class Fox : public Piece, Animatable
 protected:
 
 public:
-	Fox();
+	Fox(PieceTypes pt);
 	virtual ~Fox() {}
 
 	virtual void Init();

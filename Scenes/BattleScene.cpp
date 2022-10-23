@@ -25,11 +25,14 @@ void BattleScene::Init()
 	CreateOverlay(mapSizeR, mapSizeC, unit, unit);
 	SetLTRB(overlay[0][0]->GetPos(), overlay[mapSizeC - 1][mapSizeR - 1]->GetPos());
 
-	player = new Player();
-	mino = new Minotaur();
-	cat = new Cat();
-	squirrel = new Squirrel();
-	fox = new Fox();
+	// playable
+	player = new Player(PieceTypes::Playable);
+	cat = new Cat(PieceTypes::Playable);
+
+	// ai
+	mino = new Minotaur(PieceTypes::AI);
+	squirrel = new Squirrel(PieceTypes::AI);
+	fox = new Fox(PieceTypes::AI);
 
 	objList.push_back(player);
 	objList.push_back(mino);
@@ -53,19 +56,18 @@ void BattleScene::Init()
 		piece->SetScale(2.f, 2.f);
 	}
 
-	// 실제 크기 비교용
-	player->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
-	mino->SetHitbox(FloatRect(0, 5, 64.f, 64.f), Origins::BC);
-	cat->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
-	fox->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
-	squirrel->SetHitbox(FloatRect(0, 5, 32.f, 32.f), Origins::BC);
+	player->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
+	mino->SetHitbox(FloatRect(0, 5, unit * 2, unit * 2), Origins::BC);
+	cat->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
+	fox->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
+	squirrel->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
 
 	// 데모용 배치
-	player->SetPos(IdxToPos({ 10, 10 }));
-	mino->SetPos(IdxToPos({ 40, 10 }));
-	cat->SetPos(IdxToPos({ 9, 11 }));
-	fox->SetPos(IdxToPos({ 30, 10 }));
-	squirrel->SetPos(IdxToPos({ 20, 10 }));
+	SetPiecePos(player, { 10, 10 });
+	SetPiecePos(cat, { 9, 11 });
+	SetPiecePos(squirrel, { 20, 10 });
+	SetPiecePos(fox, { 30, 10 });
+	SetPiecePos(mino, { 40, 10 });
 }
 
 void BattleScene::Release()
@@ -104,7 +106,7 @@ void BattleScene::Update(float dt)
 {
 	// Develop Input
 	// F7 F8 : hitbox on/off
-	// F9 : fullscreen / focus
+	// F9 : fullscreen <-> focus
 	// F10 F11 : overlay on/off
 	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
 	{
@@ -161,18 +163,14 @@ void BattleScene::Update(float dt)
 	}
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
-		CLOG::Print3String("phase :", to_string((int)curPhase));
-
-		Vector2f worldPos = ScreenToWorldPos(
-			Vector2i(InputMgr::GetMousePos()));
+		Vector2f worldPos = ScreenToWorldPos( Vector2i(InputMgr::GetMousePos()) );
 		bool hitGround = true;
 		switch (curPhase)
 		{
 		case BattleScene::Phase::Wait:
 			for (auto piece : gamePieces)
 			{
-				if (piece->GetHitbox().getGlobalBounds().
-					contains(worldPos))
+				if (piece->GetHitbox().getGlobalBounds().contains(worldPos))
 				{
 					Vector2i curIdx = PosToIdx(piece->GetPos());
 
@@ -182,6 +180,7 @@ void BattleScene::Update(float dt)
 							SetOverlayInactive();
 
 						focus = piece;
+						CLOG::Print3String(focus->GetStatusString());
 						if (!FRAMEWORK->devMode)
 							SetMoveable(curIdx, focus->mobility);
 						else
@@ -205,13 +204,19 @@ void BattleScene::Update(float dt)
 				if (tile->GetGlobalBounds().contains(worldPos))
 				{
 					hitGround = false;
+
+					for (auto piece : gamePieces)
+					{
+						Vector2i idx = piece->GetIdxPos();
+						if ((int)overlay[idx.x][idx.y]->);
+					}
+
 					if ((int)tile->GetTileType() == (int)TileType::Moveable)
 					{
 						// move
-						focus->SetPos(tile->GetTilePos());
+						SetPiecePos(focus, PosToIdx(tile->GetTilePos()));
 						SetOverlayInactive();
 						Vector2i curIdx = PosToIdx(focus->GetPos());
-						//SetMoveable(curIdx, focus->mobility);
 						SetAttackRange(curIdx, focus->range, focus->rangeFill);
 						SetImmovable(curIdx);
 						curPhase = Phase::ActionAfterMove;

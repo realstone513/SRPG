@@ -4,9 +4,9 @@ OverlayTile::OverlayTile() : tileType(TileType::None)
 {
 	SetName("Overlay");
 	colors[TileType::Inactive] = Color(255.f, 255.f, 255.f, 30.f);
-	colors[TileType::Moveable] = Color(255.f, 255.f, 255.f, 30.f);
-	colors[TileType::Immovable] = Color(255.f, 255.f, 255.f, 30.f);
-	colors[TileType::AttackRange] = Color(255.f, 255.f, 255.f, 30.f);
+	colors[TileType::Moveable] = Color(0, 0, 255.f, 100.f);
+	colors[TileType::Immovable] = Color(127.f, 127.f, 127.f, 100.f);
+	colors[TileType::AttackRange] = Color(255.f, 0, 0, 100.f);
 
 	shape.setSize(Vector2f(30.f, 30.f));
 	shape.setOutlineColor(Color::Black);
