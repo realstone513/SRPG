@@ -8,6 +8,7 @@ Camera::Camera(PieceTypes pt)
 	SetType("Camera");
 	SetName("Camera");
 	isPlayable = false;
+	SetOrigin(Origins::MC);
 }
 
 void Camera::Init()
@@ -75,8 +76,30 @@ void Camera::Update(float dt)
 	}
 
 	Translate(velocity * dt);
+	if (position.x < -limitX)
+		position.x = -limitX;
+	if (position.y < -limitY)
+		position.y = -limitY;
+	if (position.x >= limitX)
+		position.x = limitX;
+	if (position.y >= limitY)
+		position.y = limitY;
 }
 
 void Camera::Draw(RenderWindow& window)
 {
+}
+
+void Camera::SetLimit(float width, float height)
+{
+	this->width = width;
+	this->height = height;
+
+	halfWidth = width * 0.5f;
+	halfHeight = height * 0.5f;
+
+	limitX = halfWidth * 0.64f;
+	limitY = halfHeight * 0.5f;
+
+	CLOG::Print3String(to_string(width), to_string(height));
 }

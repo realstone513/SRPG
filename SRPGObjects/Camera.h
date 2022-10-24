@@ -10,6 +10,13 @@ protected:
 	float deaccelation;
 	float speed;
 
+	float width;
+	float height;
+	float halfWidth;
+	float halfHeight;
+	float limitX;
+	float limitY;
+
 public:
 	Camera(PieceTypes pt);
 	virtual ~Camera() {}
@@ -19,4 +26,6 @@ public:
 	virtual void Reset();
 	virtual void Update(float dt);
 	virtual void Draw(RenderWindow& window);
+
+	void SetLimit(float width, float height);
 };

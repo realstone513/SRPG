@@ -29,6 +29,7 @@ void BattleScene::Init()
 	GAMEMGR->SetMapInfo(width, height);
 
 	camera = new Camera(PieceTypes::None);
+	camera->SetLimit(abs(lt.x) + abs(rb.x), abs(lt.y) + abs(rb.y));
 
 	// playable
 	player = new Player(PieceTypes::Playable);
@@ -220,6 +221,11 @@ void BattleScene::Update(float dt)
 		CLOG::Print3String("focus on", "mino");
 		viewTarget = mino;
 	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::Num6))
+	{
+		CLOG::Print3String("focus on", "camera");
+		viewTarget = camera;
+	}
 
 	Scene::Update(dt);
 	GAMEMGR->Update(dt);
@@ -341,6 +347,7 @@ void BattleScene::Update(float dt)
 						Vector2f destination = tile->GetTilePos();
 						// move
 						focus->SetDest(destination);
+
 						Vector2i curIdx = PosToIdx(destination);
 						focus->SetIdxPos(curIdx);
 						SetOverlayInactive();
@@ -410,11 +417,6 @@ void BattleScene::Update(float dt)
 		SetOverlayInactive();
 		focus = nullptr;
 	}
-
-	/*for (auto& piece : gamePieces)
-	{
-		piece->Update(dt);
-	}*/
 }
 
 void BattleScene::Draw(RenderWindow& window)
@@ -523,13 +525,14 @@ void BattleScene::AIAction()
 		Piece* target = nullptr;
 		for (Piece*& playable : GAMEMGR->playerPieces)
 		{
-			Vector2i tmp = ai->GetIdxPos() - playable->GetIdxPos();
+			Vector2i tmp = playable->GetIdxPos() - ai->GetIdxPos();
 			if (Utils::SqrMagnitude(dist) > Utils::SqrMagnitude(tmp))
 			{
 				dist = tmp;
 				target = playable;
 			}
 		}
+
 		if (target != nullptr)
 			CLOG::Print3String(ai->GetName(), target->GetName(), "distance");
 		CLOG::PrintVectorState(dist);
