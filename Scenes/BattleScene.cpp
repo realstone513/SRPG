@@ -1,5 +1,6 @@
 #include "BattleScene.h"
 #include "../SFML_Framework/Frameworks.h"
+#include "../SRPGObjects/Camera.h"
 #include "../SRPGObjects/Cat.h"
 #include "../SRPGObjects/Fox.h"
 #include "../SRPGObjects/Minotaurs.h"
@@ -27,6 +28,8 @@ void BattleScene::Init()
 	SetLTRB(overlay[0][0]->GetPos(), overlay[mapSizeC - 1][mapSizeR - 1]->GetPos());
 	GAMEMGR->SetMapInfo(width, height);
 
+	camera = new Camera(PieceTypes::None);
+
 	// playable
 	player = new Player(PieceTypes::Playable);
 	cat = new Cat(PieceTypes::Playable);
@@ -36,6 +39,7 @@ void BattleScene::Init()
 	squirrel = new Squirrel(PieceTypes::AI);
 	fox = new Fox(PieceTypes::AI);
 
+	objList.push_back(camera);
 	objList.push_back(player);
 	objList.push_back(mino);
 	objList.push_back(cat);
@@ -97,7 +101,9 @@ void BattleScene::Enter()
 	GAMEMGR->SetList(&gamePieces);
 	// player 턴으로 시작
 	GAMEMGR->SetPlayerTurn(true);
-	viewTarget = player;
+	//viewTarget = player;
+	viewTarget = camera;
+	camera->SetPos(player->GetPos());
 }
 
 void BattleScene::Exit()
@@ -135,7 +141,7 @@ void BattleScene::Update(float dt)
 			SetFullScreenWorldView();
 		else
 		{
-			SetViewFocusOnObj(viewTarget);
+			SetViewFocusOnObj(camera);
 			worldView.setSize({ size.x / 2, size.y / 2 });
 		}
 		return;
@@ -249,6 +255,11 @@ void BattleScene::Update(float dt)
 					tile->SetActive(false);
 			}
 		}
+	}
+	if (InputMgr::GetKeyUp(Keyboard::Key::Z))
+	{
+		CLOG::Print3String("scene[battle] AI Action");
+		AIAction();
 	}
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
@@ -491,6 +502,30 @@ void BattleScene::SetFullScreenWorldView()
 
 void BattleScene::SetViewFocusOnObj(Piece* obj)
 {
-	//CLOG::PrintVectorState(PosToIdx(obj->GetPos()));
 	worldView.setCenter({ obj->GetPos().x, obj->GetPos().y - obj->GetSize().y * 0.5f });
+}
+
+// 가장 가까운 playable 캐릭터를 향해 이동
+void BattleScene::AIAction()
+{
+	for (Piece*& ai : GAMEMGR->aiPieces)
+	{
+		viewTarget = ai;
+		Vector2i dist(width, height);
+
+		Piece* target = nullptr;
+		for (Piece*& playable : GAMEMGR->playerPieces)
+		{
+			Vector2i tmp = ai->GetIdxPos() - playable->GetIdxPos();
+			if (Utils::SqrMagnitude(dist) > Utils::SqrMagnitude(tmp))
+			{
+				dist = tmp;
+				target = playable;
+			}
+		}
+		if (target != nullptr)
+			CLOG::Print3String(ai->GetName(), target->GetName(), "distance");
+		CLOG::PrintVectorState(dist);
+	}
+	viewTarget = camera;
 }

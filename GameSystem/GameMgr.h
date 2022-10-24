@@ -16,8 +16,6 @@ class GameMgr : public Singleton<GameMgr>
 private:
 	bool isPlayerTurn;
 	list<Piece*>* gamePieces;
-	list<Piece*> playerPieces;
-	list<Piece*> aiPieces;
 	float width;
 	float height;
 	
@@ -32,6 +30,9 @@ public:
 	GameMgr();
 	virtual ~GameMgr() {}
 
+	list<Piece*> playerPieces;
+	list<Piece*> aiPieces;
+
 	void SetMapInfo(float width, float height);
 	void SetList(list<Piece*>* gamePieces);
 	void SetPlayerTurn(bool isPlayerTurn);
@@ -40,6 +41,4 @@ public:
 	void Update(float dt);
 	void SetGlobalTimer(float time) { globalTimer = time; }
 	void DamageToPiece(Piece* attack, Piece* hit);
-
-	void AIAction();
 };

@@ -29,17 +29,6 @@ void Player::Reset()
 
 void Player::Update(float dt)
 {
-	// test
-	if (InputMgr::GetKeyDown(Keyboard::Key::S))
-		Translate(Vector2f(0, 32));
-	if (InputMgr::GetKeyDown(Keyboard::Key::W))
-		Translate(Vector2f(0, -32));
-	if (InputMgr::GetKeyDown(Keyboard::Key::A))
-		Translate(Vector2f(-32, 0));
-	if (InputMgr::GetKeyDown(Keyboard::Key::D))
-		Translate(Vector2f(32, 0));
-	// test
-
 	anim.Update(dt);
 }
 

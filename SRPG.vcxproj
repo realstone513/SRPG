@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SRPGObjects\Camera.cpp" />
     <ClCompile Include="GameSystem\GameMgr.cpp" />
     <ClCompile Include="GameSystem\MapControl.cpp" />
     <ClCompile Include="SRPGObjects\Piece.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="SFML_Framework\UI\UIMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SRPGObjects\Camera.h" />
     <ClInclude Include="GameSystem\GameMgr.h" />
     <ClInclude Include="GameSystem\MapControl.h" />
     <ClInclude Include="SRPGObjects\Piece.h" />

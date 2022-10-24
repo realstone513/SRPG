@@ -2,6 +2,7 @@
 #include "../SFML_Framework/Scenes/Scene.h"
 #include "../GameSystem/MapControl.h"
 
+class Camera;
 class Cat;
 class Fox;
 class Minotaur;
@@ -28,6 +29,7 @@ protected:
 	Player* player;
 	Squirrel* squirrel;
 	Piece* viewTarget;
+	Camera* camera;
 
 	vector<vector<OverlayTile*>> overlay;
 
@@ -35,6 +37,7 @@ protected:
 	bool fsv; // fullScreenView
 	Vector2f size;
 	Phase curPhase;
+	bool aiSwitch;
 
 public:
 	BattleScene();
@@ -53,4 +56,6 @@ public:
 	void CreateOverlay(int width, int height, float quadWidth, float quadHeight);
 	void SetFullScreenWorldView();
 	void SetViewFocusOnObj(Piece* obj);
+
+	void AIAction();
 };

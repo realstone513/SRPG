@@ -21,7 +21,6 @@ protected:
 	bool isTurn;		// 턴
 	bool isPlayable;	// 조작
 	bool done;			// 행동
-	Sprite overlaySprite;
 
 public:
 	// status

@@ -105,6 +105,9 @@
     <ClCompile Include="GameSystem\GameMgr.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="SRPGObjects\Camera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFML_Framework\3rd\OBB.h">
@@ -216,6 +219,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GameSystem\GameMgr.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SRPGObjects\Camera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

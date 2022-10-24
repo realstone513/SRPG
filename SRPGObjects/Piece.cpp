@@ -7,7 +7,6 @@ Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
 	isTurn(false), isPlayable(false), done(false), isDeath(false)
 {
 	health = MaxHealth;
-	overlaySprite = sprite;
 }
 
 void Piece::Reset()
@@ -21,7 +20,6 @@ void Piece::Reset()
 
 void Piece::Update(float dt)
 {
-	overlaySprite.setPosition(position);
 }
 
 void Piece::SetPos(const Vector2f& pos)

@@ -77,10 +77,7 @@ void GameMgr::Update(float dt)
 		}
 
 		if (playerDoneCount == playerCount)
-		{
 			SetPlayerTurn(false);
-			AIAction();
-		}
 	}
 	else
 	{
@@ -131,22 +128,5 @@ void GameMgr::DamageToPiece(Piece* attack, Piece* hit)
 
 		//hit->SetActive(false);
 		hit->isDeath = true;
-	}
-}
-
-// 가장 가까운 playable 캐릭터를 향해 이동
-void GameMgr::AIAction()
-{
-	for (Piece*& ai : aiPieces)
-	{
-		Vector2i dist(width, height);
-
-		for (Piece*& playable : playerPieces)
-		{
-			Vector2i tmp = ai->GetIdxPos() - playable->GetIdxPos();
-			if (Utils::SqrMagnitude(dist) > Utils::SqrMagnitude(tmp))
-				dist = tmp;
-		}
-		CLOG::PrintVectorState(dist);
 	}
 }
