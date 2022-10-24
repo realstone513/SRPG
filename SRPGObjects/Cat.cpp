@@ -22,7 +22,7 @@ void Cat::Release()
 
 void Cat::Reset()
 {
-	Object::Reset();
+	Piece::Reset();
 	SetState(States::Idle);
 	anim.Play("Cat/Idle");
 }

@@ -22,7 +22,7 @@ void Squirrel::Release()
 
 void Squirrel::Reset()
 {
-	Object::Reset();
+	Piece::Reset();
 	SetState(States::Idle);
 	anim.Play("Squirrel/Idle");
 }

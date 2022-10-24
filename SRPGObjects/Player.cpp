@@ -22,7 +22,7 @@ void Player::Release()
 
 void Player::Reset()
 {
-	Object::Reset();
+	Piece::Reset();
 	SetState(States::Idle);
 	anim.Play("Player/Idle");
 }

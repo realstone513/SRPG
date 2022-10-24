@@ -22,7 +22,7 @@ void Fox::Release()
 
 void Fox::Reset()
 {
-	Object::Reset();
+	Piece::Reset();
 	SetState(States::Idle);
 	anim.Play("Fox/Idle");
 }

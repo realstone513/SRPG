@@ -2,11 +2,21 @@
 #include <sstream>
 
 Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
-	: pType(pt), health(h), damage(d), armor(a),
+	: pType(pt), MaxHealth(h), damage(d), armor(a),
 	range(r), mobility(m), rangeFill(f),
-	isTurn(false), isPlayable(false), done(false)
+	isTurn(false), isPlayable(false), done(false), isDeath(false)
 {
+	health = MaxHealth;
 	overlaySprite = sprite;
+}
+
+void Piece::Reset()
+{
+	Object::Reset();
+	health = MaxHealth;
+	done = false;
+	isTurn = false;
+	isDeath = false;
 }
 
 void Piece::Update(float dt)

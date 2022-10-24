@@ -6,6 +6,7 @@ class Cat;
 class Fox;
 class Minotaur;
 class Player;
+class Piece;
 class Squirrel;
 class OverlayTile;
 
@@ -26,6 +27,7 @@ protected:
 	Minotaur* mino;
 	Player* player;
 	Squirrel* squirrel;
+	Piece* viewTarget;
 
 	vector<vector<OverlayTile*>> overlay;
 

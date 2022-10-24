@@ -25,16 +25,19 @@ protected:
 
 public:
 	// status
+	int MaxHealth;
 	int health;
 	int damage;
 	int armor;
 	int range;
 	bool rangeFill;
 	int mobility;
+	bool isDeath;
 
 	Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f = true);
 	virtual ~Piece() {};
 
+	virtual void Reset();
 	virtual void Update(float dt) override;
 	virtual void SetPos(const Vector2f& pos) override;
 	void SetIdxPos(const Vector2i& pos);

@@ -22,7 +22,7 @@ void Minotaur::Release()
 
 void Minotaur::Reset()
 {
-	Object::Reset();
+	Piece::Reset();
 	SetState(States::Idle);
 	anim.Play("Mino/IdleLeft");
 }

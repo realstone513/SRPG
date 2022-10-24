@@ -25,6 +25,7 @@ void BattleScene::Init()
 	CreateBackground(mapSizeR, mapSizeC, unit, unit);
 	CreateOverlay(mapSizeR, mapSizeC, unit, unit);
 	SetLTRB(overlay[0][0]->GetPos(), overlay[mapSizeC - 1][mapSizeR - 1]->GetPos());
+	GAMEMGR->SetMapInfo(width, height);
 
 	// playable
 	player = new Player(PieceTypes::Playable);
@@ -62,15 +63,6 @@ void BattleScene::Init()
 	cat->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
 	fox->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
 	squirrel->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
-
-	// 데모용 배치
-	SetPiecePos(player, { 10, 10 });
-	SetPiecePos(cat, { 9, 11 });
-	SetPiecePos(squirrel, { 20, 10 });
-	SetPiecePos(fox, { 30, 10 });
-	SetPiecePos(mino, { 40, 10 });
-
-	GAMEMGR->SetList(&gamePieces);
 }
 
 void BattleScene::Release()
@@ -95,8 +87,17 @@ void BattleScene::Enter()
 		SetViewFocusOnObj(player);
 	}
 
+	// 데모용 배치
+	SetPiecePos(player, { 10, 10 });
+	SetPiecePos(cat, { 9, 11 });
+	SetPiecePos(squirrel, { 20, 10 });
+	SetPiecePos(fox, { 30, 10 });
+	SetPiecePos(mino, { 40, 10 });
+
+	GAMEMGR->SetList(&gamePieces);
 	// player 턴으로 시작
 	GAMEMGR->SetPlayerTurn(true);
+	viewTarget = player;
 }
 
 void BattleScene::Exit()
@@ -112,7 +113,7 @@ void BattleScene::Update(float dt)
 {
 	// Develop Input
 	// F7 F8 : hitbox on/off
-	// F9 : fullscreen <-> focus
+	// F9 : fullscreen <-> viewTarget
 	// F10 F11 : overlay on/off
 	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
 	{
@@ -134,7 +135,7 @@ void BattleScene::Update(float dt)
 			SetFullScreenWorldView();
 		else
 		{
-			SetViewFocusOnObj(player);
+			SetViewFocusOnObj(viewTarget);
 			worldView.setSize({ size.x / 2, size.y / 2 });
 		}
 		return;
@@ -154,7 +155,10 @@ void BattleScene::Update(float dt)
 		for (auto& tiles : overlay)
 		{
 			for (auto& tile : tiles)
-				tile->SetActive(false);
+			{
+				if ((int)tile->GetTileType() == (int)TileType::Inactive)
+					tile->SetActive(false);
+			}
 		}
 	}
 
@@ -188,33 +192,33 @@ void BattleScene::Update(float dt)
 	if (InputMgr::GetKeyDown(Keyboard::Key::Num1))
 	{
 		CLOG::Print3String("focus on", "player");
-		SetViewFocusOnObj(player);
+		viewTarget = player;
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::Num2))
 	{
 		CLOG::Print3String("focus on", "cat");
-		SetViewFocusOnObj(cat);
+		viewTarget = cat;
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::Num3))
 	{
 		CLOG::Print3String("focus on", "squ");
-		SetViewFocusOnObj(squirrel);
+		viewTarget = squirrel;
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::Num4))
 	{
 		CLOG::Print3String("focus on", "fox");
-		SetViewFocusOnObj(fox);
+		viewTarget = fox;
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::Num5))
 	{
 		CLOG::Print3String("focus on", "mino");
-		SetViewFocusOnObj(mino);
+		viewTarget = mino;
 	}
 
 	Scene::Update(dt);
 	GAMEMGR->Update(dt);
 	if (!fsv)
-		SetViewFocusOnObj(player);
+		SetViewFocusOnObj(viewTarget);
 
 	// Game Input
 	if (InputMgr::GetKeyDown(Keyboard::Key::Escape))
@@ -224,6 +228,27 @@ void BattleScene::Update(float dt)
 		CLOG::Print3String("scene[battle] reset key");
 		SCENE_MGR->ChangeScene(Scenes::Battle);
 		return;
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::C))
+	{
+		CLOG::Print3String("scene[battle] overlay tile view");
+		for (auto& tiles : overlay)
+		{
+			for (auto& tile : tiles)
+				tile->SetActive(true);
+		}
+	}
+	if (InputMgr::GetKeyUp(Keyboard::Key::C))
+	{
+		CLOG::Print3String("scene[battle] overlay tile view off");
+		for (auto& tiles : overlay)
+		{
+			for (auto& tile : tiles)
+			{
+				if ((int)tile->GetTileType() == (int)TileType::Inactive)
+					tile->SetActive(false);
+			}
+		}
 	}
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
@@ -291,6 +316,7 @@ void BattleScene::Update(float dt)
 					if ((target != nullptr) && (int)tile->GetTileType() == (int)TileType::AttackRange)
 					{
 						CLOG::Print3String("Attack1! ", target->GetName());
+						GAMEMGR->DamageToPiece(focus, target);
 						curPhase = Phase::Wait;
 						SetOverlayInactive();
 						focus->SetDone(true);
@@ -338,6 +364,7 @@ void BattleScene::Update(float dt)
 					{
 						// attack
 						CLOG::Print3String("Attack2! ", target->GetName());
+						GAMEMGR->DamageToPiece(focus, target);
 					}
 					curPhase = Phase::Wait;
 					SetOverlayInactive();
@@ -353,15 +380,23 @@ void BattleScene::Update(float dt)
 		if (hitGround)
 		{
 			if (curPhase == Phase::ActionAfterMove)
-			{
-				CLOG::Print3String("here");
 				focus->SetDone(true);
-			}
 			curPhase = Phase::Wait;
 			SetOverlayInactive();
 			focus = nullptr;
 		}
 	}
+
+	if (InputMgr::GetMouseDown(Mouse::Right))
+	{
+		// 땅 클릭과 같은 효과. 취소 (or 돌아가기)
+		if (curPhase == Phase::ActionAfterMove)
+			focus->SetDone(true);
+		curPhase = Phase::Wait;
+		SetOverlayInactive();
+		focus = nullptr;
+	}
+
 }
 
 void BattleScene::Draw(RenderWindow& window)
@@ -456,6 +491,6 @@ void BattleScene::SetFullScreenWorldView()
 
 void BattleScene::SetViewFocusOnObj(Piece* obj)
 {
-	CLOG::PrintVectorState(PosToIdx(obj->GetPos()));
+	//CLOG::PrintVectorState(PosToIdx(obj->GetPos()));
 	worldView.setCenter({ obj->GetPos().x, obj->GetPos().y - obj->GetSize().y * 0.5f });
 }
