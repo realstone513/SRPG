@@ -29,12 +29,18 @@ void Fox::Reset()
 
 void Fox::Update(float dt)
 {
+	Piece::Update(dt);
 	anim.Update(dt);
 }
 
 void Fox::Draw(RenderWindow& window)
 {
 	SpriteObj::Draw(window);
+}
+
+void Fox::SetPos(const Vector2f& pos)
+{
+	Piece::SetPos(pos);
 }
 
 void Fox::SetAnimations()

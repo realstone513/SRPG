@@ -16,5 +16,7 @@ public:
 	virtual void Update(float dt);
 	virtual void Draw(RenderWindow& window);
 
+	virtual void SetPos(const Vector2f& pos) override;
+
 	virtual void SetAnimations() override;
 };

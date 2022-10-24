@@ -29,12 +29,18 @@ void Player::Reset()
 
 void Player::Update(float dt)
 {
+	Piece::Update(dt);
 	anim.Update(dt);
 }
 
 void Player::Draw(RenderWindow& window)
 {
 	SpriteObj::Draw(window);
+}
+
+void Player::SetPos(const Vector2f& pos)
+{
+	Piece::SetPos(pos);
 }
 
 void Player::SetAnimations()

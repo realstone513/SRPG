@@ -29,12 +29,18 @@ void Squirrel::Reset()
 
 void Squirrel::Update(float dt)
 {
+	Piece::Update(dt);
 	anim.Update(dt);
 }
 
 void Squirrel::Draw(RenderWindow& window)
 {
 	SpriteObj::Draw(window);
+}
+
+void Squirrel::SetPos(const Vector2f& pos)
+{
+	Piece::SetPos(pos);
 }
 
 void Squirrel::SetAnimations()

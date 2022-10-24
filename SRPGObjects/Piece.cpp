@@ -1,10 +1,11 @@
 #include "Piece.h"
 #include <sstream>
+#include "../SFML_Framework/Framework/ConsoleLogger.h"
 
 Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
 	: pType(pt), MaxHealth(h), damage(d), armor(a),
 	range(r), mobility(m), rangeFill(f),
-	isTurn(false), isPlayable(false), done(false), isDeath(false)
+	isTurn(false), isPlayable(false), done(false), isDeath(false), speed(500.f)
 {
 	health = MaxHealth;
 }
@@ -20,6 +21,18 @@ void Piece::Reset()
 
 void Piece::Update(float dt)
 {
+	if (dist > 0.f)
+	{
+		dist -= dt * speed;
+		Translate(dir * speed * dt);
+		if (dist <= 0.f)
+		{
+			dir = { 0, 0 };
+			dist = 0.f;
+			SetPos(dest);
+			dest = { 0, 0 };
+		}
+	}
 }
 
 void Piece::SetPos(const Vector2f& pos)
@@ -66,4 +79,17 @@ void Piece::SetDone(bool done)
 bool Piece::GetDone()
 {
 	return done;
+}
+
+void Piece::SetDest(Vector2f dest)
+{
+	this->dest = dest;
+	dir = Utils::Normalize(dest - position);
+	dist = Utils::Distance(dest, position);
+	CLOG::PrintVectorState(dest);
+}
+
+Vector2f Piece::GetDest()
+{
+	return this->dest;
 }

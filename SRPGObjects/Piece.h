@@ -15,7 +15,10 @@ protected:
 	// tile map info
 	PieceTypes pType;
 	Vector2i curIdx;
-	Vector2f delta;
+	Vector2f dest;
+	Vector2f dir;
+	float dist;
+	float speed;
 
 	// turn
 	bool isTurn;		// 턴
@@ -48,6 +51,8 @@ public:
 	bool GetIsTurn();
 	void SetDone(bool done);
 	bool GetDone();
+	void SetDest(Vector2f dest);
+	Vector2f GetDest();
 
 	// 행동이 끝나면 회색으로
 	//void InactiveFillColor(bool condition);

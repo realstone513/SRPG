@@ -29,12 +29,18 @@ void Cat::Reset()
 
 void Cat::Update(float dt)
 {
+	Piece::Update(dt);
 	anim.Update(dt);
 }
 
 void Cat::Draw(RenderWindow& window)
 {
 	SpriteObj::Draw(window);
+}
+
+void Cat::SetPos(const Vector2f& pos)
+{
+	Piece::SetPos(pos);
 }
 
 void Cat::SetAnimations()

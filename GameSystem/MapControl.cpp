@@ -91,13 +91,6 @@ void MapControl::SetPiecePos(Piece* piece, Vector2i idx)
 	piece->SetIdxPos(idx);
 }
 
-Vector2f MapControl::Step(const Vector2f& objPos, int moveX, int moveY)
-{
-	return Vector2f(
-		objPos.x + moveX * unit,
-		objPos.y + moveY * unit);
-}
-
 Vector2i MapControl::PosToIdx(Vector2f pos)
 {
 	return Vector2i(

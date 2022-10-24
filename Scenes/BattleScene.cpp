@@ -338,9 +338,12 @@ void BattleScene::Update(float dt)
 					{
 						CLOG::Print3String("Move!");
 						curPhase = Phase::ActionAfterMove;
-						SetPiecePos(focus, PosToIdx(tile->GetTilePos()));
+						Vector2f destination = tile->GetTilePos();
+						// move
+						focus->SetDest(destination);
+						Vector2i curIdx = PosToIdx(destination);
+						focus->SetIdxPos(curIdx);
 						SetOverlayInactive();
-						Vector2i curIdx = PosToIdx(focus->GetPos());
 						SetAttackRange(curIdx, focus->range, focus->rangeFill);
 						SetImmovable(curIdx);
 					}
@@ -408,6 +411,10 @@ void BattleScene::Update(float dt)
 		focus = nullptr;
 	}
 
+	/*for (auto& piece : gamePieces)
+	{
+		piece->Update(dt);
+	}*/
 }
 
 void BattleScene::Draw(RenderWindow& window)

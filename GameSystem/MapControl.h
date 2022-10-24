@@ -47,7 +47,6 @@ public:
 	void SetOverlayInactive();
 	void SetPiecePos(Piece* piece, Vector2i idx);
 
-	Vector2f Step(const Vector2f& objPos, int moveX, int moveY);
 	Vector2i PosToIdx(Vector2f pos);
 	Vector2f IdxToPos(Vector2i idx);
 };

@@ -29,12 +29,18 @@ void Minotaur::Reset()
 
 void Minotaur::Update(float dt)
 {
+	Piece::Update(dt);
 	anim.Update(dt);
 }
 
 void Minotaur::Draw(RenderWindow& window)
 {
 	SpriteObj::Draw(window);
+}
+
+void Minotaur::SetPos(const Vector2f& pos)
+{
+	Piece::SetPos(pos);
 }
 
 void Minotaur::SetAnimations()
