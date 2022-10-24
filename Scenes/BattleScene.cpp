@@ -136,18 +136,18 @@ void BattleScene::Update(float dt)
 	if (InputMgr::GetKeyDown(Keyboard::Key::F10))
 	{
 		CLOG::Print3String("scene[battle] overlay switch on");
-		for (auto tiles : overlay)
+		for (auto& tiles : overlay)
 		{
-			for (auto tile : tiles)
+			for (auto& tile : tiles)
 				tile->SetActive(true);
 		}
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::F11))
 	{
 		CLOG::Print3String("scene[battle] overlay switch off");
-		for (auto tiles : overlay)
+		for (auto& tiles : overlay)
 		{
-			for (auto tile : tiles)
+			for (auto& tile : tiles)
 				tile->SetActive(false);
 		}
 	}
@@ -168,7 +168,7 @@ void BattleScene::Update(float dt)
 		switch (curPhase)
 		{
 		case BattleScene::Phase::Wait:
-			for (auto piece : gamePieces)
+			for (auto& piece : gamePieces)
 			{
 				if (piece->GetHitbox().getGlobalBounds().contains(worldPos))
 				{
@@ -199,18 +199,22 @@ void BattleScene::Update(float dt)
 			}
 			break;
 		case BattleScene::Phase::Action:
-			for (auto tile : activeTiles)
+			for (auto& tile : activeTiles)
 			{
 				if (tile->GetGlobalBounds().contains(worldPos))
 				{
 					hitGround = false;
 
-					for (auto piece : gamePieces)
+					Piece* target = nullptr;
+					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
+
+					for (auto& piece : gamePieces)
 					{
-						Vector2i idx = piece->GetIdxPos();
-						if ((int)overlay[idx.x][idx.y]->);
+						if (piece->GetIdxPos() == tileIdx)
+							target = piece;
 					}
 
+					// todo
 					if ((int)tile->GetTileType() == (int)TileType::Moveable)
 					{
 						// move
@@ -235,7 +239,7 @@ void BattleScene::Update(float dt)
 			break;
 		case BattleScene::Phase::ActionAfterMove:
 			// attack or end
-			for (auto tile : activeTiles)
+			for (auto& tile : activeTiles)
 			{
 				if (tile->GetGlobalBounds().contains(worldPos))
 				{
