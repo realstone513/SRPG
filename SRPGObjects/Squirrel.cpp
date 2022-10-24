@@ -4,12 +4,13 @@
 Squirrel::Squirrel(PieceTypes pt)
 	: Piece(pt, 50, 10, 0, 1, 2)
 {
+	SetType("AI");
+	SetName("Squirrel");
+	isPlayable = false;
 }
 
 void Squirrel::Init()
 {
-	SetType("AI");
-	SetName("Squirrel");
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Squirrel.png"));
 	SetAnimations();
 	Reset();

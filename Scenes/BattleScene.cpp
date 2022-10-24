@@ -7,6 +7,7 @@
 #include "../SRPGObjects/Piece.h"
 #include "../SRPGObjects/Player.h"
 #include "../SRPGObjects/Squirrel.h"
+#include "../GameSystem/GameMgr.h"
 
 BattleScene::BattleScene()
 	: MapControl(overlay, 32.f), Scene(Scenes::Battle),
@@ -68,6 +69,8 @@ void BattleScene::Init()
 	SetPiecePos(squirrel, { 20, 10 });
 	SetPiecePos(fox, { 30, 10 });
 	SetPiecePos(mino, { 40, 10 });
+
+	GAMEMGR->SetList(&gamePieces);
 }
 
 void BattleScene::Release()
@@ -91,6 +94,9 @@ void BattleScene::Enter()
 		worldView.setSize(size * 0.5f);
 		SetViewFocusOnObj(player);
 	}
+
+	// player 턴으로 시작
+	GAMEMGR->SetPlayerTurn(true);
 }
 
 void BattleScene::Exit()
@@ -152,6 +158,64 @@ void BattleScene::Update(float dt)
 		}
 	}
 
+	// turn cheat
+	if (InputMgr::GetKeyDown(Keyboard::Key::P))
+	{
+		CLOG::Print3String("scene[battle] player turn");
+		GAMEMGR->SetPlayerTurn(true);
+		for (auto& piece : gamePieces)
+		{
+			CLOG::Print3String(piece->GetName(), piece->GetIsTurn() ? "my turn" : "X");
+		}
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::O))
+	{
+		CLOG::Print3String("scene[battle] AI turn");
+		GAMEMGR->SetPlayerTurn(false);
+		for (auto& piece : gamePieces)
+		{
+			CLOG::Print3String(piece->GetName(), piece->GetIsTurn() ? "my turn" : "X");
+		}
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::U))
+	{
+		CLOG::Print3String("scene[battle] Done clear");
+		for (auto& piece : gamePieces)
+		{
+			piece->SetDone(false);
+		}
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::Num1))
+	{
+		CLOG::Print3String("focus on", "player");
+		SetViewFocusOnObj(player);
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::Num2))
+	{
+		CLOG::Print3String("focus on", "cat");
+		SetViewFocusOnObj(cat);
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::Num3))
+	{
+		CLOG::Print3String("focus on", "squ");
+		SetViewFocusOnObj(squirrel);
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::Num4))
+	{
+		CLOG::Print3String("focus on", "fox");
+		SetViewFocusOnObj(fox);
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::Num5))
+	{
+		CLOG::Print3String("focus on", "mino");
+		SetViewFocusOnObj(mino);
+	}
+
+	Scene::Update(dt);
+	GAMEMGR->Update(dt);
+	if (!fsv)
+		SetViewFocusOnObj(player);
+
 	// Game Input
 	if (InputMgr::GetKeyDown(Keyboard::Key::Escape))
 		exit(0);
@@ -180,6 +244,11 @@ void BattleScene::Update(float dt)
 							SetOverlayInactive();
 
 						focus = piece;
+						if (focus->GetDone())
+						{
+							CLOG::Print3String(piece->GetName(), "is done");
+							break;
+						}
 						if (!FRAMEWORK->devMode)
 							SetMoveable(curIdx, focus->mobility);
 						else
@@ -191,7 +260,10 @@ void BattleScene::Update(float dt)
 						SetAttackRange(curIdx, focus->range, focus->rangeFill);
 						SetImmovable(curIdx);
 						hitGround = false;
-						curPhase = Phase::Action;
+						if (focus->GetIsTurn())
+							curPhase = Phase::Action;
+						else
+							CLOG::Print3String(focus->GetName(), "Not my turn!");
 						return;
 					}
 				}
@@ -221,18 +293,19 @@ void BattleScene::Update(float dt)
 						CLOG::Print3String("Attack1! ", target->GetName());
 						curPhase = Phase::Wait;
 						SetOverlayInactive();
+						focus->SetDone(true);
 						focus = nullptr;
 					}
 					// move
 					else if ((int)tile->GetTileType() != (int)TileType::Immovable)
 					{
 						CLOG::Print3String("Move!");
+						curPhase = Phase::ActionAfterMove;
 						SetPiecePos(focus, PosToIdx(tile->GetTilePos()));
 						SetOverlayInactive();
 						Vector2i curIdx = PosToIdx(focus->GetPos());
 						SetAttackRange(curIdx, focus->range, focus->rangeFill);
 						SetImmovable(curIdx);
-						curPhase = Phase::ActionAfterMove;
 					}
 					// Click Immovable cell
 					else
@@ -243,6 +316,7 @@ void BattleScene::Update(float dt)
 			break;
 		case BattleScene::Phase::ActionAfterMove:
 			// attack or end
+			// click tile
 			for (auto& tile : activeTiles)
 			{
 				if (tile->GetGlobalBounds().contains(worldPos))
@@ -264,28 +338,30 @@ void BattleScene::Update(float dt)
 					{
 						// attack
 						CLOG::Print3String("Attack2! ", target->GetName());
-						SetOverlayInactive();
-						focus = nullptr;
-						curPhase = Phase::Wait;
 					}
+					curPhase = Phase::Wait;
+					SetOverlayInactive();
+					focus->SetDone(true);
+					focus = nullptr;
 					break;
 				}
 			}
+			// click another(ground)
 			break;
 		}
 
 		if (hitGround)
 		{
+			if (curPhase == Phase::ActionAfterMove)
+			{
+				CLOG::Print3String("here");
+				focus->SetDone(true);
+			}
+			curPhase = Phase::Wait;
 			SetOverlayInactive();
 			focus = nullptr;
-			curPhase = Phase::Wait;
 		}
 	}
-
-	Scene::Update(dt);
-
-	if (!fsv)
-		SetViewFocusOnObj(player);
 }
 
 void BattleScene::Draw(RenderWindow& window)
@@ -380,5 +456,6 @@ void BattleScene::SetFullScreenWorldView()
 
 void BattleScene::SetViewFocusOnObj(Piece* obj)
 {
+	CLOG::PrintVectorState(PosToIdx(obj->GetPos()));
 	worldView.setCenter({ obj->GetPos().x, obj->GetPos().y - obj->GetSize().y * 0.5f });
 }

@@ -4,12 +4,13 @@
 Minotaur::Minotaur(PieceTypes pt)
 	: Piece(pt, 400, 75, 50, 1, 6)
 {
+	SetType("AI");
+	SetName("Minotaur");
+	isPlayable = false;
 }
 
 void Minotaur::Init()
 {
-	SetType("AI");
-	SetName("Minotaur");
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Minotaur.png"));
 	SetAnimations();
 	Reset();

@@ -4,12 +4,13 @@
 Fox::Fox(PieceTypes pt)
 	: Piece(pt, 120, 30, 10, 1, 5)
 {
+	SetType("AI");
+	SetName("Fox");
+	isPlayable = false;
 }
 
 void Fox::Init()
 {
-	SetType("AI");
-	SetName("Fox");
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Fox.png"));
 	SetAnimations();
 	Reset();

@@ -17,6 +17,12 @@ protected:
 	Vector2i curIdx;
 	Vector2f delta;
 
+	// turn
+	bool isTurn;		// 턴
+	bool isPlayable;	// 조작
+	bool done;			// 행동
+	Sprite overlaySprite;
+
 public:
 	// status
 	int health;
@@ -35,4 +41,12 @@ public:
 	const Vector2i& GetIdxPos() const;
 
 	string GetStatusString() const;
+
+	void SetIsTurn(bool isTurn);
+	bool GetIsTurn();
+	void SetDone(bool done);
+	bool GetDone();
+
+	// 행동이 끝나면 회색으로
+	//void InactiveFillColor(bool condition);
 };
