@@ -163,7 +163,7 @@ void BattleScene::Update(float dt)
 	}
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
-		Vector2f worldPos = ScreenToWorldPos( Vector2i(InputMgr::GetMousePos()) );
+		Vector2f worldPos = ScreenToWorldPos(Vector2i(InputMgr::GetMousePos()));
 		bool hitGround = true;
 		switch (curPhase)
 		{
@@ -180,7 +180,6 @@ void BattleScene::Update(float dt)
 							SetOverlayInactive();
 
 						focus = piece;
-						CLOG::Print3String(focus->GetStatusString());
 						if (!FRAMEWORK->devMode)
 							SetMoveable(curIdx, focus->mobility);
 						else
@@ -204,20 +203,30 @@ void BattleScene::Update(float dt)
 				if (tile->GetGlobalBounds().contains(worldPos))
 				{
 					hitGround = false;
-
-					Piece* target = nullptr;
 					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
+					Piece* target = nullptr;
 
 					for (auto& piece : gamePieces)
 					{
-						if (piece->GetIdxPos() == tileIdx)
+						if (piece->GetIdxPos() == tileIdx && (int)tile->GetTileType() == (int)TileType::AttackRange)
+						{
 							target = piece;
+							break;
+						}
 					}
 
-					// todo
-					if ((int)tile->GetTileType() == (int)TileType::Moveable)
+					// attack
+					if ((target != nullptr) && (int)tile->GetTileType() == (int)TileType::AttackRange)
 					{
-						// move
+						CLOG::Print3String("Attack1! ", target->GetName());
+						curPhase = Phase::Wait;
+						SetOverlayInactive();
+						focus = nullptr;
+					}
+					// move
+					else if ((int)tile->GetTileType() != (int)TileType::Immovable)
+					{
+						CLOG::Print3String("Move!");
 						SetPiecePos(focus, PosToIdx(tile->GetTilePos()));
 						SetOverlayInactive();
 						Vector2i curIdx = PosToIdx(focus->GetPos());
@@ -225,14 +234,9 @@ void BattleScene::Update(float dt)
 						SetImmovable(curIdx);
 						curPhase = Phase::ActionAfterMove;
 					}
-					else if ((int)tile->GetTileType() == (int)TileType::AttackRange)
-					{
-						// attack
-						CLOG::Print3String("Attack!");
-						curPhase = Phase::Wait;
-						SetOverlayInactive();
-						focus = nullptr;
-					}
+					// Click Immovable cell
+					else
+						CLOG::Print3String("Can't move!");
 					return;
 				}
 			}
@@ -244,15 +248,27 @@ void BattleScene::Update(float dt)
 				if (tile->GetGlobalBounds().contains(worldPos))
 				{
 					hitGround = false;
-					if ((int)tile->GetTileType() == (int)TileType::AttackRange)
+					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
+					Piece* target = nullptr;
+
+					for (auto& piece : gamePieces)
+					{
+						if (piece->GetIdxPos() == tileIdx && (int)tile->GetTileType() == (int)TileType::AttackRange)
+						{
+							target = piece;
+							break;
+						}
+					}
+
+					if (target != nullptr && (int)tile->GetTileType() == (int)TileType::AttackRange)
 					{
 						// attack
-						CLOG::Print3String("Attack!");
-						curPhase = Phase::Wait;
+						CLOG::Print3String("Attack2! ", target->GetName());
 						SetOverlayInactive();
 						focus = nullptr;
+						curPhase = Phase::Wait;
 					}
-					return;
+					break;
 				}
 			}
 			break;
