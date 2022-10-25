@@ -68,11 +68,15 @@ void BattleScene::Init()
 	cat->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
 	fox->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
 	squirrel->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
+
+	UIMgr = new BattleSceneUI(this);
+	UIMgr->Init();
 }
 
 void BattleScene::Release()
 {
 	CLOG::Print3String("scene[battle] release");
+	UIMgr->Release();
 }
 
 void BattleScene::Enter()
@@ -105,6 +109,7 @@ void BattleScene::Enter()
 	//viewTarget = player;
 	viewTarget = camera;
 	camera->SetPos(player->GetPos());
+	UIMgr->Reset();
 }
 
 void BattleScene::Exit()
@@ -228,6 +233,7 @@ void BattleScene::Update(float dt)
 	}
 
 	Scene::Update(dt);
+	UIMgr->Update(dt);
 	GAMEMGR->Update(dt);
 	if (!fsv)
 		SetViewFocusOnObj(viewTarget);
@@ -267,6 +273,7 @@ void BattleScene::Update(float dt)
 		CLOG::Print3String("scene[battle] AI Action");
 		AIAction();
 	}
+
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
 		Vector2f worldPos = ScreenToWorldPos(Vector2i(InputMgr::GetMousePos()));
@@ -286,6 +293,17 @@ void BattleScene::Update(float dt)
 							SetOverlayInactive();
 
 						focus = piece;
+
+						if (!focus->GetType().compare("Playable"))
+						{
+							UIMgr->SetPlayableInfo(focus);
+							UIMgr->SetUIActive("PlayableInfoUI", true);
+						}
+						else
+						{
+							UIMgr->SetAIInfo(focus);
+							UIMgr->SetUIActive("AIInfoUI", true);
+						}
 						if (focus->GetDone())
 						{
 							CLOG::Print3String(piece->GetName(), "is done");
@@ -334,10 +352,13 @@ void BattleScene::Update(float dt)
 					{
 						CLOG::Print3String("Attack1! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
+						UIMgr->SetDamageTextUI(focus, target);
 						curPhase = Phase::Wait;
 						SetOverlayInactive();
 						focus->SetDone(true);
 						focus = nullptr;
+						UIMgr->SetUIActive("PlayableInfoUI", false);
+						UIMgr->SetUIActive("AIInfoUI", false);
 					}
 					// move
 					else if ((int)tile->GetTileType() != (int)TileType::Immovable)
@@ -386,11 +407,14 @@ void BattleScene::Update(float dt)
 						// attack
 						CLOG::Print3String("Attack2! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
+						UIMgr->SetDamageTextUI(focus, target);
 					}
 					curPhase = Phase::Wait;
 					SetOverlayInactive();
 					focus->SetDone(true);
 					focus = nullptr;
+					UIMgr->SetUIActive("PlayableInfoUI", false);
+					UIMgr->SetUIActive("AIInfoUI", false);
 					break;
 				}
 			}
@@ -405,6 +429,8 @@ void BattleScene::Update(float dt)
 			curPhase = Phase::Wait;
 			SetOverlayInactive();
 			focus = nullptr;
+			UIMgr->SetUIActive("PlayableInfoUI", false);
+			UIMgr->SetUIActive("AIInfoUI", false);
 		}
 	}
 
@@ -422,6 +448,9 @@ void BattleScene::Update(float dt)
 void BattleScene::Draw(RenderWindow& window)
 {
 	Scene::Draw(window);
+
+	window.setView(uiView);
+	UIMgr->Draw(window);
 }
 
 void BattleScene::CreateBackground(int width, int height, float quadWidth, float quadHeight)
@@ -460,8 +489,8 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 				texIndexX = 4;
 				texIndexY = 4;
 			}*/
-			int texIndexX = 4;
-			int texIndexY = 1;
+			int texIndexX = Utils::RandomRange(0, 14);//4;
+			int texIndexY = Utils::RandomRange(0, 3);//1;
 
 			// Ã¤¿ì±â
 			int quadIndex = i * height + j;

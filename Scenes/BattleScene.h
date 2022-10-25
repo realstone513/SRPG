@@ -1,6 +1,7 @@
 #pragma once
 #include "../SFML_Framework/Scenes/Scene.h"
 #include "../GameSystem/MapControl.h"
+#include "BattleSceneUI.h"
 
 class Camera;
 class Cat;
@@ -32,6 +33,8 @@ protected:
 	Camera* camera;
 
 	vector<vector<OverlayTile*>> overlay;
+
+	BattleSceneUI* UIMgr;
 
 	// Values
 	bool fsv; // fullScreenView

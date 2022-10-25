@@ -27,7 +27,7 @@ protected:
 
 public:
 	// status
-	int MaxHealth;
+	int maxHealth;
 	int health;
 	int damage;
 	int armor;

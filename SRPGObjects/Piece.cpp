@@ -3,17 +3,17 @@
 #include "../SFML_Framework/Framework/ConsoleLogger.h"
 
 Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
-	: pType(pt), MaxHealth(h), damage(d), armor(a),
+	: pType(pt), maxHealth(h), damage(d), armor(a),
 	range(r), mobility(m), rangeFill(f),
 	isTurn(false), isPlayable(false), done(false), isDeath(false), speed(500.f)
 {
-	health = MaxHealth;
+	health = maxHealth;
 }
 
 void Piece::Reset()
 {
 	Object::Reset();
-	health = MaxHealth;
+	health = maxHealth;
 	done = false;
 	isTurn = false;
 	isDeath = false;
@@ -86,7 +86,6 @@ void Piece::SetDest(Vector2f dest)
 	this->dest = dest;
 	dir = Utils::Normalize(dest - position);
 	dist = Utils::Distance(dest, position);
-	CLOG::PrintVectorState(dest);
 }
 
 Vector2f Piece::GetDest()

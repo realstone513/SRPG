@@ -145,6 +145,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SRPGObjects\DamageUI.cpp" />
+    <ClCompile Include="SFML_Framework\GameObject\FloatingUI.cpp" />
+    <ClCompile Include="Scenes\BattleSceneUI.cpp" />
     <ClCompile Include="SRPGObjects\Camera.cpp" />
     <ClCompile Include="GameSystem\GameMgr.cpp" />
     <ClCompile Include="GameSystem\MapControl.cpp" />
@@ -178,6 +181,9 @@
     <ClCompile Include="SFML_Framework\UI\UIMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SRPGObjects\DamageUI.h" />
+    <ClInclude Include="SFML_Framework\GameObject\FloatingUI.h" />
+    <ClInclude Include="Scenes\BattleSceneUI.h" />
     <ClInclude Include="SRPGObjects\Camera.h" />
     <ClInclude Include="GameSystem\GameMgr.h" />
     <ClInclude Include="GameSystem\MapControl.h" />
