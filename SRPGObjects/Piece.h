@@ -1,11 +1,24 @@
 #pragma once
 #include "../SFML_Framework/GameObject/SpriteObj.h"
+#include "../SFML_Framework/Framework/Animator.h"
 
 enum class PieceTypes
 {
 	None = -1,
 	Playable,
 	AI,
+};
+
+enum class States
+{
+	None = -1,
+	Idle,
+	Move,
+	Attack,
+	Special,
+	Hit,
+	Death,
+	Others
 };
 
 // 공통적으로 쓸 것들 추가
@@ -24,6 +37,10 @@ protected:
 	bool isTurn;		// 턴
 	bool isPlayable;	// 조작
 	bool done;			// 행동
+
+	// Animator
+	Animator anim;
+	States currState;
 
 public:
 	// status
@@ -53,6 +70,10 @@ public:
 	bool GetDone();
 	void SetDest(Vector2f dest);
 	Vector2f GetDest();
+
+	void SetState(States newState);
+	void AddClipFast(string clipId, int frame);
+	virtual void SetAnimations() = 0;
 
 	// 행동이 끝나면 회색으로
 	//void InactiveFillColor(bool condition);

@@ -68,21 +68,22 @@ void Player::SetAnimations()
 
 void Player::PlayAnimate(States state)
 {
+	int ran;
 	switch (state)
 	{
-	case Animatable::States::Idle:
+	case States::Idle:
 		anim.Play("Player/Idle");
 		break;
 
-	case Animatable::States::Move:
+	case States::Move:
 		if (dir.x > 0)
 			anim.Play("Player/MoveRight");
 		else
 			anim.Play("Player/MoveLeft");
 		break;
 
-	case Animatable::States::Attack:
-		int ran = Utils::RandomRange(0, 2);
+	case States::Attack:
+		ran = Utils::RandomRange(0, 2);
 		if (dir.x > 0)
 		{
 			switch (ran)
@@ -115,10 +116,10 @@ void Player::PlayAnimate(States state)
 		}
 		break;
 
-	case Animatable::States::Special:
+	case States::Special:
 		break;
 
-	case Animatable::States::Hit:
+	case States::Hit:
 		if (dir.x > 0)
 		{
 			anim.Play("Player/HitRight");
@@ -129,7 +130,7 @@ void Player::PlayAnimate(States state)
 		}
 		break;
 
-	case Animatable::States::Death:
+	case States::Death:
 		if (dir.x > 0)
 		{
 			anim.Play("Player/DeathRight");
@@ -139,7 +140,7 @@ void Player::PlayAnimate(States state)
 			anim.Play("Player/DeathLeft");
 		}
 		break;
-	case Animatable::States::Others:
+	case States::Others:
 		break;
 	default:
 		break;

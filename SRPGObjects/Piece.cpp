@@ -1,6 +1,7 @@
 #include "Piece.h"
 #include <sstream>
 #include "../SFML_Framework/Framework/ConsoleLogger.h"
+#include "../SFML_Framework/Framework/ResourceMgr.h"
 
 Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
 	: pType(pt), maxHealth(h), damage(d), armor(a),
@@ -91,4 +92,20 @@ void Piece::SetDest(Vector2f dest)
 Vector2f Piece::GetDest()
 {
 	return this->dest;
+}
+
+void Piece::SetState(States newState)
+{
+	if (currState == newState)
+		return;
+	currState = newState;
+}
+
+void Piece::AddClipFast(string clipId, int frame)
+{
+	anim.AddClip(*RESOURCE_MGR->GetAnimationClip(clipId));
+	AnimationEvent ev;
+	ev.clipId = clipId;
+	ev.frame = frame;
+	anim.AddEvent(ev);
 }

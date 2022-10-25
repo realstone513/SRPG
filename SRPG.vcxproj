@@ -195,7 +195,6 @@
     <ClInclude Include="SRPGObjects\Squirrel.h" />
     <ClInclude Include="SRPGObjects\Cat.h" />
     <ClInclude Include="SFML_Framework\3rd\CSVWriter.h" />
-    <ClInclude Include="SFML_Framework\Framework\Animatable.h" />
     <ClInclude Include="SRPGObjects\Minotaurs.h" />
     <ClInclude Include="SRPGObjects\Player.h" />
     <ClInclude Include="Scenes\BattleScene.h" />

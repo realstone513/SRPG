@@ -1,8 +1,7 @@
 #pragma once
 #include "Piece.h"
-#include "../SFML_Framework/Framework/Animatable.h"
 
-class Cat : public Piece, Animatable
+class Cat : public Piece
 {
 protected:
 

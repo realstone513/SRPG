@@ -9,7 +9,6 @@
 #include "../SRPGObjects/Player.h"
 #include "../SRPGObjects/Squirrel.h"
 #include "../GameSystem/GameMgr.h"
-#include "../SFML_Framework/Framework/Animatable.h"
 
 BattleScene::BattleScene()
 	: MapControl(overlay, 32.f), Scene(Scenes::Battle),
@@ -490,8 +489,8 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 				texIndexX = 4;
 				texIndexY = 4;
 			}*/
-			int texIndexX = Utils::RandomRange(0, 14);//4;
-			int texIndexY = Utils::RandomRange(0, 3);//1;
+			int texIndexX = Utils::RandomRange(0, 13);//4;
+			int texIndexY = Utils::RandomRange(0, 2);//1;
 
 			// Ã¤¿ì±â
 			int quadIndex = i * height + j;

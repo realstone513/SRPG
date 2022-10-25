@@ -28,4 +28,5 @@ public:
 	virtual void Draw(RenderWindow& window);
 
 	void SetLimit(float width, float height);
+	virtual void SetAnimations() override {};
 };

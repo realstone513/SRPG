@@ -197,9 +197,6 @@
     <ClInclude Include="SRPGObjects\Minotaurs.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SFML_Framework\Framework\Animatable.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="SFML_Framework\3rd\CSVWriter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
