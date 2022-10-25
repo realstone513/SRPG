@@ -9,6 +9,7 @@
 #include "../SRPGObjects/Player.h"
 #include "../SRPGObjects/Squirrel.h"
 #include "../GameSystem/GameMgr.h"
+#include "../SFML_Framework/Framework/Animatable.h"
 
 BattleScene::BattleScene()
 	: MapControl(overlay, 32.f), Scene(Scenes::Battle),

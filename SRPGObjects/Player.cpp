@@ -65,3 +65,83 @@ void Player::SetAnimations()
 	AddClipFast("Player/HitLeft", 4);
 	AddClipFast("Player/DeathLeft", 7);
 }
+
+void Player::PlayAnimate(States state)
+{
+	switch (state)
+	{
+	case Animatable::States::Idle:
+		anim.Play("Player/Idle");
+		break;
+
+	case Animatable::States::Move:
+		if (dir.x > 0)
+			anim.Play("Player/MoveRight");
+		else
+			anim.Play("Player/MoveLeft");
+		break;
+
+	case Animatable::States::Attack:
+		int ran = Utils::RandomRange(0, 2);
+		if (dir.x > 0)
+		{
+			switch (ran)
+			{
+			case 0:
+				anim.Play("Player/AttackRight1");
+				break;
+			case 1:
+				anim.Play("Player/AttackRight2");
+				break;
+			case 2:
+				anim.Play("Player/AttackRight3");
+				break;
+			}
+		}
+		else
+		{
+			switch (ran)
+			{
+			case 0:
+				anim.Play("Player/AttackLeft1");
+				break;
+			case 1:
+				anim.Play("Player/AttackLeft2");
+				break;
+			case 2:
+				anim.Play("Player/AttackLeft3");
+				break;
+			}
+		}
+		break;
+
+	case Animatable::States::Special:
+		break;
+
+	case Animatable::States::Hit:
+		if (dir.x > 0)
+		{
+			anim.Play("Player/HitRight");
+		}
+		else
+		{
+			anim.Play("Player/HitLeft");
+		}
+		break;
+
+	case Animatable::States::Death:
+		if (dir.x > 0)
+		{
+			anim.Play("Player/DeathRight");
+		}
+		else
+		{
+			anim.Play("Player/DeathLeft");
+		}
+		break;
+	case Animatable::States::Others:
+		break;
+	default:
+		break;
+	}
+}
