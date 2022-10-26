@@ -4,8 +4,8 @@
 #include "../SFML_Framework/GameObject/SpriteObj.h"
 #include "../SFML_Framework/GameObject/TextObj.h"
 #include "../SFML_Framework/GameObject/RectangleObj.h"
+#include "../SFML_Framework/GameObject/FloatingObj.h"
 #include "../SRPGObjects/Piece.h"
-#include "../SRPGObjects/DamageUI.h"
 
 BattleSceneUI::BattleSceneUI(Scene* scene)
 	: UIMgr(scene)
@@ -173,11 +173,12 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 	rightHealthBar->SetPos(rightBase + Vector2f(170.f, 110.f));
 	// ai character UI end
 
-	damageText = new DamageUI();
-	damageText->GetTextObj().setFont(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"));
-	damageText->GetTextObj().setCharacterSize(25);
-	damageText->GetTextObj().setFillColor(Color::Red);
-	damageText->SetOrigin(Origins::BC);
+	// no group
+	damageText = new FloatingObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), "test text",
+		500.f, 500.f, Color::Red, 25);
+
+	damageText->SetOrigin(Origins::MC);
+	damageText->SetType("Damage");
 }
 
 BattleSceneUI::~BattleSceneUI()
@@ -227,6 +228,7 @@ void BattleSceneUI::Init()
 	uiObjList.push_back(rightMobilityText);
 	// ai character UI end
 
+	// no group
 	uiObjList.push_back(damageText);
 }
 
@@ -337,10 +339,7 @@ void BattleSceneUI::SetUIActive(string type, bool enable)
 	}
 }
 
-void BattleSceneUI::SetDamageTextUI(Piece* attacker, Piece* hit)
+void BattleSceneUI::SetDamageText(const Vector2f pos, const Vector2f dir, float speed, float range)
 {
-	damageText->SetActive(true);
-	damageText->SetString(to_string(attacker->damage));
-	damageText->SetPos(hit->GetPos());
-	CLOG::Print3String(to_string(attacker->damage));
+	damageText->Fire(pos, dir, speed, range);
 }

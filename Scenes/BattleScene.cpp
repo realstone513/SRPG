@@ -393,7 +393,11 @@ void BattleScene::Update(float dt)
 						}
 						CLOG::Print3String("Attack1! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
-						UIMgr->SetDamageTextUI(focus, target);
+						//UIMgr->SetDamageText(Vector2f(500, 500));
+						//
+						RenderWindow& window = FRAMEWORK->GetWindow();
+						UIMgr->SetDamageText(window.mapPixelToCoords((Vector2i)target->GetPos(), uiView));
+
 						curPhase = Phase::Wait;
 						SetOverlayInactive();
 						focus->SetDone(true);
@@ -455,7 +459,10 @@ void BattleScene::Update(float dt)
 						}
 						CLOG::Print3String("Attack2! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
-						UIMgr->SetDamageTextUI(focus, target);
+						//
+						RenderWindow& window = FRAMEWORK->GetWindow();
+						UIMgr->SetDamageText(window.mapPixelToCoords((Vector2i)target->GetPos(), uiView));
+						
 					}
 					curPhase = Phase::Wait;
 					SetOverlayInactive();
@@ -614,5 +621,5 @@ void BattleScene::AIAction()
 			CLOG::Print3String(ai->GetName(), target->GetName(), "distance");
 		CLOG::PrintVectorState(dist);
 	}
-	viewTarget = camera;
+	//viewTarget = camera;
 }

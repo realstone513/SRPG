@@ -24,8 +24,6 @@ private:
 	int playerDoneCount;
 	int aiDoneCount;
 
-	float globalTimer;
-
 public:
 	GameMgr();
 	virtual ~GameMgr() {}
@@ -39,6 +37,5 @@ public:
 
 	void Reset();
 	void Update(float dt);
-	void SetGlobalTimer(float time) { globalTimer = time; }
 	void DamageToPiece(Piece* attack, Piece* hit);
 };

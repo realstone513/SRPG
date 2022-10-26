@@ -3,8 +3,7 @@
 #include "../SRPGObjects/Piece.h"
 
 GameMgr::GameMgr()
-	: isPlayerTurn(true), globalTimer(0.f),
-	playerDoneCount(0), aiDoneCount(0)
+	: isPlayerTurn(true), playerDoneCount(0), aiDoneCount(0)
 {
 }
 
@@ -52,20 +51,12 @@ void GameMgr::SetPlayerTurn(bool isPlayerTurn)
 void GameMgr::Reset()
 {
 	isPlayerTurn = true;
-	globalTimer = 0.f;
 	playerDoneCount = 0;
 	aiDoneCount = 0;
 }
 
 void GameMgr::Update(float dt)
 {
-	if (globalTimer > 0.f)
-	{
-		globalTimer -= dt;
-		CLOG::Print3String(to_string(globalTimer));
-		return;
-	}
-	else globalTimer = 0.f;
 
 	if (isPlayerTurn)
 	{

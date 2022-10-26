@@ -111,10 +111,7 @@
     <ClCompile Include="Scenes\BattleSceneUI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SFML_Framework\GameObject\FloatingUI.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SRPGObjects\DamageUI.cpp">
+    <ClCompile Include="SFML_Framework\GameObject\FloatingObj.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -233,10 +230,7 @@
     <ClInclude Include="Scenes\BattleSceneUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SFML_Framework\GameObject\FloatingUI.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SRPGObjects\DamageUI.h">
+    <ClInclude Include="SFML_Framework\GameObject\FloatingObj.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

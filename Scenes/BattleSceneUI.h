@@ -6,6 +6,7 @@ class Piece;
 class SpriteObj;
 class TextObj;
 class RectangleObj;
+class FloatingObj;
 class DamageUI;
 
 class BattleSceneUI : public UIMgr
@@ -49,8 +50,8 @@ protected:
 	TextObj*		rightRangeText;
 	TextObj*		rightMobilityText;
 
-	// damage text
-	DamageUI*		damageText;
+	// no group
+	FloatingObj*		damageText;
 
 public:
 	BattleSceneUI(Scene* scene);
@@ -65,6 +66,6 @@ public:
 	void SetPlayableInfo(Piece* playable);
 	void SetAIInfo(Piece* ai);
 	void SetUIActive(string type, bool enable);
-
-	void SetDamageTextUI(Piece* attacker, Piece* hit);
+	void SetDamageText(const Vector2f pos,
+		const Vector2f dir = { 0, -1 }, float speed = 250.f, float range = 250.f);
 };

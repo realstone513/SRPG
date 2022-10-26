@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Scenes/Scene.h"
 #include "../GameSystem/MapControl.h"
 #include "BattleSceneUI.h"
-#include <deque>
+//#include "../SRPGObjects/DamageUI.h"
 
 class Camera;
 class Cat;
@@ -12,6 +12,7 @@ class Player;
 class Piece;
 class Squirrel;
 class OverlayTile;
+class TextObj;
 
 class BattleScene : public Scene, MapControl
 {
@@ -23,23 +24,6 @@ protected:
 		Action,
 		ActionAfterMove,
 	};
-
-	/*struct Task
-	{
-		Piece* piece;
-		float delay;
-		void (*Todo)();
-		Task(Piece* p, float d) : piece(p), delay(d)
-		{
-		}
-
-		Task(Piece* p, float d, void(*todo)()) : piece(p), delay(d)
-		{
-			Todo = todo;
-		}
-	};*/
-	/*deque<Task*> delayQueue;
-	Task* task;*/
 
 	// Objects
 	Cat* cat;
@@ -58,8 +42,6 @@ protected:
 	bool fsv; // fullScreenView
 	Vector2f size;
 	Phase curPhase;
-
-	
 
 public:
 	BattleScene();
