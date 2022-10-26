@@ -7,6 +7,7 @@ Fox::Fox(PieceTypes pt)
 	SetType("AI");
 	SetName("Fox");
 	isPlayable = false;
+	speed = 250.f;
 }
 
 void Fox::Init()
@@ -24,7 +25,6 @@ void Fox::Reset()
 {
 	Piece::Reset();
 	SetState(States::Idle);
-	anim.Play("Fox/Idle");
 }
 
 void Fox::Update(float dt)
@@ -54,4 +54,42 @@ void Fox::SetAnimations()
 	AddClipFast("Fox/Hit", 5);
 	AddClipFast("Fox/Sleep", 6);
 	AddClipFast("Fox/Death", 7);
+}
+
+void Fox::SetState(States newState)
+{
+	Piece::SetState(newState);
+
+	switch (currState)
+	{
+	case States::Idle:
+		anim.Play("Fox/Idle");
+		break;
+
+	case States::Move:
+		anim.Play("Fox/Move");
+		break;
+
+	case States::Attack:
+		anim.Play("Fox/Catch");
+		anim.PlayQueue("Fox/Idle");
+		break;
+
+	case States::Special:
+		anim.Play("Fox/Sleep");
+		anim.PlayQueue("Fox/Idle");
+		break;
+
+	case States::Hit:
+		anim.Play("Fox/Hit");
+		anim.PlayQueue("Fox/Idle");
+		break;
+
+	case States::Death:
+		anim.Play("Fox/Death");
+		break;
+
+	default:
+		break;
+	}
 }

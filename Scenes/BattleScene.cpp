@@ -201,6 +201,24 @@ void BattleScene::Update(float dt)
 			piece->SetDone(false);
 		}
 	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::Y))
+	{
+		CLOG::Print3String("scene[battle] power overwhelming");
+		
+		player->maxHealth = 500;
+		player->health = 500;
+		player->damage = 1500;
+		player->armor = 500;
+		player->mobility = 9;
+		player->range = 3;
+
+		cat->health = 500;
+		cat->damage = 150;
+		cat->range = 4;
+
+		mino->damage = 150;
+		mino->mobility = 10;
+	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::Num1))
 	{
 		CLOG::Print3String("focus on", "player");
@@ -271,9 +289,27 @@ void BattleScene::Update(float dt)
 	if (InputMgr::GetKeyUp(Keyboard::Key::Z))
 	{
 		CLOG::Print3String("scene[battle] AI Action");
+
+		Vector2i dest(15, 10);
+		mino->SetDest(IdxToPos(dest));
+		mino->SetAnimDir(mino->GetIdxPos().x < 15);
+		mino->SetState(States::Move);
+		mino->SetIdxPos(dest);
+
+		dest = { 15, 12 };
+		fox->SetDest(IdxToPos(dest));
+		fox->SetAnimDir(fox->GetIdxPos().x < 15);
+		fox->SetState(States::Move);
+		fox->SetIdxPos(dest);
+
+		dest = { 15, 14 };
+		squirrel->SetDest(IdxToPos(dest));
+		squirrel->SetAnimDir(squirrel->GetIdxPos().x < 15);
+		squirrel->SetState(States::Move);
+		squirrel->SetIdxPos(dest);
+
 		AIAction();
 	}
-
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
 		Vector2f worldPos = ScreenToWorldPos(Vector2i(InputMgr::GetMousePos()));
@@ -347,9 +383,14 @@ void BattleScene::Update(float dt)
 						}
 					}
 
-					// attack
 					if ((target != nullptr) && (int)tile->GetTileType() == (int)TileType::AttackRange)
 					{
+						// attack
+						if (!target->GetType().compare(focus->GetType()))
+						{
+							CLOG::Print3String("Can't attack");
+							break;
+						}
 						CLOG::Print3String("Attack1! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
 						UIMgr->SetDamageTextUI(focus, target);
@@ -368,6 +409,8 @@ void BattleScene::Update(float dt)
 						Vector2f destination = tile->GetTilePos();
 						// move
 						focus->SetDest(destination);
+						focus->SetAnimDir(focus->GetPos().x < destination.x);
+						focus->SetState(States::Move);
 
 						Vector2i curIdx = PosToIdx(destination);
 						focus->SetIdxPos(curIdx);
@@ -405,6 +448,11 @@ void BattleScene::Update(float dt)
 					if (target != nullptr && (int)tile->GetTileType() == (int)TileType::AttackRange)
 					{
 						// attack
+						if (!target->GetType().compare(focus->GetType()))
+						{
+							CLOG::Print3String("Can't attack");
+							break;
+						}
 						CLOG::Print3String("Attack2! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
 						UIMgr->SetDamageTextUI(focus, target);

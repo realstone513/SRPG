@@ -6,7 +6,8 @@
 Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
 	: pType(pt), maxHealth(h), damage(d), armor(a),
 	range(r), mobility(m), rangeFill(f),
-	isTurn(false), isPlayable(false), done(false), isDeath(false), speed(500.f)
+	isTurn(false), isPlayable(false), done(false), isDeath(false), speed(100.f),
+	animDir(true)
 {
 	health = maxHealth;
 }
@@ -14,6 +15,7 @@ Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
 void Piece::Reset()
 {
 	Object::Reset();
+	currState = States::Idle;
 	health = maxHealth;
 	done = false;
 	isTurn = false;
@@ -26,11 +28,12 @@ void Piece::Update(float dt)
 	{
 		dist -= dt * speed;
 		Translate(dir * speed * dt);
-		if (dist <= 0.f)
+		if (dist <= 0.f) // 이동 끝나면
 		{
 			dir = { 0, 0 };
 			dist = 0.f;
 			SetPos(dest);
+			SetState(States::Idle);
 			dest = { 0, 0 };
 		}
 	}
@@ -94,13 +97,6 @@ Vector2f Piece::GetDest()
 	return this->dest;
 }
 
-void Piece::SetState(States newState)
-{
-	if (currState == newState)
-		return;
-	currState = newState;
-}
-
 void Piece::AddClipFast(string clipId, int frame)
 {
 	anim.AddClip(*RESOURCE_MGR->GetAnimationClip(clipId));
@@ -108,4 +104,11 @@ void Piece::AddClipFast(string clipId, int frame)
 	ev.clipId = clipId;
 	ev.frame = frame;
 	anim.AddEvent(ev);
+}
+
+void Piece::SetState(States newState)
+{
+	if (currState == newState)
+		return;
+	currState = newState;
 }

@@ -96,9 +96,18 @@ void GameMgr::DamageToPiece(Piece* attack, Piece* hit)
 {
 	hit->health -= attack->damage;
 	CLOG::Print3String(hit->GetStatusString());
+	bool isRight = attack->GetIdxPos().x < hit->GetIdxPos().x;
+	attack->SetAnimDir(isRight);
+	hit->SetAnimDir(!isRight);
+	if (attack->damage > 100)
+		attack->SetState(States::Special);
+	else
+		attack->SetState(States::Attack);
+	hit->SetState(States::Hit);
 
 	if (hit->health <= 0.f)
 	{
+		hit->health = 0.f;
 		CLOG::Print3String(hit->GetName(), "is die");
 		
 		if (!hit->GetType().compare("Playable"))
@@ -126,7 +135,7 @@ void GameMgr::DamageToPiece(Piece* attack, Piece* hit)
 			}
 		}
 
-		//hit->SetActive(false);
+		hit->SetState(States::Death);
 		hit->isDeath = true;
 	}
 }

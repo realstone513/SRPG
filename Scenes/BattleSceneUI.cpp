@@ -273,7 +273,7 @@ void BattleSceneUI::SetPlayableInfo(Piece* playable)
 	leftArmorText->SetString(to_string(playable->armor));
 	leftRangeText->SetString(to_string(playable->range));
 	leftMobilityText->SetString(to_string(playable->mobility));
-	float curHealthRate = (float)playable->health / (float)playable->maxHealth;
+	float curHealthRate = Utils::Clamp((float)playable->health / (float)playable->maxHealth, 0.f, 1.0f);
 	leftHealthBar->SetSize(curHealthRate * 100.f, 20.f);
 	if (curHealthRate > 0.6f)
 	{
@@ -312,7 +312,7 @@ void BattleSceneUI::SetAIInfo(Piece* ai)
 	rightArmorText->SetString(to_string(ai->armor));
 	rightRangeText->SetString(to_string(ai->range));
 	rightMobilityText->SetString(to_string(ai->mobility));
-	float curHealthRate = (float)ai->health / (float)ai->maxHealth;
+	float curHealthRate = Utils::Clamp((float)ai->health / (float)ai->maxHealth, 0.f, 1.0f) ;
 	rightHealthBar->SetSize(curHealthRate * 100.f, 20.f);
 	if (curHealthRate > 0.6f)
 	{
@@ -339,8 +339,8 @@ void BattleSceneUI::SetUIActive(string type, bool enable)
 
 void BattleSceneUI::SetDamageTextUI(Piece* attacker, Piece* hit)
 {
+	damageText->SetActive(true);
 	damageText->SetString(to_string(attacker->damage));
 	damageText->SetPos(hit->GetPos());
-	damageText->SetActive(true);
-	CLOG::PrintVectorState(hit->GetPos(), "hitpos");
+	CLOG::Print3String(to_string(attacker->damage));
 }

@@ -28,6 +28,10 @@ void MapControl::SetMoveable(Vector2i coord, int mobility)
 		SetMoveable(tmp, mobility - 1);
 	}
 
+	if (coord.x < 0 || coord.y < 0 ||
+		coord.x > width || coord.y > height)
+		return;
+
 	OverlayTile* tile = overlay[coord.x][coord.y];
 	if ((int)tile->GetTileType() !=
 		(int)TileType::Inactive)
@@ -44,7 +48,8 @@ void MapControl::SetAttackRange(Vector2i coord, int range, bool fill)
 	if (range < 0)
 		return;
 
-	if (coord.x < 0 || coord.x >= width || coord.y < 0 || coord.y >= height)
+	if (coord.x < 0 || coord.y < 0 ||
+		coord.x > width || coord.y > height)
 		return;
 
 	for (int i = 0; i < 4; i++)
@@ -65,6 +70,10 @@ void MapControl::SetAttackRange(Vector2i coord, int range, bool fill)
 
 void MapControl::SetImmovable(Vector2i coord)
 {
+	if (coord.x < 0 || coord.y < 0 ||
+		coord.x > width || coord.y > height)
+		return;
+
 	overlay[coord.x][coord.y]->SetFillColor((int)TileType::Immovable);
 
 	for (auto piece : gamePieces)

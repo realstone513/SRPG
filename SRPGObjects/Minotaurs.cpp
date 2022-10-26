@@ -7,6 +7,7 @@ Minotaur::Minotaur(PieceTypes pt)
 	SetType("AI");
 	SetName("Minotaur");
 	isPlayable = false;
+	speed = 350.f;
 }
 
 void Minotaur::Init()
@@ -24,7 +25,6 @@ void Minotaur::Reset()
 {
 	Piece::Reset();
 	SetState(States::Idle);
-	anim.Play("Mino/IdleLeft");
 }
 
 void Minotaur::Update(float dt)
@@ -66,4 +66,79 @@ void Minotaur::SetAnimations()
 	AddClipFast("Mino/WheelWindLeft", 12);
 	AddClipFast("Mino/HitLeft", 3);
 	AddClipFast("Mino/DeathLeft", 6);
+}
+
+void Minotaur::SetState(States newState)
+{
+	Piece::SetState(newState);
+
+	int ran;
+	switch (currState)
+	{
+	case States::Idle:
+		if (animDir)
+			anim.Play("Mino/IdleRight");
+		else
+			anim.Play("Mino/IdleLeft");
+		break;
+
+	case States::Move:
+		if (animDir)
+			anim.Play("Mino/RunRight");
+		else
+			anim.Play("Mino/RunLeft");
+		break;
+
+	case States::Attack:
+		if (animDir)
+		{
+			anim.Play("Mino/BigAttackRight");
+			anim.PlayQueue("Mino/IdleRight");
+		}
+		else
+		{
+			anim.Play("Mino/BigAttackLeft");
+			anim.PlayQueue("Mino/IdleLeft");
+		}
+		break;
+
+	case States::Special:
+		if (animDir)
+		{
+			anim.Play("Mino/WheelWindRight");
+			anim.PlayQueue("Mino/IdleRight");
+		}
+		else
+		{
+			anim.Play("Mino/WheelWindLeft");
+			anim.PlayQueue("Mino/IdleLeft");
+		}
+		break;
+
+	case States::Hit:
+		if (animDir)
+		{
+			anim.Play("Mino/HitRight");
+			anim.PlayQueue("Mino/IdleRight");
+		}
+		else
+		{
+			anim.Play("Mino/HitLeft");
+			anim.PlayQueue("Mino/IdleLeft");
+		}
+		break;
+
+	case States::Death:
+		if (animDir)
+		{
+			anim.Play("Mino/DeathRight");
+		}
+		else
+		{
+			anim.Play("Mino/DeathLeft");
+		}
+		break;
+	default:
+		break;
+	}
 }

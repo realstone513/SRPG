@@ -32,6 +32,7 @@ protected:
 	Vector2f dir;
 	float dist;
 	float speed;
+	bool animDir; // true = right, false = left
 
 	// turn
 	bool isTurn;		// 턴
@@ -71,10 +72,12 @@ public:
 	void SetDest(Vector2f dest);
 	Vector2f GetDest();
 
-	void SetState(States newState);
 	void AddClipFast(string clipId, int frame);
+	virtual void SetState(States newState);
+	States GetState() { return currState; }
 	virtual void SetAnimations() = 0;
-
-	// 행동이 끝나면 회색으로
-	//void InactiveFillColor(bool condition);
+	void SetAnimDir(bool isRight)
+	{
+		animDir = isRight;
+	}
 };

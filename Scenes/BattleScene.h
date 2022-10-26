@@ -2,6 +2,7 @@
 #include "../SFML_Framework/Scenes/Scene.h"
 #include "../GameSystem/MapControl.h"
 #include "BattleSceneUI.h"
+#include <deque>
 
 class Camera;
 class Cat;
@@ -23,6 +24,23 @@ protected:
 		ActionAfterMove,
 	};
 
+	/*struct Task
+	{
+		Piece* piece;
+		float delay;
+		void (*Todo)();
+		Task(Piece* p, float d) : piece(p), delay(d)
+		{
+		}
+
+		Task(Piece* p, float d, void(*todo)()) : piece(p), delay(d)
+		{
+			Todo = todo;
+		}
+	};*/
+	/*deque<Task*> delayQueue;
+	Task* task;*/
+
 	// Objects
 	Cat* cat;
 	Fox* fox;
@@ -40,7 +58,8 @@ protected:
 	bool fsv; // fullScreenView
 	Vector2f size;
 	Phase curPhase;
-	bool aiSwitch;
+
+	
 
 public:
 	BattleScene();

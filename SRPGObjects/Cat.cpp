@@ -57,3 +57,41 @@ void Cat::SetAnimations()
 	AddClipFast("Cat/Hit", 7);
 	AddClipFast("Cat/Threat", 8);
 }
+
+void Cat::SetState(States newState)
+{
+	Piece::SetState(newState);
+
+	switch (currState)
+	{
+	case States::Idle:
+		anim.Play("Cat/Idle");
+		break;
+
+	case States::Move:
+		anim.Play("Cat/Move");
+		break;
+
+	case States::Attack:
+		anim.Play("Cat/Punch");
+		anim.PlayQueue("Cat/Grooming1");
+		break;
+
+	case States::Special:
+		anim.Play("Cat/Threat");
+		anim.PlayQueue("Cat/Grooming2");
+		break;
+
+	case States::Hit:
+		anim.Play("Cat/Hit");
+		anim.PlayQueue("Cat/Idle");
+		break;
+
+	case States::Death:
+		anim.Play("Cat/Sleep");
+		break;
+
+	default:
+		break;
+	}
+}

@@ -18,5 +18,5 @@ public:
 	virtual void SetPos(const Vector2f& pos) override;
 
 	virtual void SetAnimations() override;
-	void PlayAnimate(States state);
+	virtual void SetState(States newState) override;
 };

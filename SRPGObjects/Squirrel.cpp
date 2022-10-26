@@ -24,7 +24,6 @@ void Squirrel::Reset()
 {
 	Piece::Reset();
 	SetState(States::Idle);
-	anim.Play("Squirrel/Idle");
 }
 
 void Squirrel::Update(float dt)
@@ -54,4 +53,42 @@ void Squirrel::SetAnimations()
 	AddClipFast("Squirrel/Eat", 2);
 	AddClipFast("Squirrel/Hit", 4);
 	AddClipFast("Squirrel/Death", 4);
+}
+
+void Squirrel::SetState(States newState)
+{
+	Piece::SetState(newState);
+
+	switch (currState)
+	{
+	case States::Idle:
+		anim.Play("Squirrel/Idle");
+		break;
+
+	case States::Move:
+		anim.Play("Squirrel/Move");
+		break;
+
+	case States::Attack:
+		anim.Play("Squirrel/Dig");
+		anim.PlayQueue("Squirrel/Idle");
+		break;
+
+	case States::Special:
+		anim.Play("Squirrel/Eat");
+		anim.PlayQueue("Squirrel/Idle");
+		break;
+
+	case States::Hit:
+		anim.Play("Squirrel/Hit");
+		anim.PlayQueue("Squirrel/Idle");
+		break;
+
+	case States::Death:
+		anim.Play("Squirrel/Death");
+		break;
+
+	default:
+		break;
+	}
 }

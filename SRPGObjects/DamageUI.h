@@ -6,7 +6,12 @@ class DamageUI : public FloatingUI
 protected:
 
 public:
-	DamageUI() {}
+	DamageUI();
 	virtual ~DamageUI() {}
 
+	virtual void Release() override;
+	virtual void Reset() override;
+
+	virtual void Update(float dt) override;
+	virtual void Draw(RenderWindow& window) override;
 };
