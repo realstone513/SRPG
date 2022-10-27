@@ -8,7 +8,7 @@ Camera::Camera(PieceTypes pt)
 	SetType("Camera");
 	SetName("Camera");
 	isPlayable = false;
-	SetOrigin(Origins::MC);
+	SetOrigin(Origins::TC);
 }
 
 void Camera::Init()
@@ -98,6 +98,7 @@ void Camera::SetLimit(float width, float height)
 	halfWidth = width * 0.5f;
 	halfHeight = height * 0.5f;
 
+	// TODO
 	limitX = halfWidth * 0.64f;
 	limitY = halfHeight * 0.5f;
 

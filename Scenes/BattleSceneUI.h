@@ -12,7 +12,9 @@ class DamageUI;
 class BattleSceneUI : public UIMgr
 {
 protected:
-	// playable info
+	Vector2i size;
+
+	// Playable Info
 	SpriteObj*		leftUIBackground;
 	SpriteObj*		leftThumbnailBackground;
 	SpriteObj*		leftThumbnail;
@@ -24,14 +26,14 @@ protected:
 	RectangleObj*	leftHealthBar;
 		
 	TextObj*		leftNameText;
-	TextObj*		leftHealthText;			// (현재 체력)
-	TextObj*		leftMaxHealthText;		// (/ Max HP)
+	TextObj*		leftHealthText;
+	TextObj*		leftMaxHealthText;
 	TextObj*		leftDamageText;
 	TextObj*		leftArmorText;
 	TextObj*		leftRangeText;
 	TextObj*		leftMobilityText;
 
-	// ai info
+	// AI Info
 	SpriteObj*		rightUIBackground;
 	SpriteObj*		rightThumbnailBackground;
 	SpriteObj*		rightThumbnail;
@@ -43,15 +45,27 @@ protected:
 	RectangleObj*	rightHealthBar;
 
 	TextObj*		rightNameText;
-	TextObj*		rightHealthText;		// (현재 체력)
-	TextObj*		rightMaxHealthText;		// (/ Max HP)
+	TextObj*		rightHealthText;
+	TextObj*		rightMaxHealthText;
 	TextObj*		rightDamageText;
 	TextObj*		rightArmorText;
 	TextObj*		rightRangeText;
 	TextObj*		rightMobilityText;
 
+	// Command Window
+	SpriteObj*		commandAttackButton;
+	SpriteObj*		commandSpecialButton;
+	SpriteObj*		commandToolButton;
+	SpriteObj*		commandWaitButton;
+	
+	TextObj*		commandAttackText;
+	TextObj*		commandSpeicialText;
+	TextObj*		commandToolText;
+	TextObj*		commandWaitText;
+
 	// no group
-	FloatingObj*		damageText;
+	FloatingObj*	damageText;
+	TextObj*		turnStateHUD;
 
 public:
 	BattleSceneUI(Scene* scene);
@@ -66,6 +80,11 @@ public:
 	void SetPlayableInfo(Piece* playable);
 	void SetAIInfo(Piece* ai);
 	void SetUIActive(string type, bool enable);
-	void SetDamageText(const Vector2f pos,
-		const Vector2f dir = { 0, -1 }, float speed = 250.f, float range = 250.f);
+	void SetDamageText(Vector2f pos, float dmg);
+	void SetCommandWindow(Vector2f pos);
+	void SetHud(bool isPlayerTurn, int count);
+
+	list<SpriteObj*> buttons;
+	Color uiBaseColor;
+	bool commandUIActive;
 };

@@ -25,6 +25,9 @@ protected:
 		ActionAfterMove,
 	};
 
+	BattleSceneUI* UIMgr;
+	RenderWindow& window;
+
 	// Objects
 	Cat* cat;
 	Fox* fox;
@@ -35,8 +38,6 @@ protected:
 	Camera* camera;
 
 	vector<vector<OverlayTile*>> overlay;
-
-	BattleSceneUI* UIMgr;
 
 	// Values
 	bool fsv; // fullScreenView
@@ -60,6 +61,8 @@ public:
 	void CreateOverlay(int width, int height, float quadWidth, float quadHeight);
 	void SetFullScreenWorldView();
 	void SetViewFocusOnObj(Piece* obj);
+
+	Vector2f WorldToUI(Vector2f world);
 
 	void AIAction();
 };

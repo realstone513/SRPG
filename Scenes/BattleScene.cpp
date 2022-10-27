@@ -12,8 +12,8 @@
 
 BattleScene::BattleScene()
 	: MapControl(overlay, 32.f), Scene(Scenes::Battle),
-	fsv(false), size((Vector2f)FRAMEWORK->GetWindowSize()),
-	curPhase(Phase::Wait)
+	fsv(false), window(FRAMEWORK->GetWindow()),
+	size((Vector2f)FRAMEWORK->GetWindowSize()), curPhase(Phase::Wait)
 {
 	CLOG::Print3String("scene[battle] create");
 }
@@ -104,11 +104,11 @@ void BattleScene::Enter()
 	SetPiecePos(mino, { 40, 10 });
 
 	GAMEMGR->SetList(&gamePieces);
+	GAMEMGR->SetUIMgr(UIMgr);
 	// player 턴으로 시작
 	GAMEMGR->SetPlayerTurn(true);
-	//viewTarget = player;
 	viewTarget = camera;
-	camera->SetPos(player->GetPos());
+	camera->SetPos(player->GetPos() + Vector2f(0, 16.f));
 	UIMgr->Reset();
 }
 
@@ -123,131 +123,149 @@ void BattleScene::Exit()
 
 void BattleScene::Update(float dt)
 {
-	// Develop Input
-	// F7 F8 : hitbox on/off
-	// F9 : fullscreen <-> viewTarget
-	// F10 F11 : overlay on/off
-	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
+	if (UIMgr->commandUIActive)
 	{
-		CLOG::Print3String("scene[battle] dev mode on");
-		FRAMEWORK->devMode = true;
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
-	{
-		CLOG::Print3String("scene[battle] dev mode off");
-		FRAMEWORK->devMode = false;
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
-	{
-		fsv = !fsv;
-		CLOG::Print3String("scene[battle] fullScreenView switch", fsv ? "ON" : "OFF");
-		if (fsv)
-			SetFullScreenWorldView();
-		else
+		for (SpriteObj*& button : UIMgr->buttons)
 		{
-			SetViewFocusOnObj(camera);
-			worldView.setSize({ size.x / 2, size.y / 2 });
-		}
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F10))
-	{
-		CLOG::Print3String("scene[battle] overlay switch on");
-		for (auto& tiles : overlay)
-		{
-			for (auto& tile : tiles)
-				tile->SetActive(true);
-		}
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F11))
-	{
-		CLOG::Print3String("scene[battle] overlay switch off");
-		for (auto& tiles : overlay)
-		{
-			for (auto& tile : tiles)
+			if (button->GetGlobalBounds().contains(ScreenToUiPos(Vector2i(InputMgr::GetMousePos()))))
 			{
-				if ((int)tile->GetTileType() == (int)TileType::Inactive)
-					tile->SetActive(false);
+				button->SetColor(Color::Red);
+				CLOG::Print3String("touch");
+			}
+			else
+				button->SetColor(UIMgr->uiBaseColor);
+		}
+	}
+
+	// Develop Input
+	{
+		// F7 F8 : hitbox on/off
+		// F9 : fullscreen <-> viewTarget
+		// F10 F11 : overlay on/off
+		if (InputMgr::GetKeyDown(Keyboard::Key::F7))
+		{
+			CLOG::Print3String("scene[battle] dev mode on");
+			FRAMEWORK->devMode = true;
+			return;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::F8))
+		{
+			CLOG::Print3String("scene[battle] dev mode off");
+			FRAMEWORK->devMode = false;
+			return;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::F9))
+		{
+			fsv = !fsv;
+			CLOG::Print3String("scene[battle] fullScreenView switch", fsv ? "ON" : "OFF");
+			if (fsv)
+				SetFullScreenWorldView();
+			else
+			{
+				SetViewFocusOnObj(camera);
+				worldView.setSize({ size.x / 2, size.y / 2 });
+			}
+			return;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::F10))
+		{
+			CLOG::Print3String("scene[battle] overlay switch on");
+			for (auto& tiles : overlay)
+			{
+				for (auto& tile : tiles)
+					tile->SetActive(true);
+			}
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::F11))
+		{
+			CLOG::Print3String("scene[battle] overlay switch off");
+			for (auto& tiles : overlay)
+			{
+				for (auto& tile : tiles)
+				{
+					if ((int)tile->GetTileType() == (int)TileType::Inactive)
+						tile->SetActive(false);
+				}
 			}
 		}
 	}
 
 	// turn cheat
-	if (InputMgr::GetKeyDown(Keyboard::Key::P))
 	{
-		CLOG::Print3String("scene[battle] player turn");
-		GAMEMGR->SetPlayerTurn(true);
-		for (auto& piece : gamePieces)
+		if (InputMgr::GetKeyDown(Keyboard::Key::P))
 		{
-			CLOG::Print3String(piece->GetName(), piece->GetIsTurn() ? "my turn" : "X");
+			CLOG::Print3String("scene[battle] player turn");
+			GAMEMGR->SetPlayerTurn(true);
+			for (auto& piece : gamePieces)
+			{
+				CLOG::Print3String(piece->GetName(), piece->GetIsTurn() ? "my turn" : "X");
+			}
 		}
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::O))
-	{
-		CLOG::Print3String("scene[battle] AI turn");
-		GAMEMGR->SetPlayerTurn(false);
-		for (auto& piece : gamePieces)
+		if (InputMgr::GetKeyDown(Keyboard::Key::O))
 		{
-			CLOG::Print3String(piece->GetName(), piece->GetIsTurn() ? "my turn" : "X");
+			CLOG::Print3String("scene[battle] AI turn");
+			GAMEMGR->SetPlayerTurn(false);
+			for (auto& piece : gamePieces)
+			{
+				CLOG::Print3String(piece->GetName(), piece->GetIsTurn() ? "my turn" : "X");
+			}
 		}
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::U))
-	{
-		CLOG::Print3String("scene[battle] Done clear");
-		for (auto& piece : gamePieces)
+		if (InputMgr::GetKeyDown(Keyboard::Key::U))
 		{
-			piece->SetDone(false);
+			CLOG::Print3String("scene[battle] Done clear");
+			for (auto& piece : gamePieces)
+			{
+				piece->SetDone(false);
+			}
 		}
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::Y))
-	{
-		CLOG::Print3String("scene[battle] power overwhelming");
-		
-		player->maxHealth = 500;
-		player->health = 500;
-		player->damage = 1500;
-		player->armor = 500;
-		player->mobility = 9;
-		player->range = 3;
+		if (InputMgr::GetKeyDown(Keyboard::Key::Y))
+		{
+			CLOG::Print3String("scene[battle] power overwhelming");
 
-		cat->health = 500;
-		cat->damage = 150;
-		cat->range = 4;
+			player->maxHealth = 500;
+			player->health = 500;
+			player->damage = 1500;
+			player->armor = 500;
+			player->mobility = 9;
+			player->range = 3;
 
-		mino->damage = 150;
-		mino->mobility = 10;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::Num1))
-	{
-		CLOG::Print3String("focus on", "player");
-		viewTarget = player;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::Num2))
-	{
-		CLOG::Print3String("focus on", "cat");
-		viewTarget = cat;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::Num3))
-	{
-		CLOG::Print3String("focus on", "squ");
-		viewTarget = squirrel;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::Num4))
-	{
-		CLOG::Print3String("focus on", "fox");
-		viewTarget = fox;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::Num5))
-	{
-		CLOG::Print3String("focus on", "mino");
-		viewTarget = mino;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::Num6))
-	{
-		CLOG::Print3String("focus on", "camera");
-		viewTarget = camera;
+			cat->health = 500;
+			cat->damage = 150;
+			cat->range = 4;
+
+			mino->damage = 150;
+			mino->mobility = 10;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::Num1))
+		{
+			CLOG::Print3String("focus on", "player");
+			viewTarget = player;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::Num2))
+		{
+			CLOG::Print3String("focus on", "cat");
+			viewTarget = cat;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::Num3))
+		{
+			CLOG::Print3String("focus on", "squ");
+			viewTarget = squirrel;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::Num4))
+		{
+			CLOG::Print3String("focus on", "fox");
+			viewTarget = fox;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::Num5))
+		{
+			CLOG::Print3String("focus on", "mino");
+			viewTarget = mino;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::Num6))
+		{
+			CLOG::Print3String("focus on", "camera");
+			viewTarget = camera;
+		}
 	}
 
 	Scene::Update(dt);
@@ -322,13 +340,14 @@ void BattleScene::Update(float dt)
 				if (piece->GetHitbox().getGlobalBounds().contains(worldPos))
 				{
 					Vector2i curIdx = PosToIdx(piece->GetPos());
-
 					if (!focus || focus != piece)
 					{
 						if (focus)
 							SetOverlayInactive();
 
 						focus = piece;
+						viewTarget = focus;
+						camera->SetPos(focus->GetPos() + Vector2f(0, -16.f));
 
 						if (!focus->GetType().compare("Playable"))
 						{
@@ -393,34 +412,38 @@ void BattleScene::Update(float dt)
 						}
 						CLOG::Print3String("Attack1! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
-						//UIMgr->SetDamageText(Vector2f(500, 500));
-						//
-						RenderWindow& window = FRAMEWORK->GetWindow();
-						UIMgr->SetDamageText(window.mapPixelToCoords((Vector2i)target->GetPos(), uiView));
+						UIMgr->SetDamageText(WorldToUI(target->GetPos()), GAMEMGR->CalculateDamage(focus, target));
 
 						curPhase = Phase::Wait;
 						SetOverlayInactive();
 						focus->SetDone(true);
+						camera->SetPos(focus->GetPos() + Vector2f(0, -16.f));
+						viewTarget = camera;
 						focus = nullptr;
 						UIMgr->SetUIActive("PlayableInfoUI", false);
 						UIMgr->SetUIActive("AIInfoUI", false);
+						UIMgr->SetUIActive("CommandWindow", false);
+						UIMgr->commandUIActive = false;
 					}
 					// move
 					else if ((int)tile->GetTileType() != (int)TileType::Immovable)
 					{
 						CLOG::Print3String("Move!");
-						curPhase = Phase::ActionAfterMove;
-						Vector2f destination = tile->GetTilePos();
 						// move
+						Vector2f destination = tile->GetTilePos();
 						focus->SetDest(destination);
 						focus->SetAnimDir(focus->GetPos().x < destination.x);
 						focus->SetState(States::Move);
 
 						Vector2i curIdx = PosToIdx(destination);
+						UIMgr->SetUIActive("CommandWindow", true);
+						UIMgr->SetCommandWindow(WorldToUI(focus->GetPos()));
+						UIMgr->commandUIActive = true;
 						focus->SetIdxPos(curIdx);
 						SetOverlayInactive();
 						SetAttackRange(curIdx, focus->range, focus->rangeFill);
 						SetImmovable(curIdx);
+						curPhase = Phase::ActionAfterMove;
 					}
 					// Click Immovable cell
 					else
@@ -459,17 +482,18 @@ void BattleScene::Update(float dt)
 						}
 						CLOG::Print3String("Attack2! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
-						//
-						RenderWindow& window = FRAMEWORK->GetWindow();
-						UIMgr->SetDamageText(window.mapPixelToCoords((Vector2i)target->GetPos(), uiView));
-						
+						UIMgr->SetDamageText(WorldToUI(target->GetPos()), GAMEMGR->CalculateDamage(focus, target));
 					}
 					curPhase = Phase::Wait;
 					SetOverlayInactive();
 					focus->SetDone(true);
+					camera->SetPos(focus->GetPos() + Vector2f(0, -16.f));
+					viewTarget = camera;
 					focus = nullptr;
 					UIMgr->SetUIActive("PlayableInfoUI", false);
 					UIMgr->SetUIActive("AIInfoUI", false);
+					UIMgr->SetUIActive("CommandWindow", false);
+					UIMgr->commandUIActive = false;
 					break;
 				}
 			}
@@ -480,12 +504,18 @@ void BattleScene::Update(float dt)
 		if (hitGround)
 		{
 			if (curPhase == Phase::ActionAfterMove)
-				focus->SetDone(true);
+			{
+				focus->SetPos(IdxToPos(focus->GetBeforeIdx()));
+				focus->SetIdxPos(focus->GetBeforeIdx());
+			}
 			curPhase = Phase::Wait;
 			SetOverlayInactive();
+			viewTarget = camera;
 			focus = nullptr;
 			UIMgr->SetUIActive("PlayableInfoUI", false);
 			UIMgr->SetUIActive("AIInfoUI", false);
+			UIMgr->SetUIActive("CommandWindow", false);
+			UIMgr->commandUIActive = false;
 		}
 	}
 
@@ -496,6 +526,8 @@ void BattleScene::Update(float dt)
 			focus->SetDone(true);
 		curPhase = Phase::Wait;
 		SetOverlayInactive();
+		camera->SetPos(focus->GetPos());
+		viewTarget = camera;
 		focus = nullptr;
 	}
 }
@@ -513,7 +545,7 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 	if (background == nullptr)
 	{
 		background = new VertexArrayObj();
-		background->SetTexture(GetTexture("graphics/ForestTileSet.png"));
+		background->SetTexture(GetTexture("graphics/DungeonTileSet.png"));
 	}
 
 	background->SetPos(Vector2f(-quadHeight * (height % 2 ? height : height - 1) * 0.5f, -quadWidth * (width % 2 ? width - 1 : width) * 0.5f));
@@ -596,6 +628,12 @@ void BattleScene::SetFullScreenWorldView()
 void BattleScene::SetViewFocusOnObj(Piece* obj)
 {
 	worldView.setCenter({ obj->GetPos().x, obj->GetPos().y - obj->GetSize().y * 0.5f });
+}
+
+Vector2f BattleScene::WorldToUI(Vector2f world)
+{
+	Vector2i screen = window.mapCoordsToPixel(world, worldView);
+	return window.mapPixelToCoords(screen, uiView);
 }
 
 // 가장 가까운 playable 캐릭터를 향해 이동

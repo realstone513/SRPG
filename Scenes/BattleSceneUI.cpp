@@ -1,6 +1,5 @@
 #include "BattleSceneUI.h"
-#include "../SFML_Framework/Framework/ResourceMgr.h"
-#include "../SFML_Framework/Framework/ConsoleLogger.h"
+#include "../SFML_Framework/Frameworks.h"
 #include "../SFML_Framework/GameObject/SpriteObj.h"
 #include "../SFML_Framework/GameObject/TextObj.h"
 #include "../SFML_Framework/GameObject/RectangleObj.h"
@@ -8,8 +7,10 @@
 #include "../SRPGObjects/Piece.h"
 
 BattleSceneUI::BattleSceneUI(Scene* scene)
-	: UIMgr(scene)
+	: UIMgr(scene), commandUIActive(false)
 {
+	uiBaseColor = Color(0xb3, 0x92, 0x83, 255.f);
+
 	// playable character UI start
 	Vector2f leftBase(0.f, 0.f);
 	leftUIBackground = new SpriteObj();
@@ -79,7 +80,7 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 	leftHealthBar->SetSize(50.f, 20.f);
 
 	leftUIBackground->SetPos(leftBase);
-	leftUIBackground->SetColor(Color(0xb3, 0x92, 0x83, 255.f));
+	leftUIBackground->SetColor(uiBaseColor);
 	leftThumbnailBackground->SetPos(leftBase + Vector2f(35.f, 35.f));
 	leftThumbnailBackground->SetColor(Color(100, 100, 100, 125.f));
 	leftThumbnail->SetPos(leftBase + Vector2f(25.f, 0.f));
@@ -93,7 +94,6 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 
 	// ai character UI start
 	Vector2f rightBase(650.f, 0.f);
-	Vector2f rightTextFix(400.f, 0.f); // ui scale의 차이 보정
 	rightUIBackground = new SpriteObj();
 	rightThumbnailBackground = new SpriteObj();
 	rightThumbnail = new SpriteObj();
@@ -161,7 +161,7 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 	rightHealthBar->SetSize(50.f, 20.f);
 
 	rightUIBackground->SetPos(rightBase);
-	rightUIBackground->SetColor(Color(0xb3, 0x92, 0x83, 255.f));
+	rightUIBackground->SetColor(uiBaseColor);
 	rightThumbnailBackground->SetPos(rightBase + Vector2f(35.f, 35.f));
 	rightThumbnailBackground->SetColor(Color(100, 100, 100, 125.f));
 	rightThumbnail->SetPos(rightBase + Vector2f(25.f, 0.f));
@@ -173,12 +173,54 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 	rightHealthBar->SetPos(rightBase + Vector2f(170.f, 110.f));
 	// ai character UI end
 
+	// Command Window start
+	commandAttackButton = new SpriteObj();
+	commandSpecialButton = new SpriteObj();
+	commandToolButton = new SpriteObj();
+	commandWaitButton = new SpriteObj();
+	commandAttackText = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), L"공격",
+		0.f, 0.f, Color::Black, 25.f);
+	commandSpeicialText = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), L"기술",
+		0.f, 0.f, Color::Black, 25.f);
+	commandToolText = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), L"도구",
+		0.f, 0.f, Color::Black, 25.f);
+	commandWaitText = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), L"대기",
+		0.f, 0.f, Color::Black, 25.f);
+
+	commandAttackButton->SetType("CommandWindow");
+	commandSpecialButton->SetType("CommandWindow");
+	commandToolButton->SetType("CommandWindow");
+	commandWaitButton->SetType("CommandWindow");
+	commandAttackText->SetType("CommandWindow");
+	commandSpeicialText->SetType("CommandWindow");
+	commandToolText->SetType("CommandWindow");
+	commandWaitText->SetType("CommandWindow");
+
+	commandAttackButton->SetTexture(*RESOURCE_MGR->GetTexture("graphics/UIBackground.png"));
+	commandAttackButton->SetScale(1.2f, 1.f);
+	commandAttackButton->SetColor(uiBaseColor);
+	commandSpecialButton->SetTexture(*RESOURCE_MGR->GetTexture("graphics/UIBackground.png"));
+	commandSpecialButton->SetScale(1.2f, 1.f);
+	commandSpecialButton->SetColor(uiBaseColor);
+	commandToolButton->SetTexture(*RESOURCE_MGR->GetTexture("graphics/UIBackground.png"));
+	commandToolButton->SetScale(1.2f, 1.f);
+	commandToolButton->SetColor(uiBaseColor);
+	commandWaitButton->SetTexture(*RESOURCE_MGR->GetTexture("graphics/UIBackground.png"));
+	commandWaitButton->SetScale(1.2f, 1.f);
+	commandWaitButton->SetColor(uiBaseColor);
+	// Command Window end
+
 	// no group
 	damageText = new FloatingObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), "test text",
-		500.f, 500.f, Color::Red, 25);
-
+		0.f, 0.f, Color::Red, 25);
 	damageText->SetOrigin(Origins::MC);
 	damageText->SetType("Damage");
+
+	size = FRAMEWORK->GetWindowSize();
+	turnStateHUD = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), "",
+		size.x * 0.30f, 10.f, Color::Black, 30.f);
+	turnStateHUD->SetOrigin(Origins::TL);
+	turnStateHUD->SetType("HUD");
 }
 
 BattleSceneUI::~BattleSceneUI()
@@ -228,8 +270,25 @@ void BattleSceneUI::Init()
 	uiObjList.push_back(rightMobilityText);
 	// ai character UI end
 
+	// command window start
+	uiObjList.push_back(commandAttackButton);
+	uiObjList.push_back(commandSpecialButton);
+	uiObjList.push_back(commandToolButton);
+	uiObjList.push_back(commandWaitButton);
+	uiObjList.push_back(commandAttackText);
+	uiObjList.push_back(commandSpeicialText);
+	uiObjList.push_back(commandToolText);
+	uiObjList.push_back(commandWaitText);
+
+	buttons.push_back(commandAttackButton);
+	buttons.push_back(commandSpecialButton);
+	buttons.push_back(commandToolButton);
+	buttons.push_back(commandWaitButton);
+	// command window end
+
 	// no group
 	uiObjList.push_back(damageText);
+	uiObjList.push_back(turnStateHUD);
 }
 
 void BattleSceneUI::Release()
@@ -242,7 +301,8 @@ void BattleSceneUI::Reset()
 	//UIMgr::Reset();
 	for (auto uiObj : uiObjList)
 	{
-		uiObj->SetActive(false);
+		if (uiObj->GetType().compare("HUD"))
+			uiObj->SetActive(false);
 	}
 }
 
@@ -339,7 +399,29 @@ void BattleSceneUI::SetUIActive(string type, bool enable)
 	}
 }
 
-void BattleSceneUI::SetDamageText(const Vector2f pos, const Vector2f dir, float speed, float range)
+void BattleSceneUI::SetDamageText(Vector2f pos, float dmg)
 {
-	damageText->Fire(pos, dir, speed, range);
+	damageText->Fire(pos);
+	string dmgString = to_string((int)dmg);
+	damageText->SetString(dmgString);
+}
+
+void BattleSceneUI::SetCommandWindow(Vector2f pos)
+{
+	commandAttackButton->SetPos(pos + Vector2f(0.f, 0.f));
+	commandSpecialButton->SetPos(pos + Vector2f(0.f, 40.f));
+	commandToolButton->SetPos(pos + Vector2f(0.f, 80.f));
+	commandWaitButton->SetPos(pos + Vector2f(0.f, 120.f));
+
+	commandAttackText->SetPos(pos + Vector2f(10.f, 5.f));
+	commandSpeicialText->SetPos(pos + Vector2f(10.f, 45.f));
+	commandToolText->SetPos(pos + Vector2f(10.f, 85.f));
+	commandWaitText->SetPos(pos + Vector2f(10.f, 125.f));
+}
+
+void BattleSceneUI::SetHud(bool isPlayerTurn, int count)
+{
+	string turnText = isPlayerTurn ? "Player " : "AI ";
+	turnText += to_string(count) + "Turn";
+	turnStateHUD->SetString(turnText);
 }

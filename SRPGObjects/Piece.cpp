@@ -46,6 +46,7 @@ void Piece::SetPos(const Vector2f& pos)
 
 void Piece::SetIdxPos(const Vector2i& pos)
 {
+	beforeIdx = curIdx;
 	curIdx = pos;
 }
 

@@ -27,6 +27,7 @@ class Piece : public SpriteObj
 protected:
 	// tile map info
 	PieceTypes pType;
+	Vector2i beforeIdx;
 	Vector2i curIdx;
 	Vector2f dest;
 	Vector2f dir;
@@ -80,4 +81,5 @@ public:
 	{
 		animDir = isRight;
 	}
+	Vector2i GetBeforeIdx() { return beforeIdx; }
 };
