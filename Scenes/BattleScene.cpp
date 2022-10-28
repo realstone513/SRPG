@@ -124,6 +124,7 @@ void BattleScene::Exit()
 
 void BattleScene::Update(float dt)
 {
+
 	if (UIMgr->commandUIActive)
 	{
 		for (SpriteObj*& button : UIMgr->buttons)
@@ -196,6 +197,7 @@ void BattleScene::Update(float dt)
 						}
 
 						Vector2i curIdx = PosToIdx(focus->GetPos());
+						SetImmovable(curIdx);
 						if (!FRAMEWORK->devMode)
 							SetMoveable(curIdx, focus->mobility);
 						else
@@ -203,9 +205,9 @@ void BattleScene::Update(float dt)
 							algorithmCount = 0;
 							SetMoveable(curIdx, focus->mobility);
 							CLOG::Print3String("count :", to_string(algorithmCount));
+							CLOG::Print3String(to_string(activeTiles.size()));
 						}
 						SetAttackRange(curIdx, focus->range, focus->rangeFill);
-						SetImmovable(curIdx);
 						if (focus->GetIsTurn())
 							curPhase = Phase::Action;
 						else
@@ -638,14 +640,15 @@ void BattleScene::AIAction()
 		if (ai->GetDone())
 			continue;
 
-		viewTarget = ai;
+		focus = ai;
+		viewTarget = focus;
 
-		Vector2i dist(width, height);
+		int dist = width + height;
 		Piece* target = nullptr;
 		OverlayTile* curTile = nullptr;
 
-		SetMoveable(ai->GetIdxPos(), ai->mobility);
 		SetImmovable(ai->GetIdxPos());
+		SetMoveable(ai->GetIdxPos(), ai->mobility);
 		for (auto& tile : activeTiles)
 		{
 			if (tile->GetTileType() == TileType::Immovable)
@@ -653,9 +656,14 @@ void BattleScene::AIAction()
 
 			for (Piece*& playable : GAMEMGR->playerPieces)
 			{
-				Vector2i tmp = playable->GetIdxPos() - PosToIdx(tile->GetTilePos());
-				if (Utils::SqrMagnitude(dist) > Utils::SqrMagnitude(tmp))
+				int tmp = TileDistance(
+					playable->GetIdxPos(),
+					PosToIdx(tile->GetTilePos()));
+				if (tmp <= dist)
 				{
+					if (!ai->rangeFill && tmp < ai->range)
+						continue;
+
 					curTile = tile;
 					target = playable;
 					dist = tmp;
@@ -668,15 +676,12 @@ void BattleScene::AIAction()
 
 		if (curTile != nullptr)
 		{
-			CLOG::PrintVectorState(target->GetIdxPos());
-			CLOG::PrintVectorState(PosToIdx(curTile->GetTilePos()));
 			Vector2f destination = curTile->GetTilePos();
 			ai->SetDest(destination);
 			ai->SetAnimDir(ai->GetPos().x < destination.x);
 			ai->SetState(States::Move);
 			ai->SetIdxPos(PosToIdx(destination));
 		}
-
 		ai->SetDone(true);
 		break;
 	}
@@ -688,7 +693,6 @@ void BattleScene::SelectAttackBtn()
 	SetOverlayInactive();
 	UIMgr->SetUIActive("CommandWindow", false);
 	SetAttackRange(PosToIdx(focus->GetPos()), focus->range, focus->rangeFill);
-	SetImmovable(PosToIdx(focus->GetPos()));
 	curPhase = Phase::ActionAfterMove;
 }
 

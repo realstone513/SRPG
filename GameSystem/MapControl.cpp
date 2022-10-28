@@ -27,7 +27,8 @@ void MapControl::SetMoveable(Vector2i coord, int mobility)
 		Vector2i tmp(
 			coord.x + offset[i].x,
 			coord.y + offset[i].y);
-		SetMoveable(tmp, mobility - 1);
+		if (overlay[tmp.x][tmp.y]->GetTileType() != TileType::Immovable)
+			SetMoveable(tmp, mobility - 1);
 	}
 
 	if (coord.x < 0 || coord.y < 0 ||
@@ -35,14 +36,17 @@ void MapControl::SetMoveable(Vector2i coord, int mobility)
 		return;
 
 	OverlayTile* tile = overlay[coord.x][coord.y];
-	if ((int)tile->GetTileType() !=
-		(int)TileType::Inactive)
+	if (tile->GetTileType() != TileType::Inactive &&
+		tile->GetTileType() != TileType::Immovable)
 		return;
 
-	activeTiles.push_back(tile);
 	tile->SetActive(true);
-	tile->SetTileType(TileType::Moveable);
-	tile->SetFillColor((int)TileType::Moveable);
+	activeTiles.push_back(tile);
+	if (tile->GetTileType() == TileType::Inactive)
+	{
+		tile->SetTileType(TileType::Moveable);
+		tile->SetFillColor((int)TileType::Moveable);
+	}
 	algorithmCount++;
 }
 
@@ -68,8 +72,11 @@ void MapControl::SetAttackRange(Vector2i coord, int range, bool fill)
 	OverlayTile* tile = overlay[coord.x][coord.y];
 	activeTiles.push_back(tile);
 	tile->SetActive(true);
-	tile->SetTileType(TileType::AttackRange);
-	tile->SetFillColor((int)TileType::AttackRange);
+	if (tile->GetTileType() == TileType::Moveable)
+	{
+		tile->SetTileType(TileType::AttackRange);
+		tile->SetFillColor((int)TileType::AttackRange);
+	}
 }
 
 void MapControl::SetImmovable(Vector2i coord)
@@ -79,11 +86,12 @@ void MapControl::SetImmovable(Vector2i coord)
 		return;
 
 	overlay[coord.x][coord.y]->SetFillColor((int)TileType::Immovable);
+	overlay[coord.x][coord.y]->SetTileType(TileType::Immovable);
 
 	for (auto piece : gamePieces)
 	{
 		Vector2i idx = piece->GetIdxPos();
-		if (overlay[idx.x][idx.y]->GetTileType() == TileType::Moveable)
+		if (TileDistance(coord, idx) <= focus->mobility)
 		{
 			overlay[idx.x][idx.y]->SetFillColor((int)TileType::Immovable);
 			overlay[idx.x][idx.y]->SetTileType(TileType::Immovable);
@@ -120,4 +128,9 @@ Vector2f MapControl::IdxToPos(Vector2i idx)
 		lt.x + ((float)idx.x + 0.5f) * unit,
 		lt.y + (idx.y + 1) * unit
 	);
+}
+
+int MapControl::TileDistance(Vector2i start, Vector2i dest)
+{
+	return abs(start.x - dest.x) + abs(start.y - dest.y);
 }
