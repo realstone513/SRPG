@@ -89,8 +89,8 @@ void GameMgr::Update(float dt)
 		}
 		if (aiDoneCount == aiCount)
 		{
-			SetPlayerTurn(true);
 			turnCount++;
+			SetPlayerTurn(true);
 		}
 	}
 }

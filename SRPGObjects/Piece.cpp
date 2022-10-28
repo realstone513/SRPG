@@ -6,7 +6,7 @@
 Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
 	: pType(pt), maxHealth(h), damage(d), armor(a),
 	range(r), mobility(m), rangeFill(f),
-	isTurn(false), isPlayable(false), done(false), isDeath(false), speed(100.f),
+	isTurn(false), isPlayable(false), done(false), isDeath(false), speed(300.f),
 	animDir(true)
 {
 	health = maxHealth;
@@ -30,11 +30,7 @@ void Piece::Update(float dt)
 		Translate(dir * speed * dt);
 		if (dist <= 0.f) // 이동 끝나면
 		{
-			dir = { 0, 0 };
-			dist = 0.f;
-			SetPos(dest);
-			SetState(States::Idle);
-			dest = { 0, 0 };
+			StopTranslate();
 		}
 	}
 }
@@ -112,4 +108,13 @@ void Piece::SetState(States newState)
 	if (currState == newState)
 		return;
 	currState = newState;
+}
+
+void Piece::StopTranslate()
+{
+	dist = 0.f;
+	dir = { 0, 0 };
+	SetPos(dest);
+	SetState(States::Idle);
+	dest = { 0, 0 };
 }

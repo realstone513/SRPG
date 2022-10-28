@@ -199,15 +199,19 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 	commandAttackButton->SetTexture(*RESOURCE_MGR->GetTexture("graphics/UIBackground.png"));
 	commandAttackButton->SetScale(1.2f, 1.f);
 	commandAttackButton->SetColor(uiBaseColor);
+	commandAttackButton->SetName("cmdAttack");
 	commandSpecialButton->SetTexture(*RESOURCE_MGR->GetTexture("graphics/UIBackground.png"));
 	commandSpecialButton->SetScale(1.2f, 1.f);
 	commandSpecialButton->SetColor(uiBaseColor);
+	commandSpecialButton->SetName("cmdSpecial");
 	commandToolButton->SetTexture(*RESOURCE_MGR->GetTexture("graphics/UIBackground.png"));
 	commandToolButton->SetScale(1.2f, 1.f);
 	commandToolButton->SetColor(uiBaseColor);
+	commandToolButton->SetName("cmdTool");
 	commandWaitButton->SetTexture(*RESOURCE_MGR->GetTexture("graphics/UIBackground.png"));
 	commandWaitButton->SetScale(1.2f, 1.f);
 	commandWaitButton->SetColor(uiBaseColor);
+	commandWaitButton->SetName("cmdWait");
 	// Command Window end
 
 	// no group
@@ -409,14 +413,14 @@ void BattleSceneUI::SetDamageText(Vector2f pos, float dmg)
 void BattleSceneUI::SetCommandWindow(Vector2f pos)
 {
 	commandAttackButton->SetPos(pos + Vector2f(0.f, 0.f));
-	commandSpecialButton->SetPos(pos + Vector2f(0.f, 40.f));
-	commandToolButton->SetPos(pos + Vector2f(0.f, 80.f));
-	commandWaitButton->SetPos(pos + Vector2f(0.f, 120.f));
+	commandSpecialButton->SetPos(pos + Vector2f(0.f, 45.f));
+	commandToolButton->SetPos(pos + Vector2f(0.f, 90.f));
+	commandWaitButton->SetPos(pos + Vector2f(0.f, 135.f));
 
 	commandAttackText->SetPos(pos + Vector2f(10.f, 5.f));
-	commandSpeicialText->SetPos(pos + Vector2f(10.f, 45.f));
-	commandToolText->SetPos(pos + Vector2f(10.f, 85.f));
-	commandWaitText->SetPos(pos + Vector2f(10.f, 125.f));
+	commandSpeicialText->SetPos(pos + Vector2f(10.f, 50.f));
+	commandToolText->SetPos(pos + Vector2f(10.f, 95.f));
+	commandWaitText->SetPos(pos + Vector2f(10.f, 140.f));
 }
 
 void BattleSceneUI::SetHud(bool isPlayerTurn, int count)

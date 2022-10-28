@@ -82,4 +82,5 @@ public:
 		animDir = isRight;
 	}
 	Vector2i GetBeforeIdx() { return beforeIdx; }
+	void StopTranslate();
 };

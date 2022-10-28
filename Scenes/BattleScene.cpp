@@ -108,7 +108,8 @@ void BattleScene::Enter()
 	// player 턴으로 시작
 	GAMEMGR->SetPlayerTurn(true);
 	viewTarget = camera;
-	camera->SetPos(player->GetPos() + Vector2f(0, 16.f));
+	focus = nullptr;
+	camera->SetPos(player->GetPos() + Vector2f(0, -0.5f * unit));
 	UIMgr->Reset();
 }
 
@@ -130,62 +131,254 @@ void BattleScene::Update(float dt)
 			if (button->GetGlobalBounds().contains(ScreenToUiPos(Vector2i(InputMgr::GetMousePos()))))
 			{
 				button->SetColor(Color::Red);
-				CLOG::Print3String("touch");
+				// button click
+				if (InputMgr::GetMouseDown(Mouse::Left))
+				{
+					CLOG::Print3String(button->GetName());
+					return;
+				}
 			}
 			else
 				button->SetColor(UIMgr->uiBaseColor);
 		}
 	}
+	if (InputMgr::GetMouseDown(Mouse::Left))
+	{
+		Vector2f worldPos = ScreenToWorldPos(Vector2i(InputMgr::GetMousePos()));
+		bool hitGround = true;
+		switch (curPhase)
+		{
+		case BattleScene::Phase::Wait:
+			for (auto& piece : gamePieces)
+			{
+				if (piece->GetHitbox().getGlobalBounds().contains(worldPos))
+				{
+					hitGround = false;
+					if (focus == nullptr || focus != piece)
+					{
+						if (focus)
+							SetOverlayInactive();
+
+						focus = piece;
+						viewTarget = focus;
+						camera->SetPos(focus->GetPos() + Vector2f(0, -0.5f * unit));
+
+						if (!focus->GetType().compare("Playable"))
+						{
+							UIMgr->SetPlayableInfo(focus);
+							UIMgr->SetUIActive("PlayableInfoUI", true);
+						}
+						else
+						{
+							UIMgr->SetAIInfo(focus);
+							UIMgr->SetUIActive("AIInfoUI", true);
+						}
+
+						if (focus->GetDone())
+						{
+							CLOG::Print3String(piece->GetName(), "is done");
+							break;
+						}
+
+						Vector2i curIdx = PosToIdx(piece->GetPos());
+						if (!FRAMEWORK->devMode)
+							SetMoveable(curIdx, focus->mobility);
+						else
+						{
+							algorithmCount = 0;
+							SetMoveable(curIdx, focus->mobility);
+							CLOG::Print3String("count :", to_string(algorithmCount));
+						}
+						SetAttackRange(curIdx, focus->range, focus->rangeFill);
+						SetImmovable(curIdx);
+						if (focus->GetIsTurn())
+							curPhase = Phase::Action;
+						else
+							CLOG::Print3String(focus->GetName(), "Not my turn!");
+						return;
+					}
+				}
+			}
+			break;
+		case BattleScene::Phase::Action:
+			for (auto& tile : activeTiles)
+			{
+				if (tile->GetGlobalBounds().contains(worldPos))
+				{
+					hitGround = false;
+					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
+					Piece* target = nullptr;
+
+					for (auto& piece : gamePieces)
+					{
+						if (piece->GetIdxPos() == tileIdx && (int)tile->GetTileType() == (int)TileType::AttackRange)
+						{
+							target = piece;
+							break;
+						}
+					}
+
+					if ((target != nullptr) && (int)tile->GetTileType() == (int)TileType::AttackRange)
+					{
+						// attack
+						if (!target->GetType().compare(focus->GetType()))
+						{
+							CLOG::Print3String("Can't attack");
+							break;
+						}
+						CLOG::Print3String("Attack1! ", target->GetName());
+						GAMEMGR->DamageToPiece(focus, target);
+						UIMgr->SetDamageText(
+							WorldToUI(target->GetPos()) + Vector2f(unit, 0),
+							GAMEMGR->CalculateDamage(focus, target));
+
+						focus->SetDone(true);
+						InactiveTileSequence();
+					}
+					// move
+					else if ((int)tile->GetTileType() != (int)TileType::Immovable)
+					{
+						CLOG::Print3String("Move!");
+						// move
+						Vector2f destination = tile->GetTilePos();
+						focus->SetDest(destination);
+						focus->SetAnimDir(focus->GetPos().x < destination.x);
+						focus->SetState(States::Move);
+
+						Vector2i curIdx = PosToIdx(destination);
+						UIMgr->SetUIActive("CommandWindow", true);
+						UIMgr->SetCommandWindow(WorldToUI(focus->GetPos()));
+						UIMgr->commandUIActive = true;
+						focus->SetIdxPos(curIdx);
+						SetOverlayInactive();
+						SetAttackRange(curIdx, focus->range, focus->rangeFill);
+						SetImmovable(curIdx);
+						curPhase = Phase::ActionAfterMove;
+					}
+					// Click Immovable cell
+					else
+						CLOG::Print3String("Can't move!");
+					return;
+				}
+			}
+			break;
+		case BattleScene::Phase::ActionAfterMove:
+			// attack or end
+			// click tile
+			for (auto& tile : activeTiles)
+			{
+				if (tile->GetGlobalBounds().contains(worldPos))
+				{
+					hitGround = false;
+					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
+					Piece* target = nullptr;
+
+					for (auto& piece : gamePieces)
+					{
+						if (piece->GetIdxPos() == tileIdx && (int)tile->GetTileType() == (int)TileType::AttackRange)
+						{
+							target = piece;
+							break;
+						}
+					}
+
+					if (target != nullptr && (int)tile->GetTileType() == (int)TileType::AttackRange)
+					{
+						// attack
+						if (!target->GetType().compare(focus->GetType()))
+						{
+							CLOG::Print3String("Can't attack");
+							break;
+						}
+						CLOG::Print3String("Attack2! ", target->GetName());
+						GAMEMGR->DamageToPiece(focus, target);
+						UIMgr->SetDamageText(
+							WorldToUI(target->GetPos()) + Vector2f(unit, 0),
+							GAMEMGR->CalculateDamage(focus, target));
+					}
+
+					focus->SetDone(true);
+					InactiveTileSequence();
+					break;
+				}
+			}
+			// click another(ground)
+			break;
+		}
+
+		//if (hitGround)
+		//{
+		//	if (curPhase == Phase::ActionAfterMove)
+		//	{
+		//		//focus->SetDest(IdxToPos(focus->GetBeforeIdx()));
+		//		focus->SetPos(IdxToPos(focus->GetBeforeIdx()));
+		//		focus->SetIdxPos(focus->GetBeforeIdx());
+		//	}
+		//	InactiveTileSequence();
+		//	viewTarget = camera;
+		//}
+	}
+
+	if (InputMgr::GetMouseDown(Mouse::Right))
+	{
+		if (curPhase == Phase::ActionAfterMove)
+		{
+			//focus->SetDest(IdxToPos(focus->GetBeforeIdx()));
+			focus->StopTranslate();
+			focus->SetPos(IdxToPos(focus->GetBeforeIdx()));
+			focus->SetIdxPos(focus->GetBeforeIdx());
+		}
+		InactiveTileSequence();
+		viewTarget = camera;
+	}
 
 	// Develop Input
+	// F7 F8 : hitbox on/off
+	// F9 : fullscreen <-> viewTarget
+	// F10 F11 : overlay on/off
+	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
 	{
-		// F7 F8 : hitbox on/off
-		// F9 : fullscreen <-> viewTarget
-		// F10 F11 : overlay on/off
-		if (InputMgr::GetKeyDown(Keyboard::Key::F7))
+		CLOG::Print3String("scene[battle] dev mode on");
+		FRAMEWORK->devMode = true;
+		return;
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
+	{
+		CLOG::Print3String("scene[battle] dev mode off");
+		FRAMEWORK->devMode = false;
+		return;
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
+	{
+		fsv = !fsv;
+		CLOG::Print3String("scene[battle] fullScreenView switch", fsv ? "ON" : "OFF");
+		if (fsv)
+			SetFullScreenWorldView();
+		else
 		{
-			CLOG::Print3String("scene[battle] dev mode on");
-			FRAMEWORK->devMode = true;
-			return;
+			SetViewFocusOnObj(camera);
+			worldView.setSize({ size.x / 2, size.y / 2 });
 		}
-		if (InputMgr::GetKeyDown(Keyboard::Key::F8))
+		return;
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F10))
+	{
+		CLOG::Print3String("scene[battle] overlay switch on");
+		for (auto& tiles : overlay)
 		{
-			CLOG::Print3String("scene[battle] dev mode off");
-			FRAMEWORK->devMode = false;
-			return;
+			for (auto& tile : tiles)
+				tile->SetActive(true);
 		}
-		if (InputMgr::GetKeyDown(Keyboard::Key::F9))
+	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::F11))
+	{
+		CLOG::Print3String("scene[battle] overlay switch off");
+		for (auto& tiles : overlay)
 		{
-			fsv = !fsv;
-			CLOG::Print3String("scene[battle] fullScreenView switch", fsv ? "ON" : "OFF");
-			if (fsv)
-				SetFullScreenWorldView();
-			else
+			for (auto& tile : tiles)
 			{
-				SetViewFocusOnObj(camera);
-				worldView.setSize({ size.x / 2, size.y / 2 });
-			}
-			return;
-		}
-		if (InputMgr::GetKeyDown(Keyboard::Key::F10))
-		{
-			CLOG::Print3String("scene[battle] overlay switch on");
-			for (auto& tiles : overlay)
-			{
-				for (auto& tile : tiles)
-					tile->SetActive(true);
-			}
-		}
-		if (InputMgr::GetKeyDown(Keyboard::Key::F11))
-		{
-			CLOG::Print3String("scene[battle] overlay switch off");
-			for (auto& tiles : overlay)
-			{
-				for (auto& tile : tiles)
-				{
-					if ((int)tile->GetTileType() == (int)TileType::Inactive)
-						tile->SetActive(false);
-				}
+				if ((int)tile->GetTileType() == (int)TileType::Inactive)
+					tile->SetActive(false);
 			}
 		}
 	}
@@ -328,208 +521,6 @@ void BattleScene::Update(float dt)
 
 		AIAction();
 	}
-	if (InputMgr::GetMouseDown(Mouse::Left))
-	{
-		Vector2f worldPos = ScreenToWorldPos(Vector2i(InputMgr::GetMousePos()));
-		bool hitGround = true;
-		switch (curPhase)
-		{
-		case BattleScene::Phase::Wait:
-			for (auto& piece : gamePieces)
-			{
-				if (piece->GetHitbox().getGlobalBounds().contains(worldPos))
-				{
-					Vector2i curIdx = PosToIdx(piece->GetPos());
-					if (!focus || focus != piece)
-					{
-						if (focus)
-							SetOverlayInactive();
-
-						focus = piece;
-						viewTarget = focus;
-						camera->SetPos(focus->GetPos() + Vector2f(0, -16.f));
-
-						if (!focus->GetType().compare("Playable"))
-						{
-							UIMgr->SetPlayableInfo(focus);
-							UIMgr->SetUIActive("PlayableInfoUI", true);
-						}
-						else
-						{
-							UIMgr->SetAIInfo(focus);
-							UIMgr->SetUIActive("AIInfoUI", true);
-						}
-						if (focus->GetDone())
-						{
-							CLOG::Print3String(piece->GetName(), "is done");
-							break;
-						}
-						if (!FRAMEWORK->devMode)
-							SetMoveable(curIdx, focus->mobility);
-						else
-						{
-							algorithmCount = 0;
-							SetMoveable(curIdx, focus->mobility);
-							CLOG::Print3String("count :", to_string(algorithmCount));
-						}
-						SetAttackRange(curIdx, focus->range, focus->rangeFill);
-						SetImmovable(curIdx);
-						hitGround = false;
-						if (focus->GetIsTurn())
-							curPhase = Phase::Action;
-						else
-							CLOG::Print3String(focus->GetName(), "Not my turn!");
-						return;
-					}
-				}
-			}
-			break;
-		case BattleScene::Phase::Action:
-			for (auto& tile : activeTiles)
-			{
-				if (tile->GetGlobalBounds().contains(worldPos))
-				{
-					hitGround = false;
-					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
-					Piece* target = nullptr;
-
-					for (auto& piece : gamePieces)
-					{
-						if (piece->GetIdxPos() == tileIdx && (int)tile->GetTileType() == (int)TileType::AttackRange)
-						{
-							target = piece;
-							break;
-						}
-					}
-
-					if ((target != nullptr) && (int)tile->GetTileType() == (int)TileType::AttackRange)
-					{
-						// attack
-						if (!target->GetType().compare(focus->GetType()))
-						{
-							CLOG::Print3String("Can't attack");
-							break;
-						}
-						CLOG::Print3String("Attack1! ", target->GetName());
-						GAMEMGR->DamageToPiece(focus, target);
-						UIMgr->SetDamageText(WorldToUI(target->GetPos()), GAMEMGR->CalculateDamage(focus, target));
-
-						curPhase = Phase::Wait;
-						SetOverlayInactive();
-						focus->SetDone(true);
-						camera->SetPos(focus->GetPos() + Vector2f(0, -16.f));
-						viewTarget = camera;
-						focus = nullptr;
-						UIMgr->SetUIActive("PlayableInfoUI", false);
-						UIMgr->SetUIActive("AIInfoUI", false);
-						UIMgr->SetUIActive("CommandWindow", false);
-						UIMgr->commandUIActive = false;
-					}
-					// move
-					else if ((int)tile->GetTileType() != (int)TileType::Immovable)
-					{
-						CLOG::Print3String("Move!");
-						// move
-						Vector2f destination = tile->GetTilePos();
-						focus->SetDest(destination);
-						focus->SetAnimDir(focus->GetPos().x < destination.x);
-						focus->SetState(States::Move);
-
-						Vector2i curIdx = PosToIdx(destination);
-						UIMgr->SetUIActive("CommandWindow", true);
-						UIMgr->SetCommandWindow(WorldToUI(focus->GetPos()));
-						UIMgr->commandUIActive = true;
-						focus->SetIdxPos(curIdx);
-						SetOverlayInactive();
-						SetAttackRange(curIdx, focus->range, focus->rangeFill);
-						SetImmovable(curIdx);
-						curPhase = Phase::ActionAfterMove;
-					}
-					// Click Immovable cell
-					else
-						CLOG::Print3String("Can't move!");
-					return;
-				}
-			}
-			break;
-		case BattleScene::Phase::ActionAfterMove:
-			// attack or end
-			// click tile
-			for (auto& tile : activeTiles)
-			{
-				if (tile->GetGlobalBounds().contains(worldPos))
-				{
-					hitGround = false;
-					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
-					Piece* target = nullptr;
-
-					for (auto& piece : gamePieces)
-					{
-						if (piece->GetIdxPos() == tileIdx && (int)tile->GetTileType() == (int)TileType::AttackRange)
-						{
-							target = piece;
-							break;
-						}
-					}
-
-					if (target != nullptr && (int)tile->GetTileType() == (int)TileType::AttackRange)
-					{
-						// attack
-						if (!target->GetType().compare(focus->GetType()))
-						{
-							CLOG::Print3String("Can't attack");
-							break;
-						}
-						CLOG::Print3String("Attack2! ", target->GetName());
-						GAMEMGR->DamageToPiece(focus, target);
-						UIMgr->SetDamageText(WorldToUI(target->GetPos()), GAMEMGR->CalculateDamage(focus, target));
-					}
-					curPhase = Phase::Wait;
-					SetOverlayInactive();
-					focus->SetDone(true);
-					camera->SetPos(focus->GetPos() + Vector2f(0, -16.f));
-					viewTarget = camera;
-					focus = nullptr;
-					UIMgr->SetUIActive("PlayableInfoUI", false);
-					UIMgr->SetUIActive("AIInfoUI", false);
-					UIMgr->SetUIActive("CommandWindow", false);
-					UIMgr->commandUIActive = false;
-					break;
-				}
-			}
-			// click another(ground)
-			break;
-		}
-
-		if (hitGround)
-		{
-			if (curPhase == Phase::ActionAfterMove)
-			{
-				focus->SetPos(IdxToPos(focus->GetBeforeIdx()));
-				focus->SetIdxPos(focus->GetBeforeIdx());
-			}
-			curPhase = Phase::Wait;
-			SetOverlayInactive();
-			viewTarget = camera;
-			focus = nullptr;
-			UIMgr->SetUIActive("PlayableInfoUI", false);
-			UIMgr->SetUIActive("AIInfoUI", false);
-			UIMgr->SetUIActive("CommandWindow", false);
-			UIMgr->commandUIActive = false;
-		}
-	}
-
-	if (InputMgr::GetMouseDown(Mouse::Right))
-	{
-		// 땅 클릭과 같은 효과. 취소 (or 돌아가기)
-		if (curPhase == Phase::ActionAfterMove)
-			focus->SetDone(true);
-		curPhase = Phase::Wait;
-		SetOverlayInactive();
-		camera->SetPos(focus->GetPos());
-		viewTarget = camera;
-		focus = nullptr;
-	}
 }
 
 void BattleScene::Draw(RenderWindow& window)
@@ -576,8 +567,8 @@ void BattleScene::CreateBackground(int width, int height, float quadWidth, float
 				texIndexX = 4;
 				texIndexY = 4;
 			}*/
-			int texIndexX = Utils::RandomRange(0, 13);//4;
-			int texIndexY = Utils::RandomRange(0, 2);//1;
+			int texIndexX = 5;
+			int texIndexY = 8;
 
 			// 채우기
 			int quadIndex = i * height + j;
@@ -660,4 +651,33 @@ void BattleScene::AIAction()
 		CLOG::PrintVectorState(dist);
 	}
 	//viewTarget = camera;
+}
+
+void BattleScene::SelectAttackBtn()
+{
+}
+
+void BattleScene::SelectSpecialBtn()
+{
+}
+
+void BattleScene::SelectToolBtn()
+{
+}
+
+void BattleScene::SelectWaitBtn()
+{
+}
+
+void BattleScene::InactiveTileSequence()
+{
+	curPhase = Phase::Wait;
+	SetOverlayInactive();
+	if (focus != nullptr)
+		camera->SetPos(focus->GetPos() + Vector2f(0, -0.5f * unit));
+	focus = nullptr;
+	UIMgr->SetUIActive("PlayableInfoUI", false);
+	UIMgr->SetUIActive("AIInfoUI", false);
+	UIMgr->SetUIActive("CommandWindow", false);
+	UIMgr->commandUIActive = false;
 }

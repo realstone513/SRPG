@@ -65,4 +65,10 @@ public:
 	Vector2f WorldToUI(Vector2f world);
 
 	void AIAction();
+
+	void SelectAttackBtn();
+	void SelectSpecialBtn();
+	void SelectToolBtn();
+	void SelectWaitBtn();
+	void InactiveTileSequence();
 };
