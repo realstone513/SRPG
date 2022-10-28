@@ -147,6 +147,5 @@ void GameMgr::DamageToPiece(Piece* attack, Piece* hit)
 
 float GameMgr::CalculateDamage(Piece* attack, Piece* hit)
 {
-	return attack->damage * 100.f / (hit->armor + 100.f);
+	return Utils::RandomRange(attack->damage * 0.8f, attack->damage * 1.2) * 100.f / (hit->armor + 100.f);
 }
-// attack Damage * (100 / armor + 100)

@@ -71,4 +71,5 @@ public:
 	void SelectToolBtn();
 	void SelectWaitBtn();
 	void InactiveTileSequence();
+	void ShowCommandWindow();
 };

@@ -240,38 +240,34 @@ void BattleScene::Update(float dt)
 							CLOG::Print3String("Can't attack");
 							break;
 						}
-						CLOG::Print3String("Attack1! ", target->GetName());
-						GAMEMGR->DamageToPiece(focus, target);
-						UIMgr->SetDamageText(
-							WorldToUI(target->GetPos()) + Vector2f(unit, 0),
-							GAMEMGR->CalculateDamage(focus, target));
-
-						focus->SetDone(true);
-						InactiveTileSequence();
+						ShowCommandWindow();
 					}
 					// move
 					else if ((int)tile->GetTileType() != (int)TileType::Immovable)
 					{
-						CLOG::Print3String("Move!");
 						// move
 						Vector2f destination = tile->GetTilePos();
+						CLOG::PrintVectorState(focus->GetIdxPos(), "A");
+						CLOG::Print3String("Move to");
+						CLOG::PrintVectorState(PosToIdx(destination), "B");
 						focus->SetDest(destination);
 						focus->SetAnimDir(focus->GetPos().x < destination.x);
 						focus->SetState(States::Move);
 
 						Vector2i curIdx = PosToIdx(destination);
-
-						UIMgr->SetCommandWindow(WorldToUI(focus->GetPos()));
-						UIMgr->commandUIActive = true;
-						UIMgr->SetUIActive("CommandWindow", true);
-
 						focus->SetIdxPos(curIdx);
 						SetOverlayInactive();
+						ShowCommandWindow();
 						curPhase = Phase::ActionAfterMove;
 					}
 					// Click Immovable cell
 					else
-						CLOG::Print3String("Can't move!");
+					{
+						if (tile->GetTilePos() == focus->GetPos())
+							ShowCommandWindow();
+						else
+							CLOG::Print3String("Can't move!");
+					}
 					return;
 				}
 			}
@@ -308,11 +304,15 @@ void BattleScene::Update(float dt)
 						UIMgr->SetDamageText(
 							WorldToUI(target->GetPos()) + Vector2f(unit, 0),
 							GAMEMGR->CalculateDamage(focus, target));
-					}
 
-					focus->SetDone(true);
-					InactiveTileSequence();
-					break;
+						focus->SetDone(true);
+						InactiveTileSequence();
+						break;
+					}
+					else
+					{
+						CLOG::Print3String("click ground");
+					}
 				}
 			}
 			break;
@@ -321,10 +321,7 @@ void BattleScene::Update(float dt)
 
 	if (InputMgr::GetMouseDown(Mouse::Right))
 	{
-		if (focus == nullptr || focus->GetDone())
-			return ;
-
-		if (focus->GetBeforeIdx().x == -1)
+		if (focus == nullptr || focus->GetBeforeIdx().x == -1)
 			return ;
 			
 		if (curPhase == Phase::ActionAfterMove)
@@ -679,7 +676,8 @@ void BattleScene::SelectToolBtn()
 
 void BattleScene::SelectWaitBtn()
 {
-	UIMgr->SetUIActive("CommandWindow", false);
+	focus->SetDone(true);
+	InactiveTileSequence();
 }
 
 void BattleScene::InactiveTileSequence()
@@ -693,4 +691,11 @@ void BattleScene::InactiveTileSequence()
 	UIMgr->SetUIActive("AIInfoUI", false);
 	UIMgr->SetUIActive("CommandWindow", false);
 	UIMgr->commandUIActive = false;
+}
+
+void BattleScene::ShowCommandWindow()
+{
+	UIMgr->SetCommandWindow(WorldToUI(focus->GetPos()));
+	UIMgr->commandUIActive = true;
+	UIMgr->SetUIActive("CommandWindow", true);
 }
