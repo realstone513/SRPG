@@ -134,7 +134,23 @@ void BattleScene::Update(float dt)
 				// button click
 				if (InputMgr::GetMouseDown(Mouse::Left))
 				{
-					CLOG::Print3String(button->GetName());
+					if (!button->GetName().compare("cmdAttack"))
+					{
+						SelectAttackBtn();
+					}
+					else if (!button->GetName().compare("cmdSpecial"))
+					{
+						SelectSpecialBtn();
+					}
+					else if (!button->GetName().compare("cmdTool"))
+					{
+						SelectToolBtn();
+					}
+					else if (!button->GetName().compare("cmdWait"))
+					{
+						SelectWaitBtn();
+					}
+
 					return;
 				}
 			}
@@ -142,10 +158,10 @@ void BattleScene::Update(float dt)
 				button->SetColor(UIMgr->uiBaseColor);
 		}
 	}
+
 	if (InputMgr::GetMouseDown(Mouse::Left))
 	{
 		Vector2f worldPos = ScreenToWorldPos(Vector2i(InputMgr::GetMousePos()));
-		bool hitGround = true;
 		switch (curPhase)
 		{
 		case BattleScene::Phase::Wait:
@@ -153,7 +169,6 @@ void BattleScene::Update(float dt)
 			{
 				if (piece->GetHitbox().getGlobalBounds().contains(worldPos))
 				{
-					hitGround = false;
 					if (focus == nullptr || focus != piece)
 					{
 						if (focus)
@@ -176,11 +191,11 @@ void BattleScene::Update(float dt)
 
 						if (focus->GetDone())
 						{
-							CLOG::Print3String(piece->GetName(), "is done");
+							CLOG::Print3String(focus->GetName(), "is done");
 							break;
 						}
 
-						Vector2i curIdx = PosToIdx(piece->GetPos());
+						Vector2i curIdx = PosToIdx(focus->GetPos());
 						if (!FRAMEWORK->devMode)
 							SetMoveable(curIdx, focus->mobility);
 						else
@@ -205,7 +220,6 @@ void BattleScene::Update(float dt)
 			{
 				if (tile->GetGlobalBounds().contains(worldPos))
 				{
-					hitGround = false;
 					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
 					Piece* target = nullptr;
 
@@ -246,13 +260,13 @@ void BattleScene::Update(float dt)
 						focus->SetState(States::Move);
 
 						Vector2i curIdx = PosToIdx(destination);
-						UIMgr->SetUIActive("CommandWindow", true);
+
 						UIMgr->SetCommandWindow(WorldToUI(focus->GetPos()));
 						UIMgr->commandUIActive = true;
+						UIMgr->SetUIActive("CommandWindow", true);
+
 						focus->SetIdxPos(curIdx);
 						SetOverlayInactive();
-						SetAttackRange(curIdx, focus->range, focus->rangeFill);
-						SetImmovable(curIdx);
 						curPhase = Phase::ActionAfterMove;
 					}
 					// Click Immovable cell
@@ -269,7 +283,6 @@ void BattleScene::Update(float dt)
 			{
 				if (tile->GetGlobalBounds().contains(worldPos))
 				{
-					hitGround = false;
 					Vector2i tileIdx = PosToIdx(tile->GetTilePos());
 					Piece* target = nullptr;
 
@@ -302,28 +315,20 @@ void BattleScene::Update(float dt)
 					break;
 				}
 			}
-			// click another(ground)
 			break;
 		}
-
-		//if (hitGround)
-		//{
-		//	if (curPhase == Phase::ActionAfterMove)
-		//	{
-		//		//focus->SetDest(IdxToPos(focus->GetBeforeIdx()));
-		//		focus->SetPos(IdxToPos(focus->GetBeforeIdx()));
-		//		focus->SetIdxPos(focus->GetBeforeIdx());
-		//	}
-		//	InactiveTileSequence();
-		//	viewTarget = camera;
-		//}
 	}
 
 	if (InputMgr::GetMouseDown(Mouse::Right))
 	{
+		if (focus == nullptr || focus->GetDone())
+			return ;
+
+		if (focus->GetBeforeIdx().x == -1)
+			return ;
+			
 		if (curPhase == Phase::ActionAfterMove)
 		{
-			//focus->SetDest(IdxToPos(focus->GetBeforeIdx()));
 			focus->StopTranslate();
 			focus->SetPos(IdxToPos(focus->GetBeforeIdx()));
 			focus->SetIdxPos(focus->GetBeforeIdx());
@@ -655,18 +660,26 @@ void BattleScene::AIAction()
 
 void BattleScene::SelectAttackBtn()
 {
+	SetOverlayInactive();
+	UIMgr->SetUIActive("CommandWindow", false);
+	SetAttackRange(PosToIdx(focus->GetPos()), focus->range, focus->rangeFill);
+	SetImmovable(PosToIdx(focus->GetPos()));
+	curPhase = Phase::ActionAfterMove;
 }
 
 void BattleScene::SelectSpecialBtn()
 {
+	UIMgr->SetUIActive("CommandWindow", false);
 }
 
 void BattleScene::SelectToolBtn()
 {
+	UIMgr->SetUIActive("CommandWindow", false);
 }
 
 void BattleScene::SelectWaitBtn()
 {
+	UIMgr->SetUIActive("CommandWindow", false);
 }
 
 void BattleScene::InactiveTileSequence()
