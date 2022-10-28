@@ -2,17 +2,18 @@
 #include "../SFML_Framework/GameObject/RectangleObj.h"
 #include <map>
 
+enum class TileType
+{
+	None = -1,
+	Inactive,
+	Moveable,
+	Immovable,
+	AttackRange,
+};
+
 class OverlayTile : public RectangleObj
 {
 protected:
-	enum class TileType
-	{
-		None = -1,
-		Inactive,
-		Moveable,
-		Immovable,
-		AttackRange,
-	};
 	map<TileType, Color> colors;
 	TileType tileType;
 

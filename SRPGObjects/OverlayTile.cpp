@@ -72,7 +72,7 @@ void OverlayTile::SetFillColor(int type)
 	SetFillColor((TileType)type);
 }
 
-OverlayTile::TileType OverlayTile::GetTileType() const
+TileType OverlayTile::GetTileType() const
 {
 	return tileType;
 }

@@ -253,9 +253,7 @@ void BattleScene::Update(float dt)
 						focus->SetDest(destination);
 						focus->SetAnimDir(focus->GetPos().x < destination.x);
 						focus->SetState(States::Move);
-
-						Vector2i curIdx = PosToIdx(destination);
-						focus->SetIdxPos(curIdx);
+						focus->SetIdxPos(PosToIdx(destination));
 						SetOverlayInactive();
 						ShowCommandWindow();
 						curPhase = Phase::ActionAfterMove;
@@ -321,10 +319,10 @@ void BattleScene::Update(float dt)
 
 	if (InputMgr::GetMouseDown(Mouse::Right))
 	{
-		if (focus == nullptr || focus->GetBeforeIdx().x == -1)
+		if (focus == nullptr)
 			return ;
 			
-		if (curPhase == Phase::ActionAfterMove)
+		if (curPhase == Phase::ActionAfterMove || focus->GetBeforeIdx().x != -1)
 		{
 			focus->StopTranslate();
 			focus->SetPos(IdxToPos(focus->GetBeforeIdx()));
@@ -338,49 +336,51 @@ void BattleScene::Update(float dt)
 	// F7 F8 : hitbox on/off
 	// F9 : fullscreen <-> viewTarget
 	// F10 F11 : overlay on/off
-	if (InputMgr::GetKeyDown(Keyboard::Key::F7))
 	{
-		CLOG::Print3String("scene[battle] dev mode on");
-		FRAMEWORK->devMode = true;
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F8))
-	{
-		CLOG::Print3String("scene[battle] dev mode off");
-		FRAMEWORK->devMode = false;
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F9))
-	{
-		fsv = !fsv;
-		CLOG::Print3String("scene[battle] fullScreenView switch", fsv ? "ON" : "OFF");
-		if (fsv)
-			SetFullScreenWorldView();
-		else
+		if (InputMgr::GetKeyDown(Keyboard::Key::F7))
 		{
-			SetViewFocusOnObj(camera);
-			worldView.setSize({ size.x / 2, size.y / 2 });
+			CLOG::Print3String("scene[battle] dev mode on");
+			FRAMEWORK->devMode = true;
+			return;
 		}
-		return;
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F10))
-	{
-		CLOG::Print3String("scene[battle] overlay switch on");
-		for (auto& tiles : overlay)
+		if (InputMgr::GetKeyDown(Keyboard::Key::F8))
 		{
-			for (auto& tile : tiles)
-				tile->SetActive(true);
+			CLOG::Print3String("scene[battle] dev mode off");
+			FRAMEWORK->devMode = false;
+			return;
 		}
-	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::F11))
-	{
-		CLOG::Print3String("scene[battle] overlay switch off");
-		for (auto& tiles : overlay)
+		if (InputMgr::GetKeyDown(Keyboard::Key::F9))
 		{
-			for (auto& tile : tiles)
+			fsv = !fsv;
+			CLOG::Print3String("scene[battle] fullScreenView switch", fsv ? "ON" : "OFF");
+			if (fsv)
+				SetFullScreenWorldView();
+			else
 			{
-				if ((int)tile->GetTileType() == (int)TileType::Inactive)
-					tile->SetActive(false);
+				SetViewFocusOnObj(camera);
+				worldView.setSize({ size.x / 2, size.y / 2 });
+			}
+			return;
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::F10))
+		{
+			CLOG::Print3String("scene[battle] overlay switch on");
+			for (auto& tiles : overlay)
+			{
+				for (auto& tile : tiles)
+					tile->SetActive(true);
+			}
+		}
+		if (InputMgr::GetKeyDown(Keyboard::Key::F11))
+		{
+			CLOG::Print3String("scene[battle] overlay switch off");
+			for (auto& tiles : overlay)
+			{
+				for (auto& tile : tiles)
+				{
+					if ((int)tile->GetTileType() == (int)TileType::Inactive)
+						tile->SetActive(false);
+				}
 			}
 		}
 	}
@@ -503,7 +503,7 @@ void BattleScene::Update(float dt)
 	{
 		CLOG::Print3String("scene[battle] AI Action");
 
-		Vector2i dest(15, 10);
+		/*Vector2i dest(15, 10);
 		mino->SetDest(IdxToPos(dest));
 		mino->SetAnimDir(mino->GetIdxPos().x < 15);
 		mino->SetState(States::Move);
@@ -519,7 +519,7 @@ void BattleScene::Update(float dt)
 		squirrel->SetDest(IdxToPos(dest));
 		squirrel->SetAnimDir(squirrel->GetIdxPos().x < 15);
 		squirrel->SetState(States::Move);
-		squirrel->SetIdxPos(dest);
+		squirrel->SetIdxPos(dest);*/
 
 		AIAction();
 	}
@@ -629,34 +629,62 @@ Vector2f BattleScene::WorldToUI(Vector2f world)
 	return window.mapPixelToCoords(screen, uiView);
 }
 
-// 가장 가까운 playable 캐릭터를 향해 이동
+// 1. 이동 가능한 타일 중 playable과 가장 가까운 곳으로 이동
+// 2. 이동 전, 후에 공격 가능한 타일에 playable이 있다면 attack/special 실행
 void BattleScene::AIAction()
 {
 	for (Piece*& ai : GAMEMGR->aiPieces)
 	{
-		viewTarget = ai;
-		Vector2i dist(width, height);
+		if (ai->GetDone())
+			continue;
 
+		viewTarget = ai;
+
+		Vector2i dist(width, height);
 		Piece* target = nullptr;
-		for (Piece*& playable : GAMEMGR->playerPieces)
+		OverlayTile* curTile = nullptr;
+
+		SetMoveable(ai->GetIdxPos(), ai->mobility);
+		SetImmovable(ai->GetIdxPos());
+		for (auto& tile : activeTiles)
 		{
-			Vector2i tmp = playable->GetIdxPos() - ai->GetIdxPos();
-			if (Utils::SqrMagnitude(dist) > Utils::SqrMagnitude(tmp))
+			if (tile->GetTileType() == TileType::Immovable)
+				continue;
+
+			for (Piece*& playable : GAMEMGR->playerPieces)
 			{
-				dist = tmp;
-				target = playable;
+				Vector2i tmp = playable->GetIdxPos() - PosToIdx(tile->GetTilePos());
+				if (Utils::SqrMagnitude(dist) > Utils::SqrMagnitude(tmp))
+				{
+					curTile = tile;
+					target = playable;
+					dist = tmp;
+				}
 			}
 		}
+		SetOverlayInactive();
+		UIMgr->SetAIInfo(ai);
+		UIMgr->SetUIActive("AIInfoUI", true);
 
-		if (target != nullptr)
-			CLOG::Print3String(ai->GetName(), target->GetName(), "distance");
-		CLOG::PrintVectorState(dist);
+		if (curTile != nullptr)
+		{
+			CLOG::PrintVectorState(target->GetIdxPos());
+			CLOG::PrintVectorState(PosToIdx(curTile->GetTilePos()));
+			Vector2f destination = curTile->GetTilePos();
+			ai->SetDest(destination);
+			ai->SetAnimDir(ai->GetPos().x < destination.x);
+			ai->SetState(States::Move);
+			ai->SetIdxPos(PosToIdx(destination));
+		}
+
+		ai->SetDone(true);
+		break;
 	}
-	//viewTarget = camera;
 }
 
 void BattleScene::SelectAttackBtn()
 {
+	CLOG::Print3String("Click Attack");
 	SetOverlayInactive();
 	UIMgr->SetUIActive("CommandWindow", false);
 	SetAttackRange(PosToIdx(focus->GetPos()), focus->range, focus->rangeFill);
@@ -666,16 +694,19 @@ void BattleScene::SelectAttackBtn()
 
 void BattleScene::SelectSpecialBtn()
 {
-	UIMgr->SetUIActive("CommandWindow", false);
+	CLOG::Print3String("Click Special");
+	//UIMgr->SetUIActive("CommandWindow", false);
 }
 
 void BattleScene::SelectToolBtn()
 {
-	UIMgr->SetUIActive("CommandWindow", false);
+	CLOG::Print3String("Click Tool");
+	//UIMgr->SetUIActive("CommandWindow", false);
 }
 
 void BattleScene::SelectWaitBtn()
 {
+	CLOG::Print3String("Click Wait");
 	focus->SetDone(true);
 	InactiveTileSequence();
 }

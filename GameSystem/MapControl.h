@@ -2,20 +2,21 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <list>
-#include "../SRPGObjects/OverlayTile.h"
-#include "../SRPGObjects/Piece.h"
 
 using namespace sf;
 using namespace std;
 
-enum class TileType
-{
-	None = -1,
-	Inactive,
-	Moveable,
-	Immovable,
-	AttackRange,
-};
+//enum class TileType
+//{
+//	None = -1,
+//	Inactive,
+//	Moveable,
+//	Immovable,
+//	AttackRange,
+//};
+
+class OverlayTile;
+class Piece;
 
 class MapControl
 {

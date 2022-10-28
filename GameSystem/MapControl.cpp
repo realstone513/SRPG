@@ -1,5 +1,7 @@
 #include "MapControl.h"
 #include "../SFML_Framework/Framework/ConsoleLogger.h"
+#include "../SRPGObjects/OverlayTile.h"
+#include "../SRPGObjects/Piece.h"
 
 MapControl::MapControl(vector<vector<OverlayTile*>>& overlay, float cellWidth)
 	: overlay(overlay), unit(cellWidth)
@@ -39,6 +41,7 @@ void MapControl::SetMoveable(Vector2i coord, int mobility)
 
 	activeTiles.push_back(tile);
 	tile->SetActive(true);
+	tile->SetTileType(TileType::Moveable);
 	tile->SetFillColor((int)TileType::Moveable);
 	algorithmCount++;
 }
@@ -65,6 +68,7 @@ void MapControl::SetAttackRange(Vector2i coord, int range, bool fill)
 	OverlayTile* tile = overlay[coord.x][coord.y];
 	activeTiles.push_back(tile);
 	tile->SetActive(true);
+	tile->SetTileType(TileType::AttackRange);
 	tile->SetFillColor((int)TileType::AttackRange);
 }
 
@@ -79,8 +83,11 @@ void MapControl::SetImmovable(Vector2i coord)
 	for (auto piece : gamePieces)
 	{
 		Vector2i idx = piece->GetIdxPos();
-		if ((int)overlay[idx.x][idx.y]->GetTileType() == (int)TileType::Moveable)
+		if (overlay[idx.x][idx.y]->GetTileType() == TileType::Moveable)
+		{
 			overlay[idx.x][idx.y]->SetFillColor((int)TileType::Immovable);
+			overlay[idx.x][idx.y]->SetTileType(TileType::Immovable);
+		}
 	}
 	// 장애물 추가시
 }
