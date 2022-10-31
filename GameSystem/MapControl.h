@@ -34,7 +34,7 @@ public:
 	void SetLTRB(Vector2f lt, Vector2f rb);
 
 	void SetMoveable(Vector2i coord, int mobility);
-	void SetAttackRange(Vector2i coord, int range, bool fill);
+	void SetAttackRange(Vector2i coord, int range, int rangeOrigin, bool fill);
 	void SetImmovable(Vector2i coord);
 	void SetOverlayInactive();
 	void SetPiecePos(Piece* piece, Vector2i idx);

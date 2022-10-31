@@ -40,8 +40,8 @@ void MapControl::SetMoveable(Vector2i coord, int mobility)
 		tile->GetTileType() != TileType::Immovable)
 		return;
 
-	tile->SetActive(true);
 	activeTiles.push_back(tile);
+	tile->SetActive(true);
 	if (tile->GetTileType() == TileType::Inactive)
 	{
 		tile->SetTileType(TileType::Moveable);
@@ -50,7 +50,7 @@ void MapControl::SetMoveable(Vector2i coord, int mobility)
 	algorithmCount++;
 }
 
-void MapControl::SetAttackRange(Vector2i coord, int range, bool fill)
+void MapControl::SetAttackRange(Vector2i coord, int range, int rangeOrigin, bool fill)
 {
 	if (range < 0)
 		return;
@@ -64,15 +64,32 @@ void MapControl::SetAttackRange(Vector2i coord, int range, bool fill)
 		Vector2i tmp(
 			coord.x + offset[i].x,
 			coord.y + offset[i].y);
-		SetAttackRange(tmp, range - 1, fill);
+		SetAttackRange(tmp, range - 1, rangeOrigin, fill);
 	}
 
-	if (!fill && range != 0)
+	if (!fill && !(range == 0 || range == rangeOrigin))
 		return;
+
 	OverlayTile* tile = overlay[coord.x][coord.y];
-	activeTiles.push_back(tile);
+	bool find = false;
+	for (auto& aTile : activeTiles)
+	{
+		if (tile->GetObjId() == aTile->GetObjId())
+		{
+			tile = aTile;
+			find = true;
+			break;
+		}
+	}
+	if (!find)
+		activeTiles.push_back(tile);
 	tile->SetActive(true);
-	if (tile->GetTileType() == TileType::Moveable)
+	if (range == rangeOrigin)
+	{
+		tile->SetTileType(TileType::Immovable);
+		tile->SetFillColor((int)TileType::Immovable);
+	}
+	else
 	{
 		tile->SetTileType(TileType::AttackRange);
 		tile->SetFillColor((int)TileType::AttackRange);
@@ -85,19 +102,24 @@ void MapControl::SetImmovable(Vector2i coord)
 		coord.x > width || coord.y > height)
 		return;
 
-	overlay[coord.x][coord.y]->SetFillColor((int)TileType::Immovable);
-	overlay[coord.x][coord.y]->SetTileType(TileType::Immovable);
+	OverlayTile* tile = overlay[coord.x][coord.y];
+	tile->onTheTile = true;
+	tile->SetFillColor((int)TileType::Immovable);
+	tile->SetTileType(TileType::Immovable);
+	activeTiles.push_back(tile);
 
 	for (auto piece : gamePieces)
 	{
 		Vector2i idx = piece->GetIdxPos();
 		if (TileDistance(coord, idx) <= focus->mobility)
 		{
-			overlay[idx.x][idx.y]->SetFillColor((int)TileType::Immovable);
-			overlay[idx.x][idx.y]->SetTileType(TileType::Immovable);
+			tile = overlay[idx.x][idx.y];
+			tile->onTheTile = true;
+			tile->SetFillColor((int)TileType::Immovable);
+			tile->SetTileType(TileType::Immovable);
+			activeTiles.push_back(tile);
 		}
 	}
-	// 장애물 추가시
 }
 
 void MapControl::SetOverlayInactive()

@@ -63,6 +63,8 @@ public:
 	virtual void SetPos(const Vector2f& pos) override;
 	void SetIdxPos(const Vector2i& pos);
 	const Vector2i& GetIdxPos() const;
+	
+	void TurnReset();
 
 	string GetStatusString() const;
 

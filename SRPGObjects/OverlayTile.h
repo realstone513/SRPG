@@ -33,4 +33,6 @@ public:
 	TileType GetTileType() const;
 	void SetTileType(TileType type);
 	Vector2f GetTilePos() const;
+
+	bool onTheTile;
 };

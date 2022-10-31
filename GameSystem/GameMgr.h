@@ -15,7 +15,6 @@ class BattleSceneUI;
 class GameMgr : public Singleton<GameMgr>
 {
 private:
-	bool isPlayerTurn;
 	static int turnCount;
 	list<Piece*>* gamePieces;
 	float width;
@@ -25,6 +24,8 @@ private:
 	int aiCount;
 	int playerDoneCount;
 	int aiDoneCount;
+
+	float duration;
 	
 	BattleSceneUI* UIMgr;
 
@@ -34,6 +35,9 @@ public:
 
 	list<Piece*> playerPieces;
 	list<Piece*> aiPieces;
+	bool isPlayerTurn;
+	bool aiAction; // false -> move, true -> action
+	float timer;
 
 	void SetMapInfo(float width, float height);
 	void SetList(list<Piece*>* gamePieces);

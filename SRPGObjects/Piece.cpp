@@ -15,13 +15,11 @@ Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
 void Piece::Reset()
 {
 	Object::Reset();
-	currState = States::Idle;
 	health = maxHealth;
-	done = false;
 	isTurn = false;
 	isDeath = false;
-	beforeIdx = { -1, -1 };
 	curIdx = { -1, -1 };
+	TurnReset();
 }
 
 void Piece::Update(float dt)
@@ -51,6 +49,13 @@ void Piece::SetIdxPos(const Vector2i& pos)
 const Vector2i& Piece::GetIdxPos() const
 {
 	return curIdx;
+}
+
+void Piece::TurnReset()
+{
+	currState = States::Idle;
+	done = false;
+	beforeIdx = { -1, -1 };
 }
 
 string Piece::GetStatusString() const

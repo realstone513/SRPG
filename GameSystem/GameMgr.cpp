@@ -6,7 +6,8 @@
 int GameMgr::turnCount = 1;
 
 GameMgr::GameMgr()
-	: isPlayerTurn(true), playerDoneCount(0), aiDoneCount(0)
+	: isPlayerTurn(true), playerDoneCount(0), aiDoneCount(0),
+	duration(2.f), timer(0.f), aiAction(false)
 {
 }
 
@@ -77,7 +78,12 @@ void GameMgr::Update(float dt)
 		}
 
 		if (playerDoneCount == playerCount)
+		{
 			SetPlayerTurn(false);
+			for (Piece*& ai : aiPieces)
+				ai->TurnReset();
+			timer = duration;
+		}
 	}
 	else
 	{
@@ -91,6 +97,13 @@ void GameMgr::Update(float dt)
 		{
 			turnCount++;
 			SetPlayerTurn(true);
+			for (Piece*& playable : playerPieces)
+				playable->TurnReset();
+		}
+		else
+		{
+			if (timer < 0.f)
+				timer = duration;
 		}
 	}
 }

@@ -64,6 +64,7 @@ public:
 
 	Vector2f WorldToUI(Vector2f world);
 
+	void AIMove();
 	void AIAction();
 
 	void SelectAttackBtn();

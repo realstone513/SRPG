@@ -124,6 +124,28 @@ void BattleScene::Exit()
 
 void BattleScene::Update(float dt)
 {
+	if ( !GAMEMGR->isPlayerTurn )
+	{
+		if (GAMEMGR->timer > 0.f)
+		{
+			GAMEMGR->timer -= dt;
+		}
+		if (GAMEMGR->timer <= 0.f)
+		{
+			CLOG::Print3String("Action");
+			if (!GAMEMGR->aiAction)
+				AIMove();
+			else
+				AIAction();
+			GAMEMGR->aiAction = !GAMEMGR->aiAction;
+		}
+
+		if (InputMgr::GetKeyUp(Keyboard::Key::G))
+		{
+			GAMEMGR->timer = 0.1f;
+			return;
+		}
+	}
 
 	if (UIMgr->commandUIActive)
 	{
@@ -207,7 +229,9 @@ void BattleScene::Update(float dt)
 							CLOG::Print3String("count :", to_string(algorithmCount));
 							CLOG::Print3String(to_string(activeTiles.size()));
 						}
-						SetAttackRange(curIdx, focus->range, focus->rangeFill);
+						SetAttackRange(curIdx,
+							focus->range, focus->range, focus->rangeFill);
+
 						if (focus->GetIsTurn())
 							curPhase = Phase::Action;
 						else
@@ -249,9 +273,6 @@ void BattleScene::Update(float dt)
 					{
 						// move
 						Vector2f destination = tile->GetTilePos();
-						CLOG::PrintVectorState(focus->GetIdxPos(), "A");
-						CLOG::Print3String("Move to");
-						CLOG::PrintVectorState(PosToIdx(destination), "B");
 						focus->SetDest(destination);
 						focus->SetAnimDir(focus->GetPos().x < destination.x);
 						focus->SetState(States::Move);
@@ -299,7 +320,6 @@ void BattleScene::Update(float dt)
 							CLOG::Print3String("Can't attack");
 							break;
 						}
-						CLOG::Print3String("Attack2! ", target->GetName());
 						GAMEMGR->DamageToPiece(focus, target);
 						UIMgr->SetDamageText(
 							WorldToUI(target->GetPos()) + Vector2f(unit, 0),
@@ -324,11 +344,12 @@ void BattleScene::Update(float dt)
 		if (focus == nullptr)
 			return ;
 			
-		if (curPhase == Phase::ActionAfterMove || focus->GetBeforeIdx().x != -1)
+		if (!focus->GetDone() && (curPhase == Phase::ActionAfterMove || focus->GetBeforeIdx().x != -1))
 		{
 			focus->StopTranslate();
 			focus->SetPos(IdxToPos(focus->GetBeforeIdx()));
 			focus->SetIdxPos(focus->GetBeforeIdx());
+			focus->TurnReset();
 		}
 		InactiveTileSequence();
 		viewTarget = camera;
@@ -425,13 +446,6 @@ void BattleScene::Update(float dt)
 			player->armor = 500;
 			player->mobility = 9;
 			player->range = 3;
-
-			cat->health = 500;
-			cat->damage = 150;
-			cat->range = 4;
-
-			mino->damage = 150;
-			mino->mobility = 10;
 		}
 		if (InputMgr::GetKeyDown(Keyboard::Key::Num1))
 		{
@@ -500,30 +514,6 @@ void BattleScene::Update(float dt)
 					tile->SetActive(false);
 			}
 		}
-	}
-	if (InputMgr::GetKeyUp(Keyboard::Key::Z))
-	{
-		CLOG::Print3String("scene[battle] AI Action");
-
-		/*Vector2i dest(15, 10);
-		mino->SetDest(IdxToPos(dest));
-		mino->SetAnimDir(mino->GetIdxPos().x < 15);
-		mino->SetState(States::Move);
-		mino->SetIdxPos(dest);
-
-		dest = { 15, 12 };
-		fox->SetDest(IdxToPos(dest));
-		fox->SetAnimDir(fox->GetIdxPos().x < 15);
-		fox->SetState(States::Move);
-		fox->SetIdxPos(dest);
-
-		dest = { 15, 14 };
-		squirrel->SetDest(IdxToPos(dest));
-		squirrel->SetAnimDir(squirrel->GetIdxPos().x < 15);
-		squirrel->SetState(States::Move);
-		squirrel->SetIdxPos(dest);*/
-
-		AIAction();
 	}
 }
 
@@ -631,9 +621,8 @@ Vector2f BattleScene::WorldToUI(Vector2f world)
 	return window.mapPixelToCoords(screen, uiView);
 }
 
-// 1. 이동 가능한 타일 중 playable과 가장 가까운 곳으로 이동
-// 2. 이동 전, 후에 공격 가능한 타일에 playable이 있다면 attack/special 실행
-void BattleScene::AIAction()
+// 이동 가능한 타일 중 playable과 가장 가까운 곳으로 이동
+void BattleScene::AIMove()
 {
 	for (Piece*& ai : GAMEMGR->aiPieces)
 	{
@@ -682,8 +671,51 @@ void BattleScene::AIAction()
 			ai->SetState(States::Move);
 			ai->SetIdxPos(PosToIdx(destination));
 		}
-		ai->SetDone(true);
+		// ai->SetDone(true);
 		break;
+	}
+}
+
+// 공격 가능한 타일에 playable이 있다면 attack/special 실행
+void BattleScene::AIAction()
+{
+	for (Piece*& ai : GAMEMGR->aiPieces)
+	{
+		if (ai->GetDone())
+			continue;
+
+		focus = ai;
+		viewTarget = focus;
+
+		SetAttackRange(focus->GetIdxPos(),
+			focus->range, focus->range, focus->rangeFill);
+		
+		Piece* target = nullptr;
+		for (auto& tile : activeTiles)
+		{
+			Vector2i tileIdx = PosToIdx(tile->GetTilePos());
+
+			for (Piece*& playable : GAMEMGR->playerPieces)
+			{
+				if (playable->GetIdxPos() == tileIdx &&
+					(int)tile->GetTileType() == (int)TileType::AttackRange)
+				{
+					target = playable;
+					break;
+				}
+			}
+		}
+
+		if (target != nullptr)
+		{
+			GAMEMGR->DamageToPiece(focus, target);
+			UIMgr->SetDamageText(
+				WorldToUI(target->GetPos()) + Vector2f(unit, 0),
+				GAMEMGR->CalculateDamage(focus, target));
+		}
+		focus->SetDone(true);
+		InactiveTileSequence();
+		return;
 	}
 }
 
@@ -692,7 +724,9 @@ void BattleScene::SelectAttackBtn()
 	CLOG::Print3String("Click Attack");
 	SetOverlayInactive();
 	UIMgr->SetUIActive("CommandWindow", false);
-	SetAttackRange(PosToIdx(focus->GetPos()), focus->range, focus->rangeFill);
+	UIMgr->SetCommandWindow(Vector2f(width, height));
+	SetAttackRange(PosToIdx(focus->GetPos()),
+		focus->range, focus->range, focus->rangeFill);
 	curPhase = Phase::ActionAfterMove;
 }
 
@@ -722,6 +756,7 @@ void BattleScene::InactiveTileSequence()
 	if (focus != nullptr)
 		camera->SetPos(focus->GetPos() + Vector2f(0, -0.5f * unit));
 	focus = nullptr;
+	viewTarget = camera;
 	UIMgr->SetUIActive("PlayableInfoUI", false);
 	UIMgr->SetUIActive("AIInfoUI", false);
 	UIMgr->SetUIActive("CommandWindow", false);

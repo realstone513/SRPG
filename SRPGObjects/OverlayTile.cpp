@@ -1,6 +1,6 @@
 #include "OverlayTile.h"
 
-OverlayTile::OverlayTile() : tileType(TileType::None)
+OverlayTile::OverlayTile() : tileType(TileType::None), onTheTile(false)
 {
 	SetName("Overlay");
 	colors[TileType::Inactive] =	Color(255.f, 255.f, 255.f, 30.f);
@@ -30,6 +30,7 @@ void OverlayTile::Reset()
 {
 	SetFillColor(TileType::Inactive);
 	SetTileType(TileType::Inactive);
+	onTheTile = false;
 	SetActive(false);
 }
 
