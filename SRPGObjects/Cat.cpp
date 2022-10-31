@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Cat::Cat(PieceTypes pt)
-	: Piece(pt, 60, 40, 40, 2, 4, false)
+	: Piece(pt, 60, 40, 40, 2, 6, false)
 {
 	SetType("Playable");
 	SetName("Cat");

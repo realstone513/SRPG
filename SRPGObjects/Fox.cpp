@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Fox::Fox(PieceTypes pt)
-	: Piece(pt, 120, 30, 10, 2, 5, false)
+	: Piece(pt, 120, 30, 10, 2, 6, false)
 {
 	SetType("AI");
 	SetName("Fox");

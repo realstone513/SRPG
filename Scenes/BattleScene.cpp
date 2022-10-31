@@ -111,6 +111,7 @@ void BattleScene::Enter()
 	focus = nullptr;
 	camera->SetPos(player->GetPos() + Vector2f(0, -0.5f * unit));
 	UIMgr->Reset();
+	SOUND_MGR->Play("sound/peace_bgm.wav", 30.f, true);
 }
 
 void BattleScene::Exit()
@@ -124,6 +125,27 @@ void BattleScene::Exit()
 
 void BattleScene::Update(float dt)
 {
+	// game over timer
+	if (GAMEMGR->aiPieces.size() == 0)
+	{
+		GAMEMGR->timer -= dt;
+		if (GAMEMGR->timer <= 0.f)
+		{
+			UIMgr->ShowResultText(true);
+			return;
+		}
+	}
+	else if (GAMEMGR->playerPieces.size() == 0)
+	{
+		GAMEMGR->timer -= dt;
+		if (GAMEMGR->timer <= 0.f)
+		{
+			UIMgr->ShowResultText(false);
+			return;
+		}
+	}
+
+	// counter attack timer
 	if ( GAMEMGR->counterTimer > 0.f )
 	{
 		GAMEMGR->counterTimer -= dt;
@@ -138,6 +160,7 @@ void BattleScene::Update(float dt)
 		}
 		
 	}
+	// ai move & action
 	else if ( !GAMEMGR->isPlayerTurn )
 	{
 		if (GAMEMGR->timer > 0.f)
@@ -332,6 +355,7 @@ void BattleScene::Update(float dt)
 							CLOG::Print3String("Can't attack");
 							break;
 						}
+						SOUND_MGR->Play("sound/player_attack.wav", 50.f);
 						GAMEMGR->NormalAttack(focus, target);
 						UIMgr->SetDamageText(
 							WorldToUI(target->GetPos()) + Vector2f(unit, 0),
@@ -639,7 +663,7 @@ void BattleScene::AIMove()
 {
 	for (Piece*& ai : GAMEMGR->aiPieces)
 	{
-		if (ai->GetDone())
+		if (!ai->recognize || ai->GetDone())
 			continue;
 
 		focus = ai;
@@ -684,7 +708,6 @@ void BattleScene::AIMove()
 			ai->SetState(States::Move);
 			ai->SetIdxPos(PosToIdx(destination));
 		}
-		// ai->SetDone(true);
 		break;
 	}
 }
@@ -694,7 +717,7 @@ void BattleScene::AIAction()
 {
 	for (Piece*& ai : GAMEMGR->aiPieces)
 	{
-		if (ai->GetDone())
+		if (!ai->recognize || ai->GetDone())
 			continue;
 
 		focus = ai;
@@ -721,6 +744,7 @@ void BattleScene::AIAction()
 
 		if (target != nullptr)
 		{
+			SOUND_MGR->Play("sound/player_hit.wav", 100.f);
 			GAMEMGR->NormalAttack(focus, target);
 			UIMgr->SetDamageText(
 				WorldToUI(target->GetPos()) + Vector2f(unit, 0),
@@ -728,8 +752,9 @@ void BattleScene::AIAction()
 		}
 		focus->SetDone(true);
 		InactiveTileSequence();
-		return;
+		return ;
 	}
+	return ;
 }
 
 void BattleScene::SelectAttackBtn()

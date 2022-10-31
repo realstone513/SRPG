@@ -7,7 +7,8 @@ int GameMgr::turnCount = 1;
 
 GameMgr::GameMgr()
 	: isPlayerTurn(true), playerDoneCount(0), aiDoneCount(0),
-	duration(2.f), timer(0.f), counterTimer(0.f), aiAction(false)
+	duration(2.f), timer(0.f), counterTimer(0.f), aiAction(false),
+	bossPhase(false)
 {
 }
 
@@ -64,10 +65,17 @@ void GameMgr::Reset()
 	turnCount = 1;
 	playerDoneCount = 0;
 	aiDoneCount = 0;
+	bossPhase = false;
 }
 
 void GameMgr::Update(float dt)
 {
+	if (!gameOver && (playerCount == 0 || aiCount == 0))
+	{
+		gameOver = true;
+		timer = 3.0f;
+	}
+
 	if (isPlayerTurn)
 	{
 		playerDoneCount = 0;
@@ -80,9 +88,18 @@ void GameMgr::Update(float dt)
 		if (playerDoneCount == playerCount)
 		{
 			SetPlayerTurn(false);
+			UpdateRecognize();
 			timer = duration;
 			for (Piece*& piece : *gamePieces)
+			{
 				piece->TurnReset();
+				if (!bossPhase && !piece->GetName().compare("Minotaur") && piece->recognize)
+				{
+					SOUND_MGR->StopAll();
+					SOUND_MGR->Play("sound/boss_bgm.wav", 50.f, true);
+					bossPhase = true;
+				}
+			}
 			for (Piece*& death : deathPieces)
 				death->SetActive(false);
 		}
@@ -92,7 +109,7 @@ void GameMgr::Update(float dt)
 		aiDoneCount = 0;
 		for (Piece*& ai : aiPieces)
 		{
-			if (ai->GetDone())
+			if (!ai->recognize || ai->GetDone())
 				aiDoneCount++;
 		}
 		if (aiDoneCount == aiCount)
@@ -192,4 +209,23 @@ void GameMgr::NormalAttack(Piece* attack, Piece* hit, bool counter)
 float GameMgr::CalculateDamage(Piece* attack, Piece* hit)
 {
 	return Utils::RandomRange(attack->damage * 0.8f, attack->damage * 1.2) * 100.f / (hit->armor + 100.f);
+}
+
+void GameMgr::UpdateRecognize()
+{
+	for (Piece*& ai : aiPieces)
+	{
+		if (ai->recognize)
+			continue;
+
+		for (Piece*& playable : playerPieces)
+		{
+			int dist = Utils::ManhattanDistance(ai->GetIdxPos(), playable->GetIdxPos());
+			if (dist < ai->mobility * 2)
+			{
+				ai->recognize = true;
+				break;
+			}
+		}
+	}
 }

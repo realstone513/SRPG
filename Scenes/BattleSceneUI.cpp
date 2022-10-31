@@ -217,7 +217,7 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 	// no group
 	damageText = new FloatingObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), "test text",
 		0.f, 0.f, Color::Red, 25);
-	damageText->SetOrigin(Origins::MC);
+	damageText->SetOrigin(Origins::TC);
 	damageText->SetType("Damage");
 
 	size = FRAMEWORK->GetWindowSize();
@@ -225,6 +225,10 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 		size.x * 0.30f, 10.f, Color::Black, 30.f);
 	turnStateHUD->SetOrigin(Origins::TL);
 	turnStateHUD->SetType("HUD");
+
+	gameResultText = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), "",
+		size.x * 0.30f, size.y * 0.4f, Color::Black, 150.f);
+	gameResultText->SetOrigin(Origins::MC);
 }
 
 BattleSceneUI::~BattleSceneUI()
@@ -293,6 +297,7 @@ void BattleSceneUI::Init()
 	// no group
 	uiObjList.push_back(damageText);
 	uiObjList.push_back(turnStateHUD);
+	uiObjList.push_back(gameResultText);
 }
 
 void BattleSceneUI::Release()
@@ -428,4 +433,14 @@ void BattleSceneUI::SetHud(bool isPlayerTurn, int count)
 	string turnText = isPlayerTurn ? "Player " : "AI ";
 	turnText += to_string(count) + "Turn";
 	turnStateHUD->SetString(turnText);
+}
+
+void BattleSceneUI::ShowResultText(bool isPlayerWin)
+{
+	if (isPlayerWin)
+		gameResultText->SetString(L"ÀÌ°å´Ù!");
+	else
+		gameResultText->SetString(L"Á³´Ù!");
+
+	gameResultText->SetActive(true);
 }

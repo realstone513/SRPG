@@ -66,6 +66,7 @@ protected:
 	// no group
 	FloatingObj*	damageText;
 	TextObj*		turnStateHUD;
+	TextObj*		gameResultText;
 
 public:
 	BattleSceneUI(Scene* scene);
@@ -83,6 +84,8 @@ public:
 	void SetDamageText(Vector2f pos, float dmg);
 	void SetCommandWindow(Vector2f pos);
 	void SetHud(bool isPlayerTurn, int count);
+
+	void ShowResultText(bool isPlayerWin);
 
 	list<SpriteObj*> buttons;
 	Color uiBaseColor;

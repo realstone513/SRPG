@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Player::Player(PieceTypes pt)
-	: Piece(pt, 100, 30, 20, 1, 5)
+	: Piece(pt, 100, 30, 20, 1, 6)
 {
 	SetType("Playable");
 	SetName("Player");

@@ -41,6 +41,8 @@ private:
 	float duration;
 	
 	BattleSceneUI* UIMgr;
+	bool bossPhase;
+	bool gameOver;
 
 public:
 	GameMgr();
@@ -63,4 +65,6 @@ public:
 	void Update(float dt);
 	void NormalAttack(Piece* attack, Piece* hit, bool counter = false);
 	float CalculateDamage(Piece* attack, Piece* hit);
+
+	void UpdateRecognize();
 };

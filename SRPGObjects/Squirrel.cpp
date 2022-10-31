@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Squirrel::Squirrel(PieceTypes pt)
-	: Piece(pt, 50, 10, 0, 1, 3)
+	: Piece(pt, 50, 10, 0, 1, 4)
 {
 	SetType("AI");
 	SetName("Squirrel");

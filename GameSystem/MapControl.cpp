@@ -27,13 +27,15 @@ void MapControl::SetMoveable(Vector2i coord, int mobility)
 		Vector2i tmp(
 			coord.x + offset[i].x,
 			coord.y + offset[i].y);
+
+		if (tmp.x < 0 || tmp.y < 0 ||
+			tmp.x > width || tmp.y > height)
+			return;
+
 		if (overlay[tmp.x][tmp.y]->GetTileType() != TileType::Immovable)
 			SetMoveable(tmp, mobility - 1);
 	}
 
-	if (coord.x < 0 || coord.y < 0 ||
-		coord.x > width || coord.y > height)
-		return;
 
 	OverlayTile* tile = overlay[coord.x][coord.y];
 	if (tile->GetTileType() != TileType::Inactive &&
@@ -55,15 +57,16 @@ void MapControl::SetAttackRange(Vector2i coord, int range, int rangeOrigin, bool
 	if (range < 0)
 		return;
 
-	if (coord.x < 0 || coord.y < 0 ||
-		coord.x > width || coord.y > height)
-		return;
-
 	for (int i = 0; i < 4; i++)
 	{
 		Vector2i tmp(
 			coord.x + offset[i].x,
 			coord.y + offset[i].y);
+
+		if (tmp.x < 0 || tmp.y < 0 ||
+			tmp.x > width || tmp.y > height)
+			return;
+
 		SetAttackRange(tmp, range - 1, rangeOrigin, fill);
 	}
 

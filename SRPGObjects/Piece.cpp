@@ -7,7 +7,7 @@ Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
 	: pType(pt), maxHealth(h), damage(d), armor(a),
 	range(r), mobility(m), rangeFill(f),
 	isTurn(false), isPlayable(false), done(false), isDeath(false), speed(300.f),
-	animDir(true), curIdx({ -1, -1 }), beforeIdx({ -1, -1 })
+	animDir(true), curIdx({ -1, -1 }), beforeIdx({ -1, -1 }), recognize(false)
 {
 	health = maxHealth;
 }

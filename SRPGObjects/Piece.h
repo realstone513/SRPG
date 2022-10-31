@@ -53,6 +53,8 @@ public:
 	int range;
 	bool rangeFill;
 	int mobility;
+
+	bool recognize;
 	bool isDeath;
 
 	Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f = true);

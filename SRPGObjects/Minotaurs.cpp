@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Minotaur::Minotaur(PieceTypes pt)
-	: Piece(pt, 400, 75, 50, 1, 6)
+	: Piece(pt, 400, 75, 50, 1, 7)
 {
 	SetType("AI");
 	SetName("Minotaur");
