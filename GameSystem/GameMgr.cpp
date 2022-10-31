@@ -7,7 +7,7 @@ int GameMgr::turnCount = 1;
 
 GameMgr::GameMgr()
 	: isPlayerTurn(true), playerDoneCount(0), aiDoneCount(0),
-	duration(2.f), timer(0.f), aiAction(false)
+	duration(2.f), timer(0.f), counterTimer(0.f), aiAction(false)
 {
 }
 
@@ -80,9 +80,11 @@ void GameMgr::Update(float dt)
 		if (playerDoneCount == playerCount)
 		{
 			SetPlayerTurn(false);
-			for (Piece*& ai : aiPieces)
-				ai->TurnReset();
 			timer = duration;
+			for (Piece*& piece : *gamePieces)
+				piece->TurnReset();
+			for (Piece*& death : deathPieces)
+				death->SetActive(false);
 		}
 	}
 	else
@@ -97,8 +99,10 @@ void GameMgr::Update(float dt)
 		{
 			turnCount++;
 			SetPlayerTurn(true);
-			for (Piece*& playable : playerPieces)
-				playable->TurnReset();
+			for (Piece*& piece : *gamePieces)
+				piece->TurnReset();
+			for (Piece*& death : deathPieces)
+				death->SetActive(false);
 		}
 		else
 		{
@@ -108,18 +112,15 @@ void GameMgr::Update(float dt)
 	}
 }
 
-void GameMgr::DamageToPiece(Piece* attack, Piece* hit)
+void GameMgr::NormalAttack(Piece* attack, Piece* hit, bool counter)
 {
 	hit->health -= CalculateDamage(attack, hit);
 	CLOG::Print3String(hit->GetStatusString());
 	bool isRight = attack->GetIdxPos().x < hit->GetIdxPos().x;
 	attack->SetAnimDir(isRight);
 	hit->SetAnimDir(!isRight);
-	if (attack->damage > 100)
-		attack->SetState(States::Special);
-	else
-		attack->SetState(States::Attack);
 	
+	attack->SetState(States::Attack);
 	hit->SetState(States::Hit);
 
 	// death test
@@ -155,6 +156,36 @@ void GameMgr::DamageToPiece(Piece* attack, Piece* hit)
 
 		hit->SetState(States::Death);
 		hit->isDeath = true;
+		deathPieces.push_back(hit);
+
+		for (auto it = gamePieces->begin(); it != gamePieces->end();)
+		{
+			if ((*it)->GetObjId() == hit->GetObjId())
+			{
+				it = gamePieces->erase(it);
+				return;
+			}
+			else it++;
+		}
+	}
+	else
+	{ 
+		// counter attack if don't death
+		if (!counter)
+		{
+			bool counterCondition;
+			int distance = Utils::ManhattanDistance(hit->GetIdxPos(), attack->GetIdxPos());
+			if (hit->rangeFill)
+				counterCondition = distance <= hit->range;
+			else
+				counterCondition = distance == hit->range;
+			
+			if (counterCondition)
+			{
+				counterList.push(Counter(hit, attack));
+				counterTimer = duration;
+			}
+		}
 	}
 }
 

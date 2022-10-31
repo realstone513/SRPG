@@ -111,7 +111,7 @@ void MapControl::SetImmovable(Vector2i coord)
 	for (auto piece : gamePieces)
 	{
 		Vector2i idx = piece->GetIdxPos();
-		if (TileDistance(coord, idx) <= focus->mobility)
+		if (Utils::ManhattanDistance(coord, idx) <= focus->mobility)
 		{
 			tile = overlay[idx.x][idx.y];
 			tile->onTheTile = true;
@@ -150,9 +150,4 @@ Vector2f MapControl::IdxToPos(Vector2i idx)
 		lt.x + ((float)idx.x + 0.5f) * unit,
 		lt.y + (idx.y + 1) * unit
 	);
-}
-
-int MapControl::TileDistance(Vector2i start, Vector2i dest)
-{
-	return abs(start.x - dest.x) + abs(start.y - dest.y);
 }

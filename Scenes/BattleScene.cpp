@@ -124,15 +124,27 @@ void BattleScene::Exit()
 
 void BattleScene::Update(float dt)
 {
-	if ( !GAMEMGR->isPlayerTurn )
+	if ( GAMEMGR->counterTimer > 0.f )
+	{
+		GAMEMGR->counterTimer -= dt;
+		if (GAMEMGR->counterTimer <= 0.f)
+		{
+			Counter counter = GAMEMGR->counterList.top();
+			GAMEMGR->NormalAttack(counter.attacker, counter.hit, true);
+			UIMgr->SetDamageText(
+				WorldToUI(counter.hit->GetPos()) + Vector2f(unit, 0),
+				GAMEMGR->CalculateDamage(counter.attacker, counter.hit));
+			GAMEMGR->counterList.pop();
+		}
+		
+	}
+	else if ( !GAMEMGR->isPlayerTurn )
 	{
 		if (GAMEMGR->timer > 0.f)
-		{
 			GAMEMGR->timer -= dt;
-		}
+
 		if (GAMEMGR->timer <= 0.f)
 		{
-			CLOG::Print3String("Action");
 			if (!GAMEMGR->aiAction)
 				AIMove();
 			else
@@ -320,7 +332,7 @@ void BattleScene::Update(float dt)
 							CLOG::Print3String("Can't attack");
 							break;
 						}
-						GAMEMGR->DamageToPiece(focus, target);
+						GAMEMGR->NormalAttack(focus, target);
 						UIMgr->SetDamageText(
 							WorldToUI(target->GetPos()) + Vector2f(unit, 0),
 							GAMEMGR->CalculateDamage(focus, target));
@@ -492,6 +504,7 @@ void BattleScene::Update(float dt)
 	{
 		CLOG::Print3String("scene[battle] reset key");
 		SCENE_MGR->ChangeScene(Scenes::Battle);
+		GAMEMGR->Reset();
 		return;
 	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::C))
@@ -645,7 +658,7 @@ void BattleScene::AIMove()
 
 			for (Piece*& playable : GAMEMGR->playerPieces)
 			{
-				int tmp = TileDistance(
+				int tmp = Utils::ManhattanDistance(
 					playable->GetIdxPos(),
 					PosToIdx(tile->GetTilePos()));
 				if (tmp <= dist)
@@ -708,7 +721,7 @@ void BattleScene::AIAction()
 
 		if (target != nullptr)
 		{
-			GAMEMGR->DamageToPiece(focus, target);
+			GAMEMGR->NormalAttack(focus, target);
 			UIMgr->SetDamageText(
 				WorldToUI(target->GetPos()) + Vector2f(unit, 0),
 				GAMEMGR->CalculateDamage(focus, target));

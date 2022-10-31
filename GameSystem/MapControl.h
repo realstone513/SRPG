@@ -41,5 +41,4 @@ public:
 
 	Vector2i PosToIdx(Vector2f pos);
 	Vector2f IdxToPos(Vector2i idx);
-	int TileDistance(Vector2i start, Vector2i dest);
 };
