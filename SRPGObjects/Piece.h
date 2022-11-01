@@ -1,6 +1,7 @@
 #pragma once
 #include "../SFML_Framework/GameObject/SpriteObj.h"
 #include "../SFML_Framework/Framework/Animator.h"
+#include "../GameSystem/Stats.h"
 
 enum class PieceTypes
 {
@@ -46,18 +47,20 @@ protected:
 
 public:
 	// status
-	int maxHealth;
+	Stats stats;
+
+	/*int maxHealth;
 	int health;
 	int damage;
 	int armor;
 	int range;
 	bool rangeFill;
-	int mobility;
+	int mobility;*/
 
 	bool recognize;
 	bool isDeath;
 
-	Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f = true);
+	Piece(PieceTypes pt);
 	virtual ~Piece() {};
 
 	virtual void Reset();

@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Player::Player(PieceTypes pt)
-	: Piece(pt, 100, 30, 20, 1, 6)
+	: Piece(pt)
 {
 	SetType("Playable");
 	SetName("Player");
@@ -13,6 +13,7 @@ void Player::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Adventurer.png"));
 	SetAnimations();
+	stats.SetBaseStats(100, 30, 20, 1, 6);
 	Reset();
 }
 
@@ -23,6 +24,7 @@ void Player::Release()
 void Player::Reset()
 {
 	Piece::Reset();
+	stats.ResetStats();
 	SetState(States::Idle);
 }
 

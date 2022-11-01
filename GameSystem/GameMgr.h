@@ -9,8 +9,9 @@
 using namespace sf;
 using namespace std;
 
-class Piece;
+class AbilityStone;
 class BattleSceneUI;
+class Piece;
 
 struct Counter
 {
@@ -40,10 +41,12 @@ private:
 
 	float duration;
 	
-	BattleSceneUI* UIMgr;
+	BattleSceneUI* battleUIMgr;
 	bool bossPhase;
 	bool gameOver;
 	string gameMapPath;
+	AbilityStone* stone;
+	vector<int> updateStoneStat;
 
 public:
 	GameMgr();
@@ -59,7 +62,7 @@ public:
 
 	void SetMapInfo(float width, float height);
 	void SetList(list<Piece*>* gamePieces);
-	void SetUIMgr(BattleSceneUI* UIMgr);
+	void SetUIMgr(BattleSceneUI* battleUIMgr);
 	void SetPlayerTurn(bool isPlayerTurn);
 
 	void Reset();
@@ -71,5 +74,5 @@ public:
 	void SetGameMapPath(string path) { gameMapPath = path; }
 	string GetGameMapPath() { return gameMapPath; }
 	
-	void ApplyEquipmentSetting();
+	void ApplyEquipmentSetting(AbilityStone* stone);
 };

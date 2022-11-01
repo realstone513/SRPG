@@ -4,6 +4,7 @@
 #include "../SFML_Framework/GameObject/TextObj.h"
 #include "../SFML_Framework/GameObject/RectangleObj.h"
 #include "../GameSystem/GameMgr.h"
+#include "../GameSystem/AbilityStone.h"
 
 EquipmentScene::EquipmentScene()
 	: Scene(Scenes::Equipment)
@@ -22,8 +23,8 @@ void EquipmentScene::Init()
 	{
 		obj->Init();
 	}
-	UIMgr = new EquipmentSceneUI(this);
-	UIMgr->Init();
+	equipUIMgr = new EquipmentSceneUI(this);
+	equipUIMgr->Init();
 }
 
 void EquipmentScene::Release()
@@ -38,7 +39,7 @@ void EquipmentScene::Enter()
 	{
 		obj->Reset();
 	}
-	UIMgr->Reset();
+	equipUIMgr->Reset();
 }
 
 void EquipmentScene::Exit()
@@ -51,75 +52,81 @@ void EquipmentScene::Update(float dt)
 {
 	Scene::Update(dt);
 
-	for (SpriteObj*& button : UIMgr->buttons)
-	{
-		if (button->GetHitbox().getGlobalBounds().contains(ScreenToUiPos(Vector2i(InputMgr::GetMousePos()))))
-		{
-			if (InputMgr::GetMouseDown(Mouse::Left))
-			{
-				int idx = stoi(button->GetName());
-				if (UIMgr->idxCounts[idx] >= 10)
-					return;
-
-				SOUND_MGR->Play("sound/hitmarker.wav", 50.f);
-				int ranVal = Utils::RandomRange(1, 100);
-				bool success = ranVal <= UIMgr->successRate;
-				if (success)
-				{
-					if (UIMgr->successRate > 25)
-						UIMgr->successRate -= 10;
-					if (idx != 2)
-					{
-						UIMgr->successCountTotal++;
-						UIMgr->successCountRectangles[idx][UIMgr->idxCounts[idx]]->
-							SetFillColor(Color::Blue);
-					}
-					else
-						UIMgr->successCountRectangles[idx][UIMgr->idxCounts[idx]]->
-						SetFillColor(Color::Red);
-				}
-				else
-				{
-					if (UIMgr->successRate < 75)
-						UIMgr->successRate += 10;
-					UIMgr->successCountRectangles[idx][UIMgr->idxCounts[idx]]->
-						SetFillColor(Color::White);
-				}
-
-				UIMgr->successRateNumber->SetString(to_string(UIMgr->successRate));
-				UIMgr->successCountNumber->SetString(to_string(UIMgr->successCountTotal));
-				UIMgr->idxCounts[idx]++;
-			}
-		}
-	}
-
-	if (UIMgr->gamePlayButton->GetGlobalBounds().contains(ScreenToUiPos(Vector2i(InputMgr::GetMousePos()))))
-	{
-		UIMgr->gamePlayButton->SetColor(Color::Red);
-
-		if (InputMgr::GetMouseDown(Mouse::Left))
-		{
-			GAMEMGR;
-			SCENE_MGR->ChangeScene(Scenes::Battle);
-			return;
-		}
-	}
-	else
-	{
-		UIMgr->gamePlayButton->SetColor(Color(0xA0, 0xA0, 0xA0));
-	}
-
 	// Game Input
 	if (InputMgr::GetKeyDown(Keyboard::Key::Escape))
 	{
 		SCENE_MGR->ChangeScene(Scenes::Title);
 		return;
 	}
-	if (InputMgr::GetKeyDown(Keyboard::Key::Space))
+
+	for (SpriteObj*& button : equipUIMgr->buttons)
 	{
-		CLOG::Print3String("scene[Title] change scene key");
-		SCENE_MGR->ChangeScene(Scenes::Battle);
-		return;
+		if (button->GetHitbox().getGlobalBounds().contains(ScreenToUiPos(Vector2i(InputMgr::GetMousePos()))))
+		{
+			if (InputMgr::GetMouseDown(Mouse::Left))
+			{
+				int idx = stoi(button->GetName());
+				if (equipUIMgr->idxCounts[idx] >= 10)
+					return;
+
+				SOUND_MGR->Play("sound/hitmarker.wav", 50.f);
+				int ranVal = Utils::RandomRange(1, 100);
+				bool success = ranVal <= equipUIMgr->successRate;
+				if (success)
+				{
+					if (equipUIMgr->successRate > 25)
+						equipUIMgr->successRate -= 10;
+					if (idx != 2)
+					{
+						equipUIMgr->successCountTotal++;
+						equipUIMgr->successCountRectangles[idx][equipUIMgr->idxCounts[idx]]->
+							SetFillColor(Color::Blue);
+					}
+					else
+					{
+						equipUIMgr->successCountRectangles[idx][equipUIMgr->idxCounts[idx]]->
+							SetFillColor(Color::Red);
+					}
+					equipUIMgr->stone->successCounts[idx]++;
+				}
+				else
+				{
+					if (equipUIMgr->successRate < 75)
+						equipUIMgr->successRate += 10;
+					equipUIMgr->successCountRectangles[idx][equipUIMgr->idxCounts[idx]]->
+						SetFillColor(Color::White);
+				}
+
+				equipUIMgr->successRateNumber->SetString(to_string(equipUIMgr->successRate));
+				equipUIMgr->successCountNumber->SetString(to_string(equipUIMgr->successCountTotal));
+				equipUIMgr->idxCounts[idx]++;
+			}
+		}
+	}
+
+	if (equipUIMgr->gamePlayButton->GetGlobalBounds().contains(ScreenToUiPos(Vector2i(InputMgr::GetMousePos()))))
+	{
+		bool condition = true;
+		for (int i = 0; i < equipUIMgr->stone->count; i++)
+		{
+			if (equipUIMgr->idxCounts[i] != 10)
+			{
+				condition = false;
+				return;
+			}
+		}
+		equipUIMgr->gamePlayButton->SetColor(Color::Red);
+
+		if (condition && InputMgr::GetMouseDown(Mouse::Left))
+		{
+			GAMEMGR->ApplyEquipmentSetting(equipUIMgr->stone);
+			SCENE_MGR->ChangeScene(Scenes::Battle);
+			return;
+		}
+	}
+	else
+	{
+		equipUIMgr->gamePlayButton->SetColor(Color(0xA0, 0xA0, 0xA0));
 	}
 
 	// Develop Input
@@ -135,6 +142,12 @@ void EquipmentScene::Update(float dt)
 		FRAMEWORK->devMode = false;
 		return;
 	}
+	if (InputMgr::GetKeyDown(Keyboard::Key::P))
+	{
+		CLOG::Print3String("scene[Title] change scene key");
+		SCENE_MGR->ChangeScene(Scenes::Battle);
+		return;
+	}
 }
 
 void EquipmentScene::Draw(RenderWindow& window)
@@ -142,5 +155,5 @@ void EquipmentScene::Draw(RenderWindow& window)
 	Scene::Draw(window);
 
 	window.setView(uiView);
-	UIMgr->Draw(window);
+	equipUIMgr->Draw(window);
 }

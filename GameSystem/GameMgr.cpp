@@ -2,6 +2,8 @@
 #include "../SFML_Framework/Frameworks.h"
 #include "../SRPGObjects/Piece.h"
 #include "../Scenes/BattleSceneUI.h"
+#include "../GameSystem/AbilityStone.h"
+#include "../GameSystem/Stats.h"
 
 int GameMgr::turnCount = 1;
 
@@ -20,8 +22,6 @@ void GameMgr::SetMapInfo(float width, float height)
 
 void GameMgr::SetList(list<Piece*>* gamePieces)
 {
-	this->gamePieces = nullptr;
-
 	this->gamePieces = gamePieces;
 
 	for (Piece*& piece : *gamePieces)
@@ -37,17 +37,25 @@ void GameMgr::SetList(list<Piece*>* gamePieces)
 			aiCount++;
 		}
 	}
+
+	for (auto& playable : playerPieces)
+	{
+		CLOG::Print3String(playable->GetName());
+		playable->stats.UpdateAddStats(
+			updateStoneStat[0], updateStoneStat[1], updateStoneStat[2], 0, 0);
+		playable->stats.SetFullCurrentHealth();
+	}
 }
 
-void GameMgr::SetUIMgr(BattleSceneUI* UIMgr)
+void GameMgr::SetUIMgr(BattleSceneUI* battleUIMgr)
 {
-	this->UIMgr = UIMgr;
+	this->battleUIMgr = battleUIMgr;
 }
 
 void GameMgr::SetPlayerTurn(bool isPlayerTurn)
 {
 	this->isPlayerTurn = isPlayerTurn;
-	UIMgr->SetHud(isPlayerTurn, turnCount);
+	battleUIMgr->SetHud(isPlayerTurn, turnCount);
 	CLOG::Print3String(isPlayerTurn ? "Player Turn" : "AI Turn");
 	for (Piece*& piece : *gamePieces)
 	{
@@ -131,7 +139,7 @@ void GameMgr::Update(float dt)
 
 void GameMgr::NormalAttack(Piece* attack, Piece* hit, bool counter)
 {
-	hit->health -= CalculateDamage(attack, hit);
+	hit->stats.currentHealth -= CalculateDamage(attack, hit);
 	CLOG::Print3String(hit->GetStatusString());
 	bool isRight = attack->GetIdxPos().x < hit->GetIdxPos().x;
 	attack->SetAnimDir(isRight);
@@ -141,9 +149,9 @@ void GameMgr::NormalAttack(Piece* attack, Piece* hit, bool counter)
 	hit->SetState(States::Hit);
 
 	// death test
-	if (hit->health <= 0.f)
+	if (hit->stats.currentHealth <= 0.f)
 	{
-		hit->health = 0.f;
+		hit->stats.currentHealth = 0.f;
 		CLOG::Print3String(hit->GetName(), "is die");
 		
 		if (!hit->GetType().compare("Playable"))
@@ -192,10 +200,10 @@ void GameMgr::NormalAttack(Piece* attack, Piece* hit, bool counter)
 		{
 			bool counterCondition;
 			int distance = Utils::ManhattanDistance(hit->GetIdxPos(), attack->GetIdxPos());
-			if (hit->rangeFill)
-				counterCondition = distance <= hit->range;
+			if (hit->stats.rangeFill)
+				counterCondition = distance <= hit->stats.modifyRange;
 			else
-				counterCondition = distance == hit->range;
+				counterCondition = distance == hit->stats.modifyRange;
 			
 			if (counterCondition)
 			{
@@ -208,7 +216,8 @@ void GameMgr::NormalAttack(Piece* attack, Piece* hit, bool counter)
 
 float GameMgr::CalculateDamage(Piece* attack, Piece* hit)
 {
-	return Utils::RandomRange(attack->damage * 0.8f, attack->damage * 1.2) * 100.f / (hit->armor + 100.f);
+	return Utils::RandomRange(attack->stats.modifyDamage * 0.8f,
+		attack->stats.modifyDamage * 1.2) * 100.f / (hit->stats.modifyArmor + 100.f);
 }
 
 void GameMgr::UpdateRecognize()
@@ -221,11 +230,47 @@ void GameMgr::UpdateRecognize()
 		for (Piece*& playable : playerPieces)
 		{
 			int dist = Utils::ManhattanDistance(ai->GetIdxPos(), playable->GetIdxPos());
-			if (dist < ai->mobility * 2)
+			if (dist < ai->stats.modifyMobility * 2)
 			{
 				ai->recognize = true;
 				break;
 			}
 		}
 	}
+}
+
+void GameMgr::ApplyEquipmentSetting(AbilityStone* stone)
+{
+	this->stone = stone;
+	vector<string> statText(3);
+	updateStoneStat.resize(3);
+
+	for (int i = 0; i < 3; i++)
+	{
+		switch (this->stone->stats[i])
+		{
+		case StatsEnum::Health:
+			statText[i] = "Health";
+			break;
+		case StatsEnum::Damage:
+			statText[i] = "Damage";
+			break;
+		case StatsEnum::Armor:
+			statText[i] = "Armor";
+			break;
+		default:
+			break;
+		}
+		statText[i] = (i == 2) ? "-" + statText[i] : "+" + statText[i];
+	
+		CLOG::Print3String(statText[i], to_string(this->stone->successCounts[i]));
+
+		updateStoneStat[(int)this->stone->stats[i]] +=
+			(i != 2) ? this->stone->successCounts[i] : -this->stone->successCounts[i];
+	}
+
+	CLOG::Print3String(
+		to_string(updateStoneStat[0]),
+		to_string(updateStoneStat[1]),
+		to_string(updateStoneStat[2]));
 }

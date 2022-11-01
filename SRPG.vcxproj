@@ -183,6 +183,8 @@
     <ClCompile Include="Scenes\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameSystem\AbilityStone.h" />
+    <ClInclude Include="GameSystem\Stats.h" />
     <ClInclude Include="Scenes\EquipmentScene.h" />
     <ClInclude Include="Scenes\EquipmentSceneUI.h" />
     <ClInclude Include="SFML_Framework\GameObject\FloatingObj.h" />

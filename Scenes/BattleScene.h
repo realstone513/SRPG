@@ -24,7 +24,7 @@ protected:
 		ActionAfterMove,
 	};
 
-	BattleSceneUI* UIMgr;
+	BattleSceneUI* battleUIMgr;
 	RenderWindow& window;
 
 	// Objects

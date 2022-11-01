@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Camera::Camera(PieceTypes pt)
-	: Piece(pt, 0, 0, 0, 0, 0),
+	: Piece(pt),
 	direction(0, 0), accelation(500), deaccelation(500), velocity(0, 0), speed(500.f)
 {
 	SetType("Camera");

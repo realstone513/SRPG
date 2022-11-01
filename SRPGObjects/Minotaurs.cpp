@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Minotaur::Minotaur(PieceTypes pt)
-	: Piece(pt, 400, 75, 50, 1, 7)
+	: Piece(pt)
 {
 	SetType("AI");
 	SetName("Minotaur");
@@ -14,6 +14,7 @@ void Minotaur::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Minotaur.png"));
 	SetAnimations();
+	stats.SetBaseStats(400, 75, 50, 1, 7);
 	Reset();
 }
 
@@ -24,6 +25,7 @@ void Minotaur::Release()
 void Minotaur::Reset()
 {
 	Piece::Reset();
+	stats.ResetStats();
 	SetState(States::Idle);
 }
 

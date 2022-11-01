@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Cat::Cat(PieceTypes pt)
-	: Piece(pt, 60, 40, 40, 2, 6, false)
+	: Piece(pt)
 {
 	SetType("Playable");
 	SetName("Cat");
@@ -13,6 +13,7 @@ void Cat::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Cat.png"));
 	SetAnimations();
+	stats.SetBaseStats(60, 40, 40, 2, 6, false);
 	Reset();
 }
 
@@ -23,8 +24,8 @@ void Cat::Release()
 void Cat::Reset()
 {
 	Piece::Reset();
+	stats.ResetStats();
 	SetState(States::Idle);
-	anim.Play("Cat/Idle");
 }
 
 void Cat::Update(float dt)

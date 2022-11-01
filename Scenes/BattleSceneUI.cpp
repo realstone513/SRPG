@@ -340,13 +340,14 @@ void BattleSceneUI::SetPlayableInfo(Piece* playable)
 
 	leftNameText->SetString(playable->GetName());
 
-	leftHealthText->SetString(to_string(playable->health));
-	leftMaxHealthText->SetString("/" + to_string(playable->maxHealth));
-	leftDamageText->SetString(to_string(playable->damage));
-	leftArmorText->SetString(to_string(playable->armor));
-	leftRangeText->SetString(to_string(playable->range));
-	leftMobilityText->SetString(to_string(playable->mobility));
-	float curHealthRate = Utils::Clamp((float)playable->health / (float)playable->maxHealth, 0.f, 1.0f);
+	leftHealthText->SetString(to_string(playable->stats.currentHealth));
+	leftMaxHealthText->SetString("/" + to_string(playable->stats.modifyHealth));
+	leftDamageText->SetString(to_string(playable->stats.modifyDamage));
+	leftArmorText->SetString(to_string(playable->stats.modifyArmor));
+	leftRangeText->SetString(to_string(playable->stats.modifyRange));
+	leftMobilityText->SetString(to_string(playable->stats.modifyMobility));
+	float curHealthRate = Utils::Clamp(
+		(float)playable->stats.currentHealth / (float)playable->stats.modifyHealth, 0.f, 1.0f);
 	leftHealthBar->SetSize(curHealthRate * 100.f, 20.f);
 	if (curHealthRate > 0.6f)
 	{
@@ -379,13 +380,14 @@ void BattleSceneUI::SetAIInfo(Piece* ai)
 
 	rightNameText->SetString(ai->GetName());
 
-	rightHealthText->SetString(to_string(ai->health));
-	rightMaxHealthText->SetString("/" + to_string(ai->maxHealth));
-	rightDamageText->SetString(to_string(ai->damage));
-	rightArmorText->SetString(to_string(ai->armor));
-	rightRangeText->SetString(to_string(ai->range));
-	rightMobilityText->SetString(to_string(ai->mobility));
-	float curHealthRate = Utils::Clamp((float)ai->health / (float)ai->maxHealth, 0.f, 1.0f) ;
+	rightHealthText->SetString(to_string(ai->stats.currentHealth));
+	rightMaxHealthText->SetString("/" + to_string(ai->stats.modifyHealth));
+	rightDamageText->SetString(to_string(ai->stats.modifyDamage));
+	rightArmorText->SetString(to_string(ai->stats.modifyArmor));
+	rightRangeText->SetString(to_string(ai->stats.modifyRange));
+	rightMobilityText->SetString(to_string(ai->stats.modifyMobility));
+	float curHealthRate = Utils::Clamp(
+		(float)ai->stats.currentHealth / (float)ai->stats.modifyHealth, 0.f, 1.0f) ;
 	rightHealthBar->SetSize(curHealthRate * 100.f, 20.f);
 	if (curHealthRate > 0.6f)
 	{

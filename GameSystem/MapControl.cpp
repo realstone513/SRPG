@@ -114,7 +114,7 @@ void MapControl::SetImmovable(Vector2i coord)
 	for (auto piece : gamePieces)
 	{
 		Vector2i idx = piece->GetIdxPos();
-		if (Utils::ManhattanDistance(coord, idx) <= focus->mobility)
+		if (Utils::ManhattanDistance(coord, idx) <= focus->stats.modifyMobility)
 		{
 			tile = overlay[idx.x][idx.y];
 			tile->onTheTile = true;

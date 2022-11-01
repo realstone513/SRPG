@@ -69,14 +69,14 @@ void BattleScene::Init()
 	fox->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
 	squirrel->SetHitbox(FloatRect(0, 5, unit, unit), Origins::BC);
 
-	UIMgr = new BattleSceneUI(this);
-	UIMgr->Init();
+	battleUIMgr = new BattleSceneUI(this);
+	battleUIMgr->Init();
 }
 
 void BattleScene::Release()
 {
 	CLOG::Print3String("scene[battle] release");
-	UIMgr->Release();
+	battleUIMgr->Release();
 }
 
 void BattleScene::Enter()
@@ -104,13 +104,13 @@ void BattleScene::Enter()
 	SetPiecePos(mino, { 40, 10 });
 
 	GAMEMGR->SetList(&gamePieces);
-	GAMEMGR->SetUIMgr(UIMgr);
+	GAMEMGR->SetUIMgr(battleUIMgr);
 	// player 턴으로 시작
 	GAMEMGR->SetPlayerTurn(true);
 	viewTarget = camera;
 	focus = nullptr;
 	camera->SetPos(player->GetPos() + Vector2f(0, -0.5f * unit));
-	UIMgr->Reset();
+	battleUIMgr->Reset();
 	SOUND_MGR->Play("sound/peace_bgm.wav", 30.f, true);
 }
 
@@ -131,7 +131,7 @@ void BattleScene::Update(float dt)
 		GAMEMGR->timer -= dt;
 		if (GAMEMGR->timer <= 0.f)
 		{
-			UIMgr->ShowResultText(true);
+			battleUIMgr->ShowResultText(true);
 			return;
 		}
 	}
@@ -140,7 +140,7 @@ void BattleScene::Update(float dt)
 		GAMEMGR->timer -= dt;
 		if (GAMEMGR->timer <= 0.f)
 		{
-			UIMgr->ShowResultText(false);
+			battleUIMgr->ShowResultText(false);
 			return;
 		}
 	}
@@ -153,7 +153,7 @@ void BattleScene::Update(float dt)
 		{
 			Counter counter = GAMEMGR->counterList.top();
 			GAMEMGR->NormalAttack(counter.attacker, counter.hit, true);
-			UIMgr->SetDamageText(
+			battleUIMgr->SetDamageText(
 				WorldToUI(counter.hit->GetPos()) + Vector2f(unit, 0),
 				GAMEMGR->CalculateDamage(counter.attacker, counter.hit));
 			GAMEMGR->counterList.pop();
@@ -182,9 +182,9 @@ void BattleScene::Update(float dt)
 		}
 	}
 
-	if (UIMgr->commandUIActive)
+	if (battleUIMgr->commandUIActive)
 	{
-		for (SpriteObj*& button : UIMgr->buttons)
+		for (SpriteObj*& button : battleUIMgr->buttons)
 		{
 			if (button->GetGlobalBounds().contains(ScreenToUiPos(Vector2i(InputMgr::GetMousePos()))))
 			{
@@ -213,7 +213,7 @@ void BattleScene::Update(float dt)
 				}
 			}
 			else
-				button->SetColor(UIMgr->uiBaseColor);
+				button->SetColor(battleUIMgr->uiBaseColor);
 		}
 	}
 
@@ -238,13 +238,13 @@ void BattleScene::Update(float dt)
 
 						if (!focus->GetType().compare("Playable"))
 						{
-							UIMgr->SetPlayableInfo(focus);
-							UIMgr->SetUIActive("PlayableInfoUI", true);
+							battleUIMgr->SetPlayableInfo(focus);
+							battleUIMgr->SetUIActive("PlayableInfoUI", true);
 						}
 						else
 						{
-							UIMgr->SetAIInfo(focus);
-							UIMgr->SetUIActive("AIInfoUI", true);
+							battleUIMgr->SetAIInfo(focus);
+							battleUIMgr->SetUIActive("AIInfoUI", true);
 						}
 
 						if (focus->GetDone())
@@ -256,16 +256,16 @@ void BattleScene::Update(float dt)
 						Vector2i curIdx = PosToIdx(focus->GetPos());
 						SetImmovable(curIdx);
 						if (!FRAMEWORK->devMode)
-							SetMoveable(curIdx, focus->mobility);
+							SetMoveable(curIdx, focus->stats.modifyMobility);
 						else
 						{
 							algorithmCount = 0;
-							SetMoveable(curIdx, focus->mobility);
+							SetMoveable(curIdx, focus->stats.modifyMobility);
 							CLOG::Print3String("count :", to_string(algorithmCount));
 							CLOG::Print3String(to_string(activeTiles.size()));
 						}
 						SetAttackRange(curIdx,
-							focus->range, focus->range, focus->rangeFill);
+							focus->stats.modifyRange, focus->stats.modifyRange, focus->stats.rangeFill);
 
 						if (focus->GetIsTurn())
 							curPhase = Phase::Action;
@@ -357,7 +357,7 @@ void BattleScene::Update(float dt)
 						}
 						SOUND_MGR->Play("sound/player_attack.wav", 50.f);
 						GAMEMGR->NormalAttack(focus, target);
-						UIMgr->SetDamageText(
+						battleUIMgr->SetDamageText(
 							WorldToUI(target->GetPos()) + Vector2f(unit, 0),
 							GAMEMGR->CalculateDamage(focus, target));
 
@@ -476,12 +476,8 @@ void BattleScene::Update(float dt)
 		{
 			CLOG::Print3String("scene[battle] power overwhelming");
 
-			player->maxHealth = 500;
-			player->health = 500;
-			player->damage = 1500;
-			player->armor = 500;
-			player->mobility = 9;
-			player->range = 3;
+			player->stats.UpdateAddStats(100, 100, 50, 1, 1);
+			player->stats.SetFullCurrentHealth();
 		}
 		if (InputMgr::GetKeyDown(Keyboard::Key::Num1))
 		{
@@ -516,7 +512,7 @@ void BattleScene::Update(float dt)
 	}
 
 	Scene::Update(dt);
-	UIMgr->Update(dt);
+	battleUIMgr->Update(dt);
 	GAMEMGR->Update(dt);
 	if (!fsv)
 		SetViewFocusOnObj(viewTarget);
@@ -562,7 +558,7 @@ void BattleScene::Draw(RenderWindow& window)
 	Scene::Draw(window);
 
 	window.setView(uiView);
-	UIMgr->Draw(window);
+	battleUIMgr->Draw(window);
 }
 
 void BattleScene::CreateBackground(int width, int height, float quadWidth, float quadHeight)
@@ -677,7 +673,7 @@ void BattleScene::AIMove()
 		OverlayTile* curTile = nullptr;
 
 		SetImmovable(ai->GetIdxPos());
-		SetMoveable(ai->GetIdxPos(), ai->mobility);
+		SetMoveable(ai->GetIdxPos(), ai->stats.modifyMobility);
 		for (auto& tile : activeTiles)
 		{
 			if (tile->GetTileType() == TileType::Immovable)
@@ -690,7 +686,7 @@ void BattleScene::AIMove()
 					PosToIdx(tile->GetTilePos()));
 				if (tmp <= dist)
 				{
-					if (!ai->rangeFill && tmp < ai->range)
+					if (!ai->stats.rangeFill && tmp < ai->stats.modifyRange)
 						continue;
 
 					curTile = tile;
@@ -700,8 +696,8 @@ void BattleScene::AIMove()
 			}
 		}
 		SetOverlayInactive();
-		UIMgr->SetAIInfo(ai);
-		UIMgr->SetUIActive("AIInfoUI", true);
+		battleUIMgr->SetAIInfo(ai);
+		battleUIMgr->SetUIActive("AIInfoUI", true);
 
 		if (curTile != nullptr)
 		{
@@ -727,7 +723,7 @@ void BattleScene::AIAction()
 		viewTarget = focus;
 
 		SetAttackRange(focus->GetIdxPos(),
-			focus->range, focus->range, focus->rangeFill);
+			focus->stats.modifyRange, focus->stats.modifyRange, focus->stats.rangeFill);
 		
 		Piece* target = nullptr;
 		for (auto& tile : activeTiles)
@@ -749,7 +745,7 @@ void BattleScene::AIAction()
 		{
 			SOUND_MGR->Play("sound/player_hit.wav", 100.f);
 			GAMEMGR->NormalAttack(focus, target);
-			UIMgr->SetDamageText(
+			battleUIMgr->SetDamageText(
 				WorldToUI(target->GetPos()) + Vector2f(unit, 0),
 				GAMEMGR->CalculateDamage(focus, target));
 		}
@@ -764,10 +760,10 @@ void BattleScene::SelectAttackBtn()
 {
 	CLOG::Print3String("Click Attack");
 	SetOverlayInactive();
-	UIMgr->SetUIActive("CommandWindow", false);
-	UIMgr->SetCommandWindow(Vector2f(width, height));
+	battleUIMgr->SetUIActive("CommandWindow", false);
+	battleUIMgr->SetCommandWindow(Vector2f(width, height));
 	SetAttackRange(PosToIdx(focus->GetPos()),
-		focus->range, focus->range, focus->rangeFill);
+		focus->stats.modifyRange, focus->stats.modifyRange, focus->stats.rangeFill);
 	curPhase = Phase::ActionAfterMove;
 }
 
@@ -798,15 +794,15 @@ void BattleScene::InactiveTileSequence()
 		camera->SetPos(focus->GetPos() + Vector2f(0, -0.5f * unit));
 	focus = nullptr;
 	viewTarget = camera;
-	UIMgr->SetUIActive("PlayableInfoUI", false);
-	UIMgr->SetUIActive("AIInfoUI", false);
-	UIMgr->SetUIActive("CommandWindow", false);
-	UIMgr->commandUIActive = false;
+	battleUIMgr->SetUIActive("PlayableInfoUI", false);
+	battleUIMgr->SetUIActive("AIInfoUI", false);
+	battleUIMgr->SetUIActive("CommandWindow", false);
+	battleUIMgr->commandUIActive = false;
 }
 
 void BattleScene::ShowCommandWindow()
 {
-	UIMgr->SetCommandWindow(WorldToUI(focus->GetPos()));
-	UIMgr->commandUIActive = true;
-	UIMgr->SetUIActive("CommandWindow", true);
+	battleUIMgr->SetCommandWindow(WorldToUI(focus->GetPos()));
+	battleUIMgr->commandUIActive = true;
+	battleUIMgr->SetUIActive("CommandWindow", true);
 }

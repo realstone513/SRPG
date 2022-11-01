@@ -3,19 +3,17 @@
 #include "../SFML_Framework/Framework/ConsoleLogger.h"
 #include "../SFML_Framework/Framework/ResourceMgr.h"
 
-Piece::Piece(PieceTypes pt, int h, int d, int a, int r, int m, bool f)
-	: pType(pt), maxHealth(h), damage(d), armor(a),
-	range(r), mobility(m), rangeFill(f),
+Piece::Piece(PieceTypes pt)
+	: pType(pt),
 	isTurn(false), isPlayable(false), done(false), isDeath(false), speed(300.f),
 	animDir(true), curIdx({ -1, -1 }), beforeIdx({ -1, -1 }), recognize(false)
 {
-	health = maxHealth;
 }
 
 void Piece::Reset()
 {
 	Object::Reset();
-	health = maxHealth;
+	stats.ResetStats();
 	isTurn = false;
 	isDeath = false;
 	curIdx = { -1, -1 };
@@ -61,11 +59,16 @@ void Piece::TurnReset()
 string Piece::GetStatusString() const
 {
 	stringstream ss;
-	ss << "health: " << health << endl <<
-		"damage: " << damage << endl <<
-		"armor: " << armor << endl <<
-		"range: " << range << endl <<
-		"mobility: " << mobility << endl;
+	ss << "base health: " << stats.baseHealth << endl <<
+		"base damage: " << stats.baseDamage << endl <<
+		"base armor: " << stats.baseArmor << endl <<
+		"base range: " << stats.baseRange << endl <<
+		"base mobility: " << stats.baseMobility << endl <<
+		"modify health: " << stats.modifyHealth << endl <<
+		"modify damage: " << stats.modifyDamage << endl <<
+		"modify armor: " << stats.modifyArmor << endl <<
+		"modify range: " << stats.modifyRange << endl <<
+		"modify mobility: " << stats.modifyMobility << endl;
 	return ss.str();
 }
 

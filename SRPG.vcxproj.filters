@@ -251,5 +251,11 @@
     <ClInclude Include="Scenes\EquipmentSceneUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="GameSystem\AbilityStone.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystem\Stats.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

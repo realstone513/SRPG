@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Fox::Fox(PieceTypes pt)
-	: Piece(pt, 120, 30, 10, 2, 6, false)
+	: Piece(pt)
 {
 	SetType("AI");
 	SetName("Fox");
@@ -14,6 +14,7 @@ void Fox::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Fox.png"));
 	SetAnimations();
+	stats.SetBaseStats(120, 30, 10, 2, 6, false);
 	Reset();
 }
 
@@ -24,6 +25,7 @@ void Fox::Release()
 void Fox::Reset()
 {
 	Piece::Reset();
+	stats.ResetStats();
 	SetState(States::Idle);
 }
 

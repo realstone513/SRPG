@@ -2,7 +2,7 @@
 #include "../SFML_Framework/Frameworks.h"
 
 Squirrel::Squirrel(PieceTypes pt)
-	: Piece(pt, 50, 10, 0, 1, 4)
+	: Piece(pt)
 {
 	SetType("AI");
 	SetName("Squirrel");
@@ -13,6 +13,7 @@ void Squirrel::Init()
 {
 	SetTexture(*RESOURCE_MGR->GetTexture("graphics/Squirrel.png"));
 	SetAnimations();
+	stats.SetBaseStats(50, 10, 0, 1, 4);
 	Reset();
 }
 
@@ -23,6 +24,7 @@ void Squirrel::Release()
 void Squirrel::Reset()
 {
 	Piece::Reset();
+	stats.ResetStats();
 	SetState(States::Idle);
 }
 

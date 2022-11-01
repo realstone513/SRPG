@@ -3,18 +3,22 @@
 #include "../SFML_Framework/GameObject/SpriteObj.h"
 #include "../SFML_Framework/GameObject/TextObj.h"
 #include "../SFML_Framework/GameObject/RectangleObj.h"
+#include "../GameSystem/Stats.h"
+#include "../GameSystem/AbilityStone.h"
 
 EquipmentSceneUI::EquipmentSceneUI(Scene* scene)
-	: UIMgr(scene), count(3), successRate(75), successCountTotal(0)
+	: UIMgr(scene), successRate(75), successCountTotal(0)
 {
 	size = FRAMEWORK->GetWindowSize();
-	statTexts.resize(count);
-	buttons.resize(count);
-	idxCounts.resize(count);
-	successCountRectangles.resize(count);
+
+	stone = new AbilityStone();
+	statTexts.resize(stone->count);
+	buttons.resize(stone->count);
+	idxCounts.resize(stone->count);
+	successCountRectangles.resize(stone->count);
 
 	float rectY = size.y * 0.4f + 55.f;
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < stone->count; i++)
 	{
 		statTexts[i] = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), "", 0, 0, Color::White, 25.f);
 		buttons[i] = new SpriteObj();
@@ -23,24 +27,7 @@ EquipmentSceneUI::EquipmentSceneUI(Scene* scene)
 
 		float rectX = size.x * 0.2f + 20.f;
 		statTexts[i]->SetPos(Vector2f(rectX - 135.f, rectY - 30.f));
-		Stats stat = (Stats)Utils::RandomRange(0, 2);
-		string statText = "";
-		switch (stat)
-		{
-		case EquipmentSceneUI::Stats::Damage:
-			statText = "Damage";
-			break;
-		case EquipmentSceneUI::Stats::Armor:
-			statText = "Armor";
-			break;
-		case EquipmentSceneUI::Stats::Health:
-			statText = "Health";
-			break;
-		default:
-			break;
-		}
-		statTexts[i]->SetString(statText);
-		if (i != count - 1)
+		if (i != stone->count - 1)
 			statTexts[i]->SetColor(Color::Blue);
 		else
 			statTexts[i]->SetColor(Color::Red);
@@ -53,7 +40,7 @@ EquipmentSceneUI::EquipmentSceneUI(Scene* scene)
 			curRecObj->SetSize(20.f, 20.f);
 			curRecObj->SetPos(Vector2f(rectX, rectY));
 			curRecObj->SetOrigin(Origins::MC);
-			if (i != count - 1)
+			if (i != stone->count - 1)
 				curRecObj->SetOutline(Color::Blue, 3.5f);
 			else
 				curRecObj->SetOutline(Color::Red, 3.5f);
@@ -70,7 +57,7 @@ EquipmentSceneUI::EquipmentSceneUI(Scene* scene)
 		uiObjList.push_back(buttons[i]);
 
 		rectY += 120.f;
-		if (i == count - 2)
+		if (i == stone->count - 2)
 			rectY += 45.f;
 	}
 	successCountText = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), L"성공횟수        회",
@@ -94,7 +81,7 @@ EquipmentSceneUI::EquipmentSceneUI(Scene* scene)
 	gamePlayButton->SetColor(Color(0xA0, 0xA0, 0xA0));
 	
 	gamePlayText = new TextObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), L"게임 시작",
-		size.x * 0.615f, size.y * 0.88f, Color::White, 20.f);
+		size.x * 0.62f, size.y * 0.88f, Color::White, 20.f);
 
 	uiObjList.push_back(gamePlayButton);
 	uiObjList.push_back(gamePlayText);
@@ -113,13 +100,31 @@ void EquipmentSceneUI::Release()
 void EquipmentSceneUI::Reset()
 {
 	UIMgr::Reset();
-	for (int i = 0; i < count; i++)
+	stone->Reset();
+	for (int i = 0; i < stone->count; i++)
 	{
 		idxCounts[i] = 0;
+		StatsEnum stat = (StatsEnum)Utils::RandomRange(0, 2);
+		string statText = "";
+		switch (stat)
+		{
+		case StatsEnum::Health:
+			statText = "Health";
+			break;
+		case StatsEnum::Damage:
+			statText = "Damage";
+			break;
+		case StatsEnum::Armor:
+			statText = "Armor";
+			break;
+		default:
+			break;
+		}
+		stone->stats[i] = stat;
+		statTexts[i]->SetString(statText);
 		for (int j = 0; j < 10; j++)
 		{
 			successCountRectangles[i][j]->SetFillColor(Color(0x04, 0x04, 0x04));
-			
 		}
 	}
 	successRate = 75;

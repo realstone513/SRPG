@@ -8,7 +8,7 @@ class EquipmentScene : public Scene
 {
 protected:
 	SpriteObj* equipBackground;
-	EquipmentSceneUI* UIMgr;
+	EquipmentSceneUI* equipUIMgr;
 
 public:
 	EquipmentScene();
