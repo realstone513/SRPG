@@ -43,6 +43,7 @@ private:
 	BattleSceneUI* UIMgr;
 	bool bossPhase;
 	bool gameOver;
+	string gameMapPath;
 
 public:
 	GameMgr();
@@ -67,4 +68,8 @@ public:
 	float CalculateDamage(Piece* attack, Piece* hit);
 
 	void UpdateRecognize();
+	void SetGameMapPath(string path) { gameMapPath = path; }
+	string GetGameMapPath() { return gameMapPath; }
+	
+	void ApplyEquipmentSetting();
 };

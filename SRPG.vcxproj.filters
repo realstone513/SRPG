@@ -114,6 +114,15 @@
     <ClCompile Include="SFML_Framework\GameObject\FloatingObj.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Scenes\TitleScene.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\EquipmentScene.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\EquipmentSceneUI.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFML_Framework\3rd\OBB.h">
@@ -231,6 +240,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SFML_Framework\GameObject\FloatingObj.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\TitleScene.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\EquipmentScene.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\EquipmentSceneUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

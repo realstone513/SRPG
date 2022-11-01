@@ -2,7 +2,6 @@
 #include "../SFML_Framework/Scenes/Scene.h"
 #include "../GameSystem/MapControl.h"
 #include "BattleSceneUI.h"
-//#include "../SRPGObjects/DamageUI.h"
 
 class Camera;
 class Cat;

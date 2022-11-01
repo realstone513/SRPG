@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Scenes\EquipmentScene.cpp" />
+    <ClCompile Include="Scenes\EquipmentSceneUI.cpp" />
     <ClCompile Include="SFML_Framework\GameObject\FloatingObj.cpp" />
     <ClCompile Include="Scenes\BattleSceneUI.cpp" />
     <ClCompile Include="SRPGObjects\Camera.cpp" />
@@ -178,8 +180,11 @@
     <ClCompile Include="SFML_Framework\Scenes\Scene.cpp" />
     <ClCompile Include="SFML_Framework\Scenes\SceneMgr.cpp" />
     <ClCompile Include="SFML_Framework\UI\UIMgr.cpp" />
+    <ClCompile Include="Scenes\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Scenes\EquipmentScene.h" />
+    <ClInclude Include="Scenes\EquipmentSceneUI.h" />
     <ClInclude Include="SFML_Framework\GameObject\FloatingObj.h" />
     <ClInclude Include="Scenes\BattleSceneUI.h" />
     <ClInclude Include="SRPGObjects\Camera.h" />
@@ -219,6 +224,7 @@
     <ClInclude Include="SFML_Framework\Scenes\Scene.h" />
     <ClInclude Include="SFML_Framework\Scenes\SceneMgr.h" />
     <ClInclude Include="SFML_Framework\UI\UIMgr.h" />
+    <ClInclude Include="Scenes\TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

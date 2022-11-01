@@ -298,6 +298,8 @@ void BattleSceneUI::Init()
 	uiObjList.push_back(damageText);
 	uiObjList.push_back(turnStateHUD);
 	uiObjList.push_back(gameResultText);
+	
+	UIMgr::Init();
 }
 
 void BattleSceneUI::Release()

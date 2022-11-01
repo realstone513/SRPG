@@ -523,7 +523,10 @@ void BattleScene::Update(float dt)
 
 	// Game Input
 	if (InputMgr::GetKeyDown(Keyboard::Key::Escape))
-		exit(0);
+	{
+		SCENE_MGR->ChangeScene(Scenes::Title);
+		return;
+	}
 	if (InputMgr::GetKeyDown(Keyboard::Key::Space))
 	{
 		CLOG::Print3String("scene[battle] reset key");
