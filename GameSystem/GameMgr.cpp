@@ -216,8 +216,9 @@ void GameMgr::NormalAttack(Piece* attack, Piece* hit, bool counter)
 
 float GameMgr::CalculateDamage(Piece* attack, Piece* hit)
 {
-	return Utils::RandomRange(attack->stats.modifyDamage * 0.8f,
-		attack->stats.modifyDamage * 1.2) * 100.f / (hit->stats.modifyArmor + 100.f);
+	return Utils::RandomRange(
+		attack->stats.modifyDamage * 0.8f, attack->stats.modifyDamage * 1.2) *
+		100.f / (hit->stats.modifyArmor + 100.f);
 }
 
 void GameMgr::UpdateRecognize()

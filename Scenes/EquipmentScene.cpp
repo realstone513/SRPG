@@ -145,6 +145,7 @@ void EquipmentScene::Update(float dt)
 	if (InputMgr::GetKeyDown(Keyboard::Key::P))
 	{
 		CLOG::Print3String("scene[Title] change scene key");
+		GAMEMGR->ApplyEquipmentSetting(equipUIMgr->stone);
 		SCENE_MGR->ChangeScene(Scenes::Battle);
 		return;
 	}

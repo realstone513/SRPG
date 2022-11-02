@@ -36,7 +36,6 @@ void MapControl::SetMoveable(Vector2i coord, int mobility)
 			SetMoveable(tmp, mobility - 1);
 	}
 
-
 	OverlayTile* tile = overlay[coord.x][coord.y];
 	if (tile->GetTileType() != TileType::Inactive &&
 		tile->GetTileType() != TileType::Immovable)

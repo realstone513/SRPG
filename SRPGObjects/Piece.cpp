@@ -59,7 +59,8 @@ void Piece::TurnReset()
 string Piece::GetStatusString() const
 {
 	stringstream ss;
-	ss << "base health: " << stats.baseHealth << endl <<
+	ss << GetName() << " stats" << endl <<
+		"base health: " << stats.baseHealth << endl <<
 		"base damage: " << stats.baseDamage << endl <<
 		"base armor: " << stats.baseArmor << endl <<
 		"base range: " << stats.baseRange << endl <<
@@ -68,7 +69,8 @@ string Piece::GetStatusString() const
 		"modify damage: " << stats.modifyDamage << endl <<
 		"modify armor: " << stats.modifyArmor << endl <<
 		"modify range: " << stats.modifyRange << endl <<
-		"modify mobility: " << stats.modifyMobility << endl;
+		"modify mobility: " << stats.modifyMobility << endl <<
+		"current health: " << stats.currentHealth << endl;
 	return ss.str();
 }
 

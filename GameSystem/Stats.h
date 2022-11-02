@@ -17,11 +17,11 @@ public:
 	int		baseMobility;
 	bool	rangeFill;
 
-	int		AddHealth;
-	int		AddDamage;
-	int		AddArmor;
-	int		AddRange;
-	int		AddMobility;
+	int		additionalHealth;
+	int		additionalDamage;
+	int		additionalArmor;
+	int		additionalRange;
+	int		additionalMobility;
 
 	int		modifyHealth;
 	int		modifyDamage;
@@ -47,11 +47,11 @@ public:
 
 	void SetAddStats(int h, int d, int a, int r, int m)
 	{
-		AddHealth = h;
-		AddDamage = d;
-		AddArmor = a;
-		AddRange = r;
-		AddMobility = m;
+		additionalHealth = h;
+		additionalDamage = d;
+		additionalArmor = a;
+		additionalRange = r;
+		additionalMobility = m;
 		SetModifyStats();
 	}
 
@@ -68,21 +68,21 @@ public:
 
 	void UpdateAddStats(int h, int d, int a, int r, int m)
 	{
-		AddHealth += h;
-		AddDamage += d;
-		AddArmor += a;
-		AddRange += r;
-		AddMobility += m;
+		additionalHealth += h;
+		additionalDamage += d;
+		additionalArmor += a;
+		additionalRange += r;
+		additionalMobility += m;
 		SetModifyStats();
 	}
 
 	void SetModifyStats()
 	{
-		modifyHealth = baseHealth + AddHealth;
-		modifyDamage = baseDamage + AddDamage;
-		modifyArmor = baseArmor + AddArmor;
-		modifyRange = baseRange + AddRange;
-		modifyMobility = baseMobility + AddMobility;
+		modifyHealth = baseHealth + additionalHealth;
+		modifyDamage = baseDamage + additionalDamage;
+		modifyArmor = baseArmor + additionalArmor;
+		modifyRange = baseRange + additionalRange;
+		modifyMobility = baseMobility + additionalMobility;
 	}
 
 	void ResetStats()

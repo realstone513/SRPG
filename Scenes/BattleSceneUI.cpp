@@ -217,7 +217,7 @@ BattleSceneUI::BattleSceneUI(Scene* scene)
 	// no group
 	damageText = new FloatingObj(*RESOURCE_MGR->GetFont("fonts/DNFBitBitTTF.ttf"), "test text",
 		0.f, 0.f, Color::Red, 25);
-	damageText->SetOrigin(Origins::TC);
+	damageText->SetOrigin(Origins::BC);
 	damageText->SetType("Damage");
 
 	size = FRAMEWORK->GetWindowSize();

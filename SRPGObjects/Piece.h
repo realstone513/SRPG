@@ -46,16 +46,7 @@ protected:
 	States currState;
 
 public:
-	// status
 	Stats stats;
-
-	/*int maxHealth;
-	int health;
-	int damage;
-	int armor;
-	int range;
-	bool rangeFill;
-	int mobility;*/
 
 	bool recognize;
 	bool isDeath;
